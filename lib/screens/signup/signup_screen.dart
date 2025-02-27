@@ -410,7 +410,7 @@ class _SignUPScreenState extends State<SignUPScreen> {
   Padding logo() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 90.w),
-      child: Image.asset('images/nikee.png'),
+      child: Image.asset('images/logo.png'),
     );
   }
 }

@@ -1,11 +1,406 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter/scheduler.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
+//
+// import '../../data/bloc/auth_bloc/auth_bloc.dart';
+// import '../../data/bloc/auth_bloc/auth_event.dart';
+// import '../../data/bloc/auth_bloc/auth_state.dart';
+// import '../home/home_screen.dart';
+//
+// class LoginScreen extends StatefulWidget {
+//   final VoidCallback show;
+//   const LoginScreen({super.key, required this.show});
+//
+//   @override
+//   State<LoginScreen> createState() => _LoginScreenState();
+// }
+//
+// class _LoginScreenState extends State<LoginScreen> {
+//   FocusNode _focusNode1 = FocusNode();
+//   FocusNode _focusNode2 = FocusNode();
+//   final email = TextEditingController();
+//   final password = TextEditingController();
+//   bool visibil = true;
+//   @override
+//   void initState() {
+//     super.initState();
+//     // _focusNode1.addListener(() {
+//     //   setState(() {});
+//     // });
+//     // _focusNode2.addListener(() {
+//     //   setState(() {});
+//     // });
+//   }
+//
+//   @override
+//   void dispose() {
+//     super.dispose();
+//     email.dispose();
+//     password.dispose();
+//     _focusNode1.dispose();
+//     _focusNode2.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       resizeToAvoidBottomInset: false,
+//       backgroundColor: Colors.grey.shade200,
+//       body: SafeArea(
+//         child: Column(
+//           children: [
+//             logo(),
+//             SizedBox(height: 10.h),
+//             textfild(),
+//             SizedBox(height: 15.w),
+//             textfild2(),
+//             SizedBox(height: 8.h),
+//             have(),
+//             SizedBox(height: 20.h),
+//             BlocConsumer<AuthBloc, AuthState>(
+//               listener: (context, state) {
+//                 if (state is AuthRequestSuccessState) {
+//                   state.response.fold((left) {
+//                     email.text = '';
+//                     password.text = '';
+//                     var snackbar = SnackBar(
+//                       content: Text(
+//                         left,
+//                         style: TextStyle(fontFamily: 'dana', fontSize: 14),
+//                       ),
+//                       backgroundColor: Colors.black,
+//                       behavior: SnackBarBehavior.floating,
+//                       duration: Duration(seconds: 1),
+//                     );
+//                     ScaffoldMessenger.of(context).showSnackBar(snackbar);
+//                   }, (right) {
+//                     Navigator.of(context).pushReplacement(
+//                         MaterialPageRoute(builder: (context) => HomeScreen()));
+//                   });
+//                 }
+//               },
+//               builder: (context, state) {
+//                 if (state is AuthLoadingState) {
+//                   return CircularProgressIndicator();
+//                 }
+//                 if (state is AuthInitState) {
+//                   return Login();
+//                 }
+//                 if (state is AuthRequestSuccessState) {
+//                   Widget widget = Text('');
+//                   state.response.fold((l) {
+//                     widget = Login();
+//                   }, (r) {
+//                     widget = Text(r);
+//                   });
+//                   return widget;
+//                 }
+//                 return Text('');
+//               },
+//             ),
+//             SizedBox(height: 20.h),
+//             or(),
+//             SizedBox(height: 15.h),
+//             WithGoogle(),
+//             SizedBox(height: 10.h),
+//             WithApple(),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Row or() {
+//     return Row(
+//       children: [
+//         Expanded(
+//             child: Divider(
+//               thickness: 1.5.w,
+//               endIndent: 4,
+//               indent: 20,
+//             )),
+//         Text(
+//           "OR",
+//           style: TextStyle(
+//             color: Colors.grey[600],
+//             fontSize: 14,
+//           ),
+//         ),
+//         Expanded(
+//             child: Divider(
+//               thickness: 1.5.w,
+//               endIndent: 20,
+//               indent: 4,
+//             ))
+//       ],
+//     );
+//   }
+//
+//   Padding Login() {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 15.w),
+//       child: GestureDetector(
+//         onTap: () {
+//           BlocProvider.of<AuthBloc>(context)
+//               .add(AuthLoginRequest(email.text, password.text));
+//         },
+//         child: Container(
+//           alignment: Alignment.center,
+//           width: double.infinity,
+//           height: 50.h,
+//           decoration: BoxDecoration(
+//             color: Colors.black,
+//             borderRadius: BorderRadius.circular(10.r),
+//           ),
+//           child: Text(
+//             'Login',
+//             style: TextStyle(
+//               color: Colors.white,
+//               fontSize: 23.sp,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Padding WithGoogle() {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 15.w),
+//       child: Container(
+//         alignment: Alignment.center,
+//         width: double.infinity,
+//         height: 50.h,
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(10.r),
+//         ),
+//         child: ListTile(
+//           leading: Padding(
+//             padding: EdgeInsets.only(bottom: 5.h),
+//             child: Image.asset(
+//               'images/google.png',
+//               height: 30.h,
+//             ),
+//           ),
+//           title: Padding(
+//             padding: EdgeInsets.only(bottom: 5.h),
+//             child: Text(
+//               'Continue with Google',
+//               style: TextStyle(
+//                 color: Colors.black,
+//                 fontSize: 18.sp,
+//                 fontWeight: FontWeight.w400,
+//               ),
+//             ),
+//           ),
+//           trailing: Padding(
+//             padding: EdgeInsets.only(bottom: 5.h),
+//             child: const Icon(
+//               Icons.arrow_right,
+//               color: Colors.black,
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Padding WithApple() {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 15.w),
+//       child: Container(
+//         alignment: Alignment.center,
+//         width: double.infinity,
+//         height: 50.h,
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(10.r),
+//         ),
+//         child: ListTile(
+//           leading: Padding(
+//               padding: EdgeInsets.only(bottom: 5.h),
+//               child: const Icon(
+//                 Icons.apple,
+//                 color: Colors.black,
+//               )),
+//           title: Padding(
+//             padding: EdgeInsets.only(bottom: 5.h),
+//             child: Text(
+//               'Continue with Apple',
+//               style: TextStyle(
+//                   color: Colors.black,
+//                   fontSize: 18.sp,
+//                   fontWeight: FontWeight.w400),
+//             ),
+//           ),
+//           trailing: Padding(
+//             padding: EdgeInsets.only(bottom: 5.h),
+//             child: const Icon(
+//               Icons.arrow_right,
+//               color: Colors.black,
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Padding have() {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 15.w),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.end,
+//         children: [
+//           Text(
+//             "Don't have an account?  ",
+//             style: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
+//           ),
+//           GestureDetector(
+//             onTap: widget.show,
+//             child: Text(
+//               "Sign up",
+//               style: TextStyle(
+//                   color: Colors.blue,
+//                   fontSize: 16.sp,
+//                   fontWeight: FontWeight.bold),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Padding textfild() {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 15.w),
+//       child: Container(
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(10.r),
+//         ),
+//         child: TextField(
+//           style: TextStyle(fontSize: 18.sp, color: Colors.black),
+//           controller: email,
+//           focusNode: _focusNode1,
+//           decoration: InputDecoration(
+//             hintText: 'Email',
+//             prefixIcon: Icon(
+//               Icons.email,
+//               color: _focusNode1.hasFocus ? Colors.black : Colors.grey[600],
+//             ),
+//             contentPadding:
+//             EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+//             enabledBorder: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(10.r),
+//               borderSide: BorderSide(
+//                 color: Color(0xffc5c5c5),
+//                 width: 2.w,
+//               ),
+//             ),
+//             focusedBorder: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(10.r),
+//               borderSide: BorderSide(
+//                 width: 2.w,
+//                 color: Colors.black,
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Padding textfild2() {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 15.w),
+//       child: Container(
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(10.r),
+//         ),
+//         child: TextField(
+//           style: TextStyle(fontSize: 18.sp, color: Colors.black),
+//           controller: password,
+//           focusNode: _focusNode2,
+//           obscureText: visibil,
+//           obscuringCharacter: '*',
+//           decoration: InputDecoration(
+//             suffixIcon: GestureDetector(
+//                 onTap: () {
+//                   setState(() {
+//                     visibil = !visibil;
+//                   });
+//                 },
+//                 child: Icon(
+//                   visibil ? Icons.visibility_off : Icons.visibility,
+//                   color: _focusNode2.hasFocus ? Colors.black : Colors.grey[600],
+//                 )),
+//             hintText: 'Password',
+//             prefixIcon: Icon(
+//               Icons.key,
+//               color: _focusNode2.hasFocus ? Colors.black : Colors.grey[600],
+//             ),
+//             contentPadding:
+//             EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+//             enabledBorder: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(10.r),
+//               borderSide: BorderSide(
+//                 color: const Color(0xffc5c5c5),
+//                 width: 2.w,
+//               ),
+//             ),
+//             focusedBorder: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(10.r),
+//               borderSide: BorderSide(
+//                 width: 2.w,
+//                 color: Colors.black,
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Padding logo() {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 50.w),
+//       // child: Image.asset('images/nikee.png'),
+//     );
+//   }
+// }
+//
+// Future<void> _dialogBuilder(BuildContext context, String message) {
+//   return showDialog<void>(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         title: Text(
+//           'Error',
+//           style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900),
+//         ),
+//         content: Text(message, style: TextStyle(fontSize: 17)),
+//         actions: <Widget>[
+//           TextButton(
+//             style: TextButton.styleFrom(
+//               textStyle: Theme.of(context).textTheme.labelLarge,
+//             ),
+//             child: const Text('Ok'),
+//             onPressed: () {
+//               Navigator.of(context).pop();
+//             },
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../data/bloc/auth_bloc/auth_bloc.dart';
-import '../../data/bloc/auth_bloc/auth_event.dart';
-import '../../data/bloc/auth_bloc/auth_state.dart';
 import '../home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,25 +417,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
   bool visibil = true;
-  @override
-  void initState() {
-    super.initState();
-    // _focusNode1.addListener(() {
-    //   setState(() {});
-    // });
-    // _focusNode2.addListener(() {
-    //   setState(() {});
-    // });
-  }
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    super.dispose();
     email.dispose();
     password.dispose();
     _focusNode1.dispose();
     _focusNode2.dispose();
+    super.dispose();
   }
 
   @override
@@ -53,55 +437,32 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             logo(),
             SizedBox(height: 10.h),
-            textfild(),
+            customTextField(
+              controller: email,
+              hintText: 'Email',
+              icon: Icons.email,
+              focusNode: _focusNode1,
+            ),
             SizedBox(height: 15.w),
-            textfild2(),
-            SizedBox(height: 8.h),
-            have(),
-            SizedBox(height: 20.h),
-            BlocConsumer<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state is AuthRequestSuccessState) {
-                  state.response.fold((left) {
-                    email.text = '';
-                    password.text = '';
-                    var snackbar = SnackBar(
-                      content: Text(
-                        left,
-                        style: TextStyle(fontFamily: 'dana', fontSize: 14),
-                      ),
-                      backgroundColor: Colors.black,
-                      behavior: SnackBarBehavior.floating,
-                      duration: Duration(seconds: 1),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackbar);
-                  }, (right) {
-                    Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => HomeScreen()));
-                  });
-                }
-              },
-              builder: (context, state) {
-                if (state is AuthLoadingState) {
-                  return CircularProgressIndicator();
-                }
-                if (state is AuthInitState) {
-                  return Login();
-                }
-                if (state is AuthRequestSuccessState) {
-                  Widget widget = Text('');
-                  state.response.fold((l) {
-                    widget = Login();
-                  }, (r) {
-                    widget = Text(r);
-                  });
-                  return widget;
-                }
-                return Text('');
+            customTextField(
+              controller: password,
+              hintText: 'Password',
+              icon: Icons.lock,
+              focusNode: _focusNode2,
+              isPassword: true,
+              obscureText: visibil,
+              toggleVisibility: () {
+                setState(() {
+                  visibil = !visibil;
+                });
               },
             ),
+            SizedBox(height: 8.h),
+            haveAccountText(),
             SizedBox(height: 20.h),
-            or(),
+            loginButton(),
+            SizedBox(height: 20.h),
+            orDivider(),
             SizedBox(height: 15.h),
             WithGoogle(),
             SizedBox(height: 10.h),
@@ -112,39 +473,17 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Row or() {
-    return Row(
-      children: [
-        Expanded(
-            child: Divider(
-              thickness: 1.5.w,
-              endIndent: 4,
-              indent: 20,
-            )),
-        Text(
-          "OR",
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 14,
-          ),
-        ),
-        Expanded(
-            child: Divider(
-              thickness: 1.5.w,
-              endIndent: 20,
-              indent: 4,
-            ))
-      ],
-    );
-  }
-
-  Padding Login() {
+  /// **Hàm tạo nút đăng nhập**
+  Padding loginButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: GestureDetector(
         onTap: () {
-          BlocProvider.of<AuthBloc>(context)
-              .add(AuthLoginRequest(email.text, password.text));
+          if (email.text.isEmpty || password.text.isEmpty) {
+            _dialogBuilder(context, "Error", "Please fill in all fields.");
+          } else {
+            _dialogBuilder(context, "Success", "Login successful!", isSuccess: true);
+          }
         },
         child: Container(
           alignment: Alignment.center,
@@ -167,7 +506,49 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /// **Hàm hiển thị hộp thoại**
+  Future<void> _dialogBuilder(BuildContext context, String title, String message, {bool isSuccess = false}) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title, style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
+          content: Text(message, style: TextStyle(fontSize: 16.sp)),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                if (isSuccess) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
+                }
+              },
+              child: Text("OK", style: TextStyle(fontSize: 16.sp)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Row orDivider() {
+    return Row(
+      children: [
+        Expanded(child: Divider(thickness: 1.5.w, endIndent: 4, indent: 20)),
+        Text("OR", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+        Expanded(child: Divider(thickness: 1.5.w, endIndent: 20, indent: 4))
+      ],
+    );
+  }
+
   Padding WithGoogle() {
+    return socialLoginButton('Continue with Google', 'images/google.png');
+  }
+
+  Padding WithApple() {
+    return socialLoginButton('Continue with Apple', '', icon: Icons.apple);
+  }
+
+  Padding socialLoginButton(String text, String imagePath, {IconData? icon}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: Container(
@@ -181,15 +562,14 @@ class _LoginScreenState extends State<LoginScreen> {
         child: ListTile(
           leading: Padding(
             padding: EdgeInsets.only(bottom: 5.h),
-            child: Image.asset(
-              'images/google.png',
-              height: 30.h,
-            ),
+            child: imagePath.isNotEmpty
+                ? Image.asset(imagePath, height: 30.h)
+                : Icon(icon, color: Colors.black),
           ),
           title: Padding(
             padding: EdgeInsets.only(bottom: 5.h),
             child: Text(
-              'Continue with Google',
+              text,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 18.sp,
@@ -199,66 +579,21 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           trailing: Padding(
             padding: EdgeInsets.only(bottom: 5.h),
-            child: const Icon(
-              Icons.arrow_right,
-              color: Colors.black,
-            ),
+            child: const Icon(Icons.arrow_right, color: Colors.black),
           ),
         ),
       ),
     );
   }
 
-  Padding WithApple() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        alignment: Alignment.center,
-        width: double.infinity,
-        height: 50.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: ListTile(
-          leading: Padding(
-              padding: EdgeInsets.only(bottom: 5.h),
-              child: const Icon(
-                Icons.apple,
-                color: Colors.black,
-              )),
-          title: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: Text(
-              'Continue with Apple',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w400),
-            ),
-          ),
-          trailing: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: const Icon(
-              Icons.arrow_right,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Padding have() {
+  Padding haveAccountText() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text(
-            "Don't have an account?  ",
-            style: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
-          ),
+          Text("Don't have an account?  ",
+              style: TextStyle(color: Colors.grey[700], fontSize: 14.sp)),
           GestureDetector(
             onTap: widget.show,
             child: Text(
@@ -274,47 +609,22 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Padding textfild() {
+  Padding logo() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: TextField(
-          style: TextStyle(fontSize: 18.sp, color: Colors.black),
-          controller: email,
-          focusNode: _focusNode1,
-          decoration: InputDecoration(
-            hintText: 'Email',
-            prefixIcon: Icon(
-              Icons.email,
-              color: _focusNode1.hasFocus ? Colors.black : Colors.grey[600],
-            ),
-            contentPadding:
-            EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                color: Color(0xffc5c5c5),
-                width: 2.w,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                width: 2.w,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 50.w),
+      child: Image.asset('images/logo.png'),
     );
   }
 
-  Padding textfild2() {
+  Padding customTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    required FocusNode focusNode,
+    bool isPassword = false,
+    bool obscureText = false,
+    VoidCallback? toggleVisibility,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: Container(
@@ -324,28 +634,26 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: TextField(
           style: TextStyle(fontSize: 18.sp, color: Colors.black),
-          controller: password,
-          focusNode: _focusNode2,
-          obscureText: visibil,
+          controller: controller,
+          focusNode: focusNode,
+          obscureText: obscureText,
           obscuringCharacter: '*',
           decoration: InputDecoration(
-            suffixIcon: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    visibil = !visibil;
-                  });
-                },
-                child: Icon(
-                  visibil ? Icons.visibility_off : Icons.visibility,
-                  color: _focusNode2.hasFocus ? Colors.black : Colors.grey[600],
-                )),
-            hintText: 'Password',
+            hintText: hintText,
             prefixIcon: Icon(
-              Icons.key,
-              color: _focusNode2.hasFocus ? Colors.black : Colors.grey[600],
+              icon,
+              color: focusNode.hasFocus ? Colors.black : Colors.grey[600],
             ),
-            contentPadding:
-            EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+            suffixIcon: isPassword
+                ? GestureDetector(
+              onTap: toggleVisibility,
+              child: Icon(
+                obscureText ? Icons.visibility_off : Icons.visibility,
+                color: focusNode.hasFocus ? Colors.black : Colors.grey[600],
+              ),
+            )
+                : null,
+            contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.r),
               borderSide: BorderSide(
@@ -365,37 +673,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  Padding logo() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 50.w),
-      child: Image.asset('images/nikee.png'),
-    );
-  }
-}
-
-Future<void> _dialogBuilder(BuildContext context, String message) {
-  return showDialog<void>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(
-          'Error',
-          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900),
-        ),
-        content: Text(message, style: TextStyle(fontSize: 17)),
-        actions: <Widget>[
-          TextButton(
-            style: TextButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.labelLarge,
-            ),
-            child: const Text('Ok'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
 }
