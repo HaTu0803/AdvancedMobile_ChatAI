@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:email_validator/email_validator.dart';
-
+import 'verify_otp.dart';
 import '../home/home_screen.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -102,38 +102,41 @@ Widget build(BuildContext context) {
   }
 
   Padding sendCodeButton() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: GestureDetector(
-        onTap: () {
-          if (isButtonEnabled) {
-            if (!EmailValidator.validate(emailController.text)) {
-              _dialogBuilder(context, "Error", "Please provide a valid email format.");
-            } else {
-              _dialogBuilder(context, "Success", "Verification code sent!", isSuccess: true);
-            }
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 15.w),
+    child: GestureDetector(
+      onTap: () {
+        if (isButtonEnabled) {
+          if (!EmailValidator.validate(emailController.text)) {
+            _dialogBuilder(context, "Error", "Please provide a valid email format.");
+          } else {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => VerifyOTP(email: emailController.text),
+            ));
           }
-        },
-        child: Container(
-          alignment: Alignment.center,
-          width: double.infinity,
-          height: 50.h,
-          decoration: BoxDecoration(
-            color: isButtonEnabled ? Colors.blue.shade700 : Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          child: Text(
-            'Send Code',
-            style: TextStyle(
-              color: isButtonEnabled ? Colors.white : Colors.grey.shade700,
-              fontSize: 23.sp,
-              fontWeight: FontWeight.bold,
-            ),
+        }
+      },
+      child: Container(
+        alignment: Alignment.center,
+        width: double.infinity,
+        height: 50.h,
+        decoration: BoxDecoration(
+          color: isButtonEnabled ? Colors.blue.shade700 : Colors.grey.shade300,
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: Text(
+          'Send Code',
+          style: TextStyle(
+            color: isButtonEnabled ? Colors.white : Colors.grey.shade700,
+            fontSize: 23.sp,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Future<void> _dialogBuilder(BuildContext context, String title, String message, {bool isSuccess = false}) {
     return showDialog(

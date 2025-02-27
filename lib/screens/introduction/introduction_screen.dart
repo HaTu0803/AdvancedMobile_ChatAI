@@ -74,7 +74,7 @@ class IntroductionScreen extends StatelessWidget {
           ),
           onPressed: () {
             if(isLast){
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const AuthPage()));
+              _completeIntroduction(context);
             }else{
               c.nextPage(duration: Duration(milliseconds: 600), curve: Curves.ease);
             }

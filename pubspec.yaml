@@ -44,6 +44,7 @@ dependencies:
   iconsax: ^0.0.8
   email_validator: ^2.1.17
   lottie: ^2.6.0
+  pin_code_fields: ^8.0.1
 
 dev_dependencies:
   flutter_test:
