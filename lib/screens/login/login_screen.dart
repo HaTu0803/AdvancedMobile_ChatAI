@@ -402,6 +402,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../home/home_screen.dart';
+import '../forgotPassword/forgot_password.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback show;
@@ -457,16 +458,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 });
               },
             ),
-            SizedBox(height: 8.h),
-            haveAccountText(),
+            SizedBox(height: 20.h),
+            forgotPassword(),
             SizedBox(height: 20.h),
             loginButton(),
             SizedBox(height: 20.h),
             orDivider(),
-            SizedBox(height: 15.h),
-            WithGoogle(),
-            SizedBox(height: 10.h),
-            WithApple(),
+            SizedBox(height: 30.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                WithGoogle(),
+                SizedBox(width: 20.w),
+                WithApple(),
+              ],
+            ),
+            SizedBox(height: 30.h),
+            haveAccountText(),
           ],
         ),
       ),
@@ -534,63 +542,45 @@ class _LoginScreenState extends State<LoginScreen> {
     return Row(
       children: [
         Expanded(child: Divider(thickness: 1.5.w, endIndent: 4, indent: 20)),
-        Text("OR", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+        Text("Or continue with", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
         Expanded(child: Divider(thickness: 1.5.w, endIndent: 20, indent: 4))
       ],
     );
   }
 
-  Padding WithGoogle() {
-    return socialLoginButton('Continue with Google', 'images/google.png');
-  }
+ Padding WithGoogle() {
+  return socialLoginButton('images/google.png');
+}
 
-  Padding WithApple() {
-    return socialLoginButton('Continue with Apple', '', icon: Icons.apple);
-  }
+Padding WithApple() {
+  return socialLoginButton('', icon: Icons.apple);
+}
 
-  Padding socialLoginButton(String text, String imagePath, {IconData? icon}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        alignment: Alignment.center,
-        width: double.infinity,
-        height: 50.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: ListTile(
-          leading: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: imagePath.isNotEmpty
-                ? Image.asset(imagePath, height: 30.h)
-                : Icon(icon, color: Colors.black),
-          ),
-          title: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: Text(
-              text,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-          trailing: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: const Icon(Icons.arrow_right, color: Colors.black),
-          ),
-        ),
+
+  Padding socialLoginButton(String imagePath, {IconData? icon}) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 15.w),
+    child: Container(
+      alignment: Alignment.center,
+      width: 60.w,
+      height: 60.w,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.r),
       ),
-    );
-  }
+      child: imagePath.isNotEmpty
+          ? Image.asset(imagePath, height: 30.h)
+          : Icon(icon, color: Colors.black, size: 30.sp),
+    ),
+  );
+}
+
 
   Padding haveAccountText() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text("Don't have an account?  ",
               style: TextStyle(color: Colors.grey[700], fontSize: 14.sp)),
@@ -609,12 +599,48 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Padding forgotPassword() {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 15.w),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ForgotPassword(show: widget.show),
+              ),
+            );
+          },
+          child: Text(
+            "Forgot Password?",
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
   Padding logo() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 50.w),
-      child: Image.asset('images/logo.png'),
-    );
-  }
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 50.w),
+    child: Image.asset(
+      'images/logo.png',
+      width: 160.w,
+      height: 160.h,
+      fit: BoxFit.contain,
+    ),
+  );
+}
+
 
   Padding customTextField({
     required TextEditingController controller,

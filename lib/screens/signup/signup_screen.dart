@@ -48,29 +48,37 @@ class _SignUPScreenState extends State<SignUPScreen> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey.shade200,
       body: SafeArea(
-        child: Column(
-          children: [
-            logo(),
-            textfild(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              logo(),
+              textfild(),
+              SizedBox(height: 15.h),
+              textfild1(),
+              SizedBox(height: 15.w),
+              textfild2(),
+              SizedBox(height: 15.w),
+              textfild3(),
+              SizedBox(height: 20.h),
+              signupButton(),
+              SizedBox(height: 15.h),
+              or(),
+              SizedBox(height: 15.h),
+              Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                WithGoogle(),
+                SizedBox(width: 20.w),
+                WithApple(),
+              ],
+            ),
             SizedBox(height: 15.h),
-            textfild1(),
-            SizedBox(height: 15.w),
-            textfild2(),
-            SizedBox(height: 15.w),
-            textfild3(),
-            SizedBox(height: 8.h),
-            have(),
-            SizedBox(height: 20.h),
-            signIN(),
-            SizedBox(height: 15.h),
-            or(),
-            SizedBox(height: 15.h),
-            WithGoogle(),
-            SizedBox(height: 10.h),
-            WithApple(),
-          ],
+              have(),
+            ],
+          ),
         ),
       ),
+
     );
   }
 
@@ -84,7 +92,7 @@ class _SignUPScreenState extends State<SignUPScreen> {
               indent: 20,
             )),
         Text(
-          "OR",
+          "Or continue with",
           style: TextStyle(
             color: Colors.grey[600],
             fontSize: 14,
@@ -100,7 +108,7 @@ class _SignUPScreenState extends State<SignUPScreen> {
     );
   }
 
-  Padding signIN() {
+  Padding signupButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: GestureDetector(
@@ -114,7 +122,7 @@ class _SignUPScreenState extends State<SignUPScreen> {
             borderRadius: BorderRadius.circular(10.r),
           ),
           child: Text(
-            'Sign In',
+            'Sign Up',
             style: TextStyle(
               color: Colors.white,
               fontSize: 23.sp,
@@ -127,92 +135,37 @@ class _SignUPScreenState extends State<SignUPScreen> {
   }
 
   Padding WithGoogle() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        alignment: Alignment.center,
-        width: double.infinity,
-        height: 50.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: ListTile(
-          leading: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: Image.asset(
-              'images/google.png',
-              height: 30.h,
-            ),
-          ),
-          title: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: Text(
-              'Continue with Google',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-          trailing: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: const Icon(
-              Icons.arrow_right,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  return socialLoginButton('images/google.png');
+}
 
-  Padding WithApple() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        alignment: Alignment.center,
-        width: double.infinity,
-        height: 50.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: ListTile(
-          leading: Padding(
-              padding: EdgeInsets.only(bottom: 5.h),
-              child: const Icon(
-                Icons.apple,
-                color: Colors.black,
-              )),
-          title: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: Text(
-              'Continue with Apple',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w400),
-            ),
-          ),
-          trailing: Padding(
-            padding: EdgeInsets.only(bottom: 5.h),
-            child: const Icon(
-              Icons.arrow_right,
-              color: Colors.black,
-            ),
-          ),
-        ),
+Padding WithApple() {
+  return socialLoginButton('', icon: Icons.apple);
+}
+
+
+  Padding socialLoginButton(String imagePath, {IconData? icon}) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 15.w),
+    child: Container(
+      alignment: Alignment.center,
+      width: 60.w,
+      height: 60.w,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.r),
       ),
-    );
-  }
+      child: imagePath.isNotEmpty
+          ? Image.asset(imagePath, height: 30.h)
+          : Icon(icon, color: Colors.black, size: 30.sp),
+    ),
+  );
+}
 
   Padding have() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             "Already have an account?  ",
@@ -408,11 +361,17 @@ class _SignUPScreenState extends State<SignUPScreen> {
   }
 
   Padding logo() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 90.w),
-      child: Image.asset('images/logo.png'),
-    );
-  }
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 50.w),
+    child: Image.asset(
+      'images/logo.png',
+      width: 160.w,
+      height: 160.h,
+      fit: BoxFit.contain,
+    ),
+  );
+}
+
 }
 
 Future<void> _dialogBuilder(BuildContext context, String message) {
