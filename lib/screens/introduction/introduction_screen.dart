@@ -1,4 +1,3 @@
-import 'package:advancedmobile_chatai/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';

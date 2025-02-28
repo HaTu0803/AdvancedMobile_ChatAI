@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:email_validator/email_validator.dart';
+import '../../home/home_screen.dart';
 import 'verify_otp.dart';
-import '../home/home_screen.dart';
 
 class ForgotPassword extends StatefulWidget {
   final VoidCallback show;

@@ -401,8 +401,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../home/home_screen.dart';
-import '../forgotPassword/forgot_password.dart';
+import '../../home/home_screen.dart';
+import '../forgot_password/forgot_password.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback show;
