@@ -400,7 +400,8 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import '../../../widgets/dialog.dart';
+import '../../../widgets/text_filed.dart';
 import '../../home/home_screen.dart';
 import '../forgot_password/forgot_password.dart';
 
@@ -419,6 +420,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final password = TextEditingController();
   bool visibil = true;
 
+  String? emailError;
+  String? passwordError;
+
   @override
   void dispose() {
     email.dispose();
@@ -426,6 +430,37 @@ class _LoginScreenState extends State<LoginScreen> {
     _focusNode1.dispose();
     _focusNode2.dispose();
     super.dispose();
+  }
+
+  void validateLogin() {
+    setState(() {
+      emailError = email.text.isEmpty ? "Please enter your email" : null;
+      passwordError = password.text.isEmpty ? "Please enter your password" : null;
+    });
+
+    if (emailError == null && passwordError == null) {
+      showDialog(
+        context: context,
+        builder: (context) => CustomDialog(
+          title: "Success",
+          message: "Login successful",
+          onConfirm: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          },
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => CustomDialog(
+          title: "Error",
+          message: emailError ?? passwordError ?? "Please fill in all fields",
+        ),
+      );
+    }
   }
 
   @override
@@ -438,14 +473,15 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             logo(),
             SizedBox(height: 10.h),
-            customTextField(
+            CustomTextField(
               controller: email,
               hintText: 'Email',
               icon: Icons.email,
               focusNode: _focusNode1,
+              errorText: emailError,
             ),
             SizedBox(height: 15.w),
-            customTextField(
+            CustomTextField(
               controller: password,
               hintText: 'Password',
               icon: Icons.lock,
@@ -457,6 +493,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   visibil = !visibil;
                 });
               },
+              errorText: passwordError,
             ),
             SizedBox(height: 20.h),
             forgotPassword(),
@@ -468,9 +505,9 @@ class _LoginScreenState extends State<LoginScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                WithGoogle(),
+                socialLoginButton('images/google.png'),
                 SizedBox(width: 20.w),
-                WithApple(),
+                socialLoginButton('', icon: Icons.apple),
               ],
             ),
             SizedBox(height: 30.h),
@@ -481,62 +518,28 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  /// **Hàm tạo nút đăng nhập**
   Padding loginButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: GestureDetector(
-        onTap: () {
-          if (email.text.isEmpty || password.text.isEmpty) {
-            _dialogBuilder(context, "Error", "Please fill in all fields.");
-          } else {
-            _dialogBuilder(context, "Success", "Login successful!", isSuccess: true);
-          }
-        },
+        onTap: validateLogin,
         child: Container(
           alignment: Alignment.center,
           width: double.infinity,
           height: 50.h,
           decoration: BoxDecoration(
-            color: Colors.black,
+            color: Color(0xFF8884FA),
             borderRadius: BorderRadius.circular(10.r),
           ),
           child: Text(
             'Login',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 23.sp,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
       ),
     );
   }
 
-  /// **Hàm hiển thị hộp thoại**
-  Future<void> _dialogBuilder(BuildContext context, String title, String message, {bool isSuccess = false}) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title, style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
-          content: Text(message, style: TextStyle(fontSize: 16.sp)),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                if (isSuccess) {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
-                }
-              },
-              child: Text("OK", style: TextStyle(fontSize: 16.sp)),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   Row orDivider() {
     return Row(
@@ -548,33 +551,23 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
- Padding WithGoogle() {
-  return socialLoginButton('images/google.png');
-}
-
-Padding WithApple() {
-  return socialLoginButton('', icon: Icons.apple);
-}
-
-
   Padding socialLoginButton(String imagePath, {IconData? icon}) {
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 15.w),
-    child: Container(
-      alignment: Alignment.center,
-      width: 60.w,
-      height: 60.w,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.r),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15.w),
+      child: Container(
+        alignment: Alignment.center,
+        width: 60.w,
+        height: 60.w,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: imagePath.isNotEmpty
+            ? Image.asset(imagePath, height: 30.h)
+            : Icon(icon, color: Colors.black, size: 30.sp),
       ),
-      child: imagePath.isNotEmpty
-          ? Image.asset(imagePath, height: 30.h)
-          : Icon(icon, color: Colors.black, size: 30.sp),
-    ),
-  );
-}
-
+    );
+  }
 
   Padding haveAccountText() {
     return Padding(
@@ -600,102 +593,42 @@ Padding WithApple() {
   }
 
   Padding forgotPassword() {
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 15.w),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ForgotPassword(show: widget.show),
-              ),
-            );
-          },
-          child: Text(
-            "Forgot Password?",
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-  Padding logo() {
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 50.w),
-    child: Image.asset(
-      'images/logo.png',
-      width: 160.w,
-      height: 160.h,
-      fit: BoxFit.contain,
-    ),
-  );
-}
-
-
-  Padding customTextField({
-    required TextEditingController controller,
-    required String hintText,
-    required IconData icon,
-    required FocusNode focusNode,
-    bool isPassword = false,
-    bool obscureText = false,
-    VoidCallback? toggleVisibility,
-  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: TextField(
-          style: TextStyle(fontSize: 18.sp, color: Colors.black),
-          controller: controller,
-          focusNode: focusNode,
-          obscureText: obscureText,
-          obscuringCharacter: '*',
-          decoration: InputDecoration(
-            hintText: hintText,
-            prefixIcon: Icon(
-              icon,
-              color: focusNode.hasFocus ? Colors.black : Colors.grey[600],
-            ),
-            suffixIcon: isPassword
-                ? GestureDetector(
-              onTap: toggleVisibility,
-              child: Icon(
-                obscureText ? Icons.visibility_off : Icons.visibility,
-                color: focusNode.hasFocus ? Colors.black : Colors.grey[600],
-              ),
-            )
-                : null,
-            contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                color: const Color(0xffc5c5c5),
-                width: 2.w,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                width: 2.w,
-                color: Colors.black,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ForgotPassword(show: widget.show),
+                ),
+              );
+            },
+            child: Text(
+              "Forgot Password?",
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+
+  Padding logo() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 50.w),
+      child: Image.asset(
+        'images/logo.png',
+        width: 160.w,
+        height: 160.h,
+        fit: BoxFit.contain,
       ),
     );
   }
