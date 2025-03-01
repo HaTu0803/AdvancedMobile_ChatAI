@@ -1,17 +1,12 @@
 import 'package:advancedmobile_chatai/util/themes/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth/auth.dart';
 import 'package:advancedmobile_chatai/screens/introduction/introduction_screen.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  await SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-
   runApp(const MyApp());
 }
 

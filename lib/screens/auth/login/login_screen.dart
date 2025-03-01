@@ -471,9 +471,8 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 70.h),
             logo(),
-            SizedBox(height: 20.h),
+            SizedBox(height: 10.h),
             CustomTextField(
               controller: email,
               hintText: 'Email',
@@ -529,24 +528,12 @@ class _LoginScreenState extends State<LoginScreen> {
           width: double.infinity,
           height: 50.h,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFF52A8F2), // Light Blue (Top)
-                Color(0xFF6C5CE7), // Blue-Violet (Middle)
-                Color(0xFF9B26B6), // Purple (Bottom)
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Color(0xFF8884FA),
             borderRadius: BorderRadius.circular(10.r),
           ),
           child: Text(
             'Login',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 23.sp,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
       ),
@@ -592,24 +579,12 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(color: Colors.grey[700], fontSize: 14.sp)),
           GestureDetector(
             onTap: widget.show,
-            child: ShaderMask(
-              shaderCallback: (bounds) => LinearGradient(
-                colors: [
-                  Color(0xFF52A8F2), // Light Blue
-                  Color(0xFF6C5CE7), // Blue-Violet
-                  Color(0xFF9B26B6), // Purple
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ).createShader(bounds),
-              child: Text(
-                "Sign up",
-                style: TextStyle(
+            child: Text(
+              "Sign up",
+              style: TextStyle(
+                  color: Colors.blue,
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white, // Required for ShaderMask to work
-                ),
-              ),
+                  fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -645,6 +620,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
   Padding logo() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 50.w),
