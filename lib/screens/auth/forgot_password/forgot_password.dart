@@ -38,54 +38,58 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     super.dispose();
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.grey.shade200, 
-    appBar: AppBar(
-      backgroundColor: Colors.grey.shade200,
-      elevation: 0,
-      title: const Text('', style: TextStyle(color: Colors.black)), 
-      iconTheme: const IconThemeData(color: Colors.black), 
-    ),
-    body: SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          logo(),
-          SizedBox(height: 20.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Forgot password?",
-                  style: TextStyle(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  "Don’t worry! It happens. Please enter the email associated with your account",
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20.h),
-          emailInputField(),
-          SizedBox(height: 20.h),
-          sendCodeButton(),
-        ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true, // Ensures layout adjusts when keyboard appears
+      backgroundColor: Colors.white, 
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('', style: TextStyle(color: Colors.black)), 
+        iconTheme: const IconThemeData(color: Colors.black), 
       ),
-    ),
-  );
-}
+      body: SafeArea(
+        child: SingleChildScrollView( // Fixes keyboard overflow issue
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              logo(),
+              SizedBox(height: 20.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Forgot password?",
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      "Don’t worry! It happens. Please enter the email associated with your account",
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20.h),
+              emailInputField(),
+              SizedBox(height: 20.h),
+              sendCodeButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget emailInputField() {
     return Padding(
@@ -102,41 +106,40 @@ Widget build(BuildContext context) {
   }
 
   Padding sendCodeButton() {
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 15.w),
-    child: GestureDetector(
-      onTap: () {
-        if (isButtonEnabled) {
-          if (!EmailValidator.validate(emailController.text)) {
-            _dialogBuilder(context, "Error", "Please provide a valid email format.");
-          } else {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => VerifyOTP(email: emailController.text),
-            ));
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15.w),
+      child: GestureDetector(
+        onTap: () {
+          if (isButtonEnabled) {
+            if (!EmailValidator.validate(emailController.text)) {
+              _dialogBuilder(context, "Error", "Please provide a valid email format.");
+            } else {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => VerifyOTP(email: emailController.text),
+              ));
+            }
           }
-        }
-      },
-      child: Container(
-        alignment: Alignment.center,
-        width: double.infinity,
-        height: 50.h,
-        decoration: BoxDecoration(
-          color: isButtonEnabled ? Colors.blue.shade700 : Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: Text(
-          'Send Code',
-          style: TextStyle(
-            color: isButtonEnabled ? Colors.white : Colors.grey.shade700,
-            fontSize: 23.sp,
-            fontWeight: FontWeight.bold,
+        },
+        child: Container(
+          alignment: Alignment.center,
+          width: double.infinity,
+          height: 50.h,
+          decoration: BoxDecoration(
+            color: isButtonEnabled ? Colors.blue.shade700 : Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          child: Text(
+            'Send Code',
+            style: TextStyle(
+              color: isButtonEnabled ? Colors.white : Colors.grey.shade700,
+              fontSize: 23.sp,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Future<void> _dialogBuilder(BuildContext context, String title, String message, {bool isSuccess = false}) {
     return showDialog(
@@ -162,17 +165,16 @@ Widget build(BuildContext context) {
   }
 
   Padding logo() {
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 50.w),
-    child: Center(
-      child: Image.asset(
-        'images/padlock.png',
-        width: 160.w,
-        height: 160.h,
-        fit: BoxFit.contain,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 50.w),
+      child: Center(
+        child: Image.asset(
+          'images/padlock.png',
+          width: 160.w,
+          height: 160.h,
+          fit: BoxFit.contain,
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }

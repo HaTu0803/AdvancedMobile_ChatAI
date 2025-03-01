@@ -467,12 +467,13 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
+            SizedBox(height: 70.h),
             logo(),
-            SizedBox(height: 10.h),
+            SizedBox(height: 20.h),
             CustomTextField(
               controller: email,
               hintText: 'Email',
@@ -533,7 +534,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           child: Text(
             'Login',
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white),
           ),
         ),
       ),
@@ -560,7 +561,8 @@ class _LoginScreenState extends State<LoginScreen> {
         height: 60.w,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: Colors.grey, width: 1.5), // Add border
+          borderRadius: BorderRadius.circular(4.r), // Square border
         ),
         child: imagePath.isNotEmpty
             ? Image.asset(imagePath, height: 30.h)
@@ -625,7 +627,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 50.w),
       child: Image.asset(
-        'images/logo.png',
+        'images/logo1.png',
         width: 160.w,
         height: 160.h,
         fit: BoxFit.contain,
