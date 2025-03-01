@@ -211,7 +211,6 @@ class UpgradePlansScreen extends StatelessWidget {
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
-                                // Process payment and upgrade
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('Upgraded to $title plan!')),
                                 );
@@ -224,14 +223,16 @@ class UpgradePlansScreen extends StatelessWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: buttonColor,
-                    foregroundColor: Colors.white,
+                    backgroundColor: isCurrentPlan ? Colors.grey : buttonColor, // Grey if it's the current plan
+                    foregroundColor: Colors.white, // White text
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    disabledBackgroundColor: Colors.grey,
+                    disabledBackgroundColor: Colors.grey, // Ensure it's grey when disabled
+                    disabledForegroundColor: Colors.white, // White text when disabled
                   ),
                   child: Text(buttonText),
                 ),
               ),
+
             ],
           ),
         ),
