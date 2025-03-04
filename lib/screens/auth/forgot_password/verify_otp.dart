@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import './reset_password.dart';
 class VerifyOTP extends StatefulWidget {
   final String email;
 
@@ -18,7 +18,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -70,25 +70,35 @@ class _VerifyOTPState extends State<VerifyOTP> {
 
               // Nút Verify
               GestureDetector(
-                onTap: isOtpFilled ? () => print("OTP Verified") : null,
-                child: Container(
-                  width: double.infinity,
-                  height: 50.h,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isOtpFilled ? Colors.blue : Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Text(
-                    "Verify",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+  onTap: isOtpFilled
+      ? () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ResetPassword(email: widget.email),
+            ),
+          );
+        }
+      : null,
+  child: Container(
+    width: double.infinity,
+    height: 50.h,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: isOtpFilled ? Colors.blue : Colors.grey.shade300,
+      borderRadius: BorderRadius.circular(8.r),
+    ),
+    child: Text(
+      "Verify",
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18.sp,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+  ),
+),
+
 
               SizedBox(height: 16.h),
 
