@@ -1,409 +1,9 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter/scheduler.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-//
-// import '../../data/bloc/auth_bloc/auth_bloc.dart';
-// import '../../data/bloc/auth_bloc/auth_event.dart';
-// import '../../data/bloc/auth_bloc/auth_state.dart';
-// import '../home/home_screen.dart';
-//
-// class LoginScreen extends StatefulWidget {
-//   final VoidCallback show;
-//   const LoginScreen({super.key, required this.show});
-//
-//   @override
-//   State<LoginScreen> createState() => _LoginScreenState();
-// }
-//
-// class _LoginScreenState extends State<LoginScreen> {
-//   FocusNode _focusNode1 = FocusNode();
-//   FocusNode _focusNode2 = FocusNode();
-//   final email = TextEditingController();
-//   final password = TextEditingController();
-//   bool visibil = true;
-//   @override
-//   void initState() {
-//     super.initState();
-//     // _focusNode1.addListener(() {
-//     //   setState(() {});
-//     // });
-//     // _focusNode2.addListener(() {
-//     //   setState(() {});
-//     // });
-//   }
-//
-//   @override
-//   void dispose() {
-//     super.dispose();
-//     email.dispose();
-//     password.dispose();
-//     _focusNode1.dispose();
-//     _focusNode2.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       resizeToAvoidBottomInset: false,
-//       backgroundColor: Colors.grey.shade200,
-//       body: SafeArea(
-//         child: Column(
-//           children: [
-//             logo(),
-//             SizedBox(height: 10.h),
-//             textfild(),
-//             SizedBox(height: 15.w),
-//             textfild2(),
-//             SizedBox(height: 8.h),
-//             have(),
-//             SizedBox(height: 20.h),
-//             BlocConsumer<AuthBloc, AuthState>(
-//               listener: (context, state) {
-//                 if (state is AuthRequestSuccessState) {
-//                   state.response.fold((left) {
-//                     email.text = '';
-//                     password.text = '';
-//                     var snackbar = SnackBar(
-//                       content: Text(
-//                         left,
-//                         style: TextStyle(fontFamily: 'dana', fontSize: 14),
-//                       ),
-//                       backgroundColor: Colors.black,
-//                       behavior: SnackBarBehavior.floating,
-//                       duration: Duration(seconds: 1),
-//                     );
-//                     ScaffoldMessenger.of(context).showSnackBar(snackbar);
-//                   }, (right) {
-//                     Navigator.of(context).pushReplacement(
-//                         MaterialPageRoute(builder: (context) => HomeScreen()));
-//                   });
-//                 }
-//               },
-//               builder: (context, state) {
-//                 if (state is AuthLoadingState) {
-//                   return CircularProgressIndicator();
-//                 }
-//                 if (state is AuthInitState) {
-//                   return Login();
-//                 }
-//                 if (state is AuthRequestSuccessState) {
-//                   Widget widget = Text('');
-//                   state.response.fold((l) {
-//                     widget = Login();
-//                   }, (r) {
-//                     widget = Text(r);
-//                   });
-//                   return widget;
-//                 }
-//                 return Text('');
-//               },
-//             ),
-//             SizedBox(height: 20.h),
-//             or(),
-//             SizedBox(height: 15.h),
-//             WithGoogle(),
-//             SizedBox(height: 10.h),
-//             WithApple(),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Row or() {
-//     return Row(
-//       children: [
-//         Expanded(
-//             child: Divider(
-//               thickness: 1.5.w,
-//               endIndent: 4,
-//               indent: 20,
-//             )),
-//         Text(
-//           "OR",
-//           style: TextStyle(
-//             color: Colors.grey[600],
-//             fontSize: 14,
-//           ),
-//         ),
-//         Expanded(
-//             child: Divider(
-//               thickness: 1.5.w,
-//               endIndent: 20,
-//               indent: 4,
-//             ))
-//       ],
-//     );
-//   }
-//
-//   Padding Login() {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(horizontal: 15.w),
-//       child: GestureDetector(
-//         onTap: () {
-//           BlocProvider.of<AuthBloc>(context)
-//               .add(AuthLoginRequest(email.text, password.text));
-//         },
-//         child: Container(
-//           alignment: Alignment.center,
-//           width: double.infinity,
-//           height: 50.h,
-//           decoration: BoxDecoration(
-//             color: Colors.black,
-//             borderRadius: BorderRadius.circular(10.r),
-//           ),
-//           child: Text(
-//             'Login',
-//             style: TextStyle(
-//               color: Colors.white,
-//               fontSize: 23.sp,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Padding WithGoogle() {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(horizontal: 15.w),
-//       child: Container(
-//         alignment: Alignment.center,
-//         width: double.infinity,
-//         height: 50.h,
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(10.r),
-//         ),
-//         child: ListTile(
-//           leading: Padding(
-//             padding: EdgeInsets.only(bottom: 5.h),
-//             child: Image.asset(
-//               'images/google.png',
-//               height: 30.h,
-//             ),
-//           ),
-//           title: Padding(
-//             padding: EdgeInsets.only(bottom: 5.h),
-//             child: Text(
-//               'Continue with Google',
-//               style: TextStyle(
-//                 color: Colors.black,
-//                 fontSize: 18.sp,
-//                 fontWeight: FontWeight.w400,
-//               ),
-//             ),
-//           ),
-//           trailing: Padding(
-//             padding: EdgeInsets.only(bottom: 5.h),
-//             child: const Icon(
-//               Icons.arrow_right,
-//               color: Colors.black,
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Padding WithApple() {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(horizontal: 15.w),
-//       child: Container(
-//         alignment: Alignment.center,
-//         width: double.infinity,
-//         height: 50.h,
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(10.r),
-//         ),
-//         child: ListTile(
-//           leading: Padding(
-//               padding: EdgeInsets.only(bottom: 5.h),
-//               child: const Icon(
-//                 Icons.apple,
-//                 color: Colors.black,
-//               )),
-//           title: Padding(
-//             padding: EdgeInsets.only(bottom: 5.h),
-//             child: Text(
-//               'Continue with Apple',
-//               style: TextStyle(
-//                   color: Colors.black,
-//                   fontSize: 18.sp,
-//                   fontWeight: FontWeight.w400),
-//             ),
-//           ),
-//           trailing: Padding(
-//             padding: EdgeInsets.only(bottom: 5.h),
-//             child: const Icon(
-//               Icons.arrow_right,
-//               color: Colors.black,
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Padding have() {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(horizontal: 15.w),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.end,
-//         children: [
-//           Text(
-//             "Don't have an account?  ",
-//             style: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
-//           ),
-//           GestureDetector(
-//             onTap: widget.show,
-//             child: Text(
-//               "Sign up",
-//               style: TextStyle(
-//                   color: Colors.blue,
-//                   fontSize: 16.sp,
-//                   fontWeight: FontWeight.bold),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   Padding textfild() {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(horizontal: 15.w),
-//       child: Container(
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(10.r),
-//         ),
-//         child: TextField(
-//           style: TextStyle(fontSize: 18.sp, color: Colors.black),
-//           controller: email,
-//           focusNode: _focusNode1,
-//           decoration: InputDecoration(
-//             hintText: 'Email',
-//             prefixIcon: Icon(
-//               Icons.email,
-//               color: _focusNode1.hasFocus ? Colors.black : Colors.grey[600],
-//             ),
-//             contentPadding:
-//             EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-//             enabledBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(10.r),
-//               borderSide: BorderSide(
-//                 color: Color(0xffc5c5c5),
-//                 width: 2.w,
-//               ),
-//             ),
-//             focusedBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(10.r),
-//               borderSide: BorderSide(
-//                 width: 2.w,
-//                 color: Colors.black,
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Padding textfild2() {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(horizontal: 15.w),
-//       child: Container(
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(10.r),
-//         ),
-//         child: TextField(
-//           style: TextStyle(fontSize: 18.sp, color: Colors.black),
-//           controller: password,
-//           focusNode: _focusNode2,
-//           obscureText: visibil,
-//           obscuringCharacter: '*',
-//           decoration: InputDecoration(
-//             suffixIcon: GestureDetector(
-//                 onTap: () {
-//                   setState(() {
-//                     visibil = !visibil;
-//                   });
-//                 },
-//                 child: Icon(
-//                   visibil ? Icons.visibility_off : Icons.visibility,
-//                   color: _focusNode2.hasFocus ? Colors.black : Colors.grey[600],
-//                 )),
-//             hintText: 'Password',
-//             prefixIcon: Icon(
-//               Icons.key,
-//               color: _focusNode2.hasFocus ? Colors.black : Colors.grey[600],
-//             ),
-//             contentPadding:
-//             EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-//             enabledBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(10.r),
-//               borderSide: BorderSide(
-//                 color: const Color(0xffc5c5c5),
-//                 width: 2.w,
-//               ),
-//             ),
-//             focusedBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(10.r),
-//               borderSide: BorderSide(
-//                 width: 2.w,
-//                 color: Colors.black,
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Padding logo() {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(horizontal: 50.w),
-//       // child: Image.asset('images/nikee.png'),
-//     );
-//   }
-// }
-//
-// Future<void> _dialogBuilder(BuildContext context, String message) {
-//   return showDialog<void>(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: Text(
-//           'Error',
-//           style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900),
-//         ),
-//         content: Text(message, style: TextStyle(fontSize: 17)),
-//         actions: <Widget>[
-//           TextButton(
-//             style: TextButton.styleFrom(
-//               textStyle: Theme.of(context).textTheme.labelLarge,
-//             ),
-//             child: const Text('Ok'),
-//             onPressed: () {
-//               Navigator.of(context).pop();
-//             },
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../widgets/dialog.dart';
 import '../../../widgets/text_filed.dart';
 import '../../home/home_screen.dart';
 import '../forgot_password/forgot_password.dart';
+import '../signup/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback show;
@@ -433,41 +33,30 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void validateLogin() {
-    setState(() {
-      emailError = email.text.isEmpty ? "Please enter your email" : null;
-      passwordError = password.text.isEmpty ? "Please enter your password" : null;
-    });
-
     if (emailError == null && passwordError == null) {
-      showDialog(
-        context: context,
-        builder: (context) => CustomDialog(
-          title: "Success",
-          message: "Login successful",
-          onConfirm: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
-            );
-          },
-        ),
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     } else {
-      showDialog(
-        context: context,
-        builder: (context) => CustomDialog(
-          title: "Error",
-          message: emailError ?? passwordError ?? "Please fill in all fields",
-        ),
-      );
+      setState(() {
+        emailError = email.text.isEmpty
+            ? "Please enter your email"
+            : (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+            .hasMatch(email.text)
+            ? "Invalid email format"
+            : null);
+
+        passwordError = password.text.isEmpty ? "Please enter your password" : null;
+      });
     }
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -564,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
         height: 60.w,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(5.r), // Square border
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(color: Colors.grey, width: 1), // Add border
         ),
         child: imagePath.isNotEmpty
@@ -583,15 +172,22 @@ class _LoginScreenState extends State<LoginScreen> {
           Text("Don't have an account?  ",
               style: TextStyle(color: Colors.grey[700], fontSize: 14.sp)),
           GestureDetector(
-            onTap: widget.show,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SignUpScreen(show: widget.show)),
+              );
+            },
             child: Text(
               "Sign up",
               style: TextStyle(
-                  color: Colors.blue,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold),
+                color: Colors.blue,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
+
         ],
       ),
     );
@@ -614,9 +210,12 @@ class _LoginScreenState extends State<LoginScreen> {
             },
             child: Text(
               "Forgot Password?",
-              style: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 16.sp,
+              // style: TextStyle(
+              //   color: Colors.grey[700],
+              //   fontSize: 16.sp,
+              //   fontWeight: FontWeight.bold,
+              // ),
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
