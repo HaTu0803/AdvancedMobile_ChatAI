@@ -40,10 +40,6 @@ class ChatHistoryScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat History'),
-        centerTitle: true,
-      ),
       body: ListView.builder(
         itemCount: chatHistory.length,
         itemBuilder: (context, index) {

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../util/themes/colors.dart';
+import '../../widgets/action_button.dart';
 import '../../widgets/typewriter_animated_text.dart';
 import '../../widgets/sidebar.dart';
 import '../../widgets/message_input.dart';
+import '../create_bot/create_bot_screens.dart';
 import '../create_prompts/create_prompt_screen.dart';
 import '../chat_history/chat_history_screen.dart';
 
@@ -41,9 +44,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     'JARVIS',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    // style: TextStyle(
+                    //   fontSize: 24,
+                    //   fontWeight: FontWeight.bold,
+                    //   color: Theme.of(context).colorScheme.primary,
+                    // ),
+                    style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
@@ -71,19 +77,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: Colors.white,
+                            backgroundColor: Theme.of(context).colorScheme.surface,
                             radius: 20,
-                            child: Icon(
+                            child: const Icon(
                               Icons.smart_toy_rounded,
                               size: 24,
                               color: Color(0xFF6C63FF),
                             ),
                           ),
-                          SizedBox(width: 12),
-                          Expanded(
+                          const SizedBox(width: 12),
+                          const Expanded(
                             child: Text(
                               "Hi, I'm JARVIS, your personal assistant",
                               style: TextStyle(
@@ -95,14 +101,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
                     
                     // Prompts Section
                     Container(
                       padding: const EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
@@ -175,39 +181,67 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           children: [
                             ActionButton(
-                              icon: Icons.smart_toy_outlined,
+                              icon: Icon(
+                                Icons.smart_toy_outlined,
+
+                              ),
                               label: "AI Agents",
                               onTap: () {
                                 _showAIModelsBottomSheet(context);
                               },
                             ),
                             const SizedBox(width: 8),
-                            ActionButton(
-                              icon: Icons.add_circle_outline,
-                              label: "Create Bots",
-                              onTap: () {
-                                // Navigate to create bots screen
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              onPressed: () {
+                                _openCreateBotModal(context);
                               },
-                            ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.smart_toy_outlined,
+                                    color: Theme.of(context).colorScheme.primaryContainer,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.add,
+                                    color: Theme.of(context).colorScheme.primaryContainer,
+                                    size: 20,
+                                  ),
+
+                                ],
+                              ),
+                            )
+
                           ],
                         ),
                         Row(
                           children: [
                             ActionButton(
-                              icon: Icons.history,
+                              // iconConfigs: [
+                              //   IconConfig(icon: Icons.history_toggle_off),
+                              // ],
+                              icon: const Icon(Icons.history_toggle_off),
                               label: "",
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ChatHistoryScreen(),
-                                  ),
-                                );
+                                _showFullHistoryModal(context);
+
                               },
                             ),
                             const SizedBox(width: 8),
                             ActionButton(
-                              icon: Icons.add,
+                              // iconConfigs: [
+                              //   IconConfig(icon: Icons.add_circle_sharp, color: Theme.of(context).colorScheme.primary),
+                              // ],
+                              icon: Icon(Icons.add_circle_sharp, color: Theme.of(context).colorScheme.primary),
                               label: "",
                               onTap: () {
                                 // Clear current chat and start new
@@ -231,7 +265,90 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  
+  void _showFullHistoryModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Chat History",
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              const Expanded(
+                child: ChatHistoryScreen(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+  void _openCreateBotModal(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Dialog(
+            insetPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              width: MediaQuery.of(context).size.width, // Full width of the screen
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Create Your Own Bot',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const CreateYourOwnBotScreen(),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
   void _showAIModelsBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -266,32 +383,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: const Row(
                   children: [
                     Text(
-                      "Select AI Model",
+                      "Create Your Own Bot",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
-                ),
-              ),
-              
-              // Scrollable Content
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                  child: Column(
-                    children: [
-                      _buildModelOption("GPT-4", "Most capable model for complex tasks", true),
-                      _buildModelOption("Claude", "Balanced between performance and speed", false),
-                      _buildModelOption("Gemini", "Google's multimodal AI model", false),
-                      _buildModelOption("JARVIS", "Custom-trained assistant", false),
-                      _buildModelOption("GPT-3.5", "Fast and efficient for most tasks", false),
-                      _buildModelOption("Llama", "Open source AI model", false),
-                      _buildModelOption("Anthropic Claude 2", "Advanced reasoning capabilities", false),
-                      _buildModelOption("PaLM", "Google's language model", false),
-                    ],
-                  ),
                 ),
               ),
             ],
@@ -356,43 +454,3 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 }
-
-class ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const ActionButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).colorScheme.surfaceVariant,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 11),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-

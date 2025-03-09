@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../util/themes/colors.dart';
+import '../../../widgets/button.dart';
 import '../../../widgets/text_filed.dart';
 import '../../home/home_screen.dart';
 import '../forgot_password/forgot_password.dart';
@@ -33,24 +35,24 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void validateLogin() {
+    setState(() {
+      emailError = email.text.isEmpty
+          ? "Please enter your email"
+          : (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+          .hasMatch(email.text)
+          ? "Invalid email format"
+          : null);
+
+      passwordError = password.text.isEmpty ? "Please enter your password" : null;
+    });
+
+    // If no errors, navigate to the home screen
     if (emailError == null && passwordError == null) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
-    } else {
-      setState(() {
-        emailError = email.text.isEmpty
-            ? "Please enter your email"
-            : (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-            .hasMatch(email.text)
-            ? "Invalid email format"
-            : null);
-
-        passwordError = password.text.isEmpty ? "Please enter your password" : null;
-      });
     }
-
   }
 
   @override
@@ -63,27 +65,44 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 70.h),
             logo(),
             SizedBox(height: 20.h),
-            CustomTextField(
-              controller: email,
-              hintText: 'Email',
-              icon: Icons.email,
-              focusNode: _focusNode1,
-              errorText: emailError,
+            // Email TextFormField with icon inside the input field
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15.w),
+              child: TextFormField(
+                controller: email,
+                decoration: InputDecoration(
+                  hintText: 'Email',
+                  prefixIcon: Icon(Icons.email),
+                  errorText: emailError,
+                ),
+                keyboardType: TextInputType.emailAddress,
+                focusNode: _focusNode1,
+              ),
             ),
             SizedBox(height: 15.w),
-            CustomTextField(
-              controller: password,
-              hintText: 'Password',
-              icon: Icons.lock,
-              focusNode: _focusNode2,
-              isPassword: true,
-              obscureText: visibil,
-              toggleVisibility: () {
-                setState(() {
-                  visibil = !visibil;
-                });
-              },
-              errorText: passwordError,
+            // Password TextFormField with icon inside the input field
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15.w),
+              child: TextFormField(
+                controller: password,
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  prefixIcon: Icon(Icons.lock),
+                  errorText: passwordError,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      visibil ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        visibil = !visibil;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: visibil,
+                focusNode: _focusNode2,
+              ),
             ),
             SizedBox(height: 20.h),
             forgotPassword(),
@@ -111,28 +130,22 @@ class _LoginScreenState extends State<LoginScreen> {
   Padding loginButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: GestureDetector(
-        onTap: validateLogin,
-        child: Container(
-          alignment: Alignment.center,
-          width: double.infinity,
-          height: 50.h,
-          decoration: BoxDecoration(
-            color: Color(0xFF8884FA),
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          child: Text(
-            'Login',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                ),
-          ),
+      child: TCustomButton(
+        text: 'Login',
+        onPressed: validateLogin,
+        type: ButtonType.filled, // You can choose other types as well
+        customStyle: ButtonStyle(
+          backgroundColor: WidgetStateProperty.all(AppColors.primary), // Set the background color
+          padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 16.h)), // Adjust height
+          shape: WidgetStateProperty.all(RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.r), // Rounded corners
+          )),
+          minimumSize: WidgetStateProperty.all(Size(double.infinity, 50.h)), // Full width and fixed height
+          alignment: Alignment.center, // Ensure the content is centered
         ),
       ),
     );
   }
-
-
 
   Row orDivider() {
     return Row(
@@ -187,7 +200,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-
         ],
       ),
     );
@@ -210,11 +222,6 @@ class _LoginScreenState extends State<LoginScreen> {
             },
             child: Text(
               "Forgot Password?",
-              // style: TextStyle(
-              //   color: Colors.grey[700],
-              //   fontSize: 16.sp,
-              //   fontWeight: FontWeight.bold,
-              // ),
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

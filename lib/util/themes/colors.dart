@@ -38,6 +38,10 @@ class AppColors {
   // ⚫ Màu nền
   static const Color backgroundLight = Colors.white;
   static const Color backgroundDark = Color(0xFF121212);
+  // ⚫ Màu viền
+  static const Color borderLight = Color(0xFFE5E5E5);
+  static const Color borderDark = Color(0xFF303030);
+  static const Color borderGray = Color(0xFFD9D9D9);
 
   // ⚪ Màu văn bản
   static const Color textLight = Colors.white;
