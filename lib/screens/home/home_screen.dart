@@ -318,28 +318,30 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Container(
               width: MediaQuery.of(context).size.width, // Full width of the screen
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Create Your Own Bot',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const CreateYourOwnBotScreen(),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Create Your Own Bot',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const CreateYourOwnBotScreen(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -347,6 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
 
 
   void _showAIModelsBottomSheet(BuildContext context) {
