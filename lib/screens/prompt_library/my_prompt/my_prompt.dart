@@ -26,7 +26,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
         children: [
           // Search Bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
             child: Container(
               decoration: BoxDecoration(
                 // color: const Color(0xFFF5F7FB),
@@ -38,7 +38,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
                   hintText: 'Search...',
                   prefixIcon: Icon(Icons.search, color: Colors.grey),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 ),
               ),
             ),

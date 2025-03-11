@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  
+
   // List of example prompts
   final List<String> prompts = [
     "Write a blog post about artificial intelligence",
@@ -33,24 +33,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Theme.of(context).colorScheme.background,
       endDrawer: const AppSidebar(),
       body: SafeArea(
         child: Column(
           children: [
             // App Bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'JARVIS',
-                    // style: TextStyle(
-                    //   fontSize: 24,
-                    //   fontWeight: FontWeight.bold,
-                    //   color: Theme.of(context).colorScheme.primary,
-                    // ),
                     style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -64,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            
+
             // Main Content
             Expanded(
               child: Padding(
@@ -104,155 +99,158 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 16),
-                    
-                    // Prompts Section
-                    Container(
-                      padding: const EdgeInsets.all(12.0),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "Prompts",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            height: 50,
-                            child: TypewriterAnimatedText(
-                              texts: prompts,
-                              typingSpeed: 150,
-                              pauseDuration: const Duration(seconds: 2),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          RichText(
-                            text: TextSpan(
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                              children: [
-                                const TextSpan(
-                                  text: "Don't know what to say? Let's use ",
-                                ),
-                                WidgetSpan(
-                                  alignment: PlaceholderAlignment.baseline,
-                                  baseline: TextBaseline.alphabetic,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      _showFullPromptModal(context);
-                                    },
-                                    child: Text(
-                                      "Prompts!",
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+            const SizedBox(height: 16),
+
+            // Prompts Section
+            Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest
+                    .withOpacity(0.5),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Prompts",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                    
-                    const Spacer(),
-                    
-                    // Action Buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 50,
+                    child: TypewriterAnimatedText(
+                      texts: prompts,
+                      typingSpeed: 150,
+                      pauseDuration: const Duration(seconds: 2),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                       children: [
-                        Row(
-                          children: [
-                            ActionButton(
-                              icon: Icon(
-                                Icons.smart_toy_outlined,
-
-                              ),
-                              label: "AI Agents",
-                              onTap: () {
-                                _showAIModelsBottomSheet(context);
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).colorScheme.primary,
-                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                              onPressed: () {
-                                _openCreateBotModal(context);
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.smart_toy_outlined,
-                                    color: Theme.of(context).colorScheme.primaryContainer,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    Icons.add,
-                                    color: Theme.of(context).colorScheme.primaryContainer,
-                                    size: 20,
-                                  ),
-
-                                ],
-                              ),
-                            )
-
-                          ],
+                        const TextSpan(
+                          text: "Don't know what to say? Let's use ",
                         ),
-                        Row(
-                          children: [
-                            ActionButton(
-                              // iconConfigs: [
-                              //   IconConfig(icon: Icons.history_toggle_off),
-                              // ],
-                              icon: const Icon(Icons.history_toggle_off),
-                              label: "",
-                              onTap: () {
-                                _showFullHistoryModal(context);
-
-                              },
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: GestureDetector(
+                            onTap: () {
+                              _showFullPromptModal(context);
+                            },
+                            child: Text(
+                              "Prompts!",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            ActionButton(
-                              // iconConfigs: [
-                              //   IconConfig(icon: Icons.add_circle_sharp, color: Theme.of(context).colorScheme.primary),
-                              // ],
-                              icon: Icon(Icons.add_circle_sharp, color: Theme.of(context).colorScheme.primary),
-                              label: "",
-                              onTap: () {
-                                // Clear current chat and start new
-                              },
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
-                    
-                    const SizedBox(height: 16),
-                    
-                    // Message Input
-                    const MessageInputField(),
+                  ),
+                ],
+              ),
+            ),
+
+            const Spacer(),
+
+            // Action Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    ActionButton(
+                      icon: Icon(
+                        Icons.smart_toy_outlined,
+                      ),
+                      label: "AI Agents",
+                      onTap: () {
+                        _showAIModelsBottomSheet(context);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 6, horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      onPressed: () {
+                        _openCreateBotModal(context);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.smart_toy_outlined,
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.add,
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                Row(
+                  children: [
+                    ActionButton(
+                      // iconConfigs: [
+                      //   IconConfig(icon: Icons.history_toggle_off),
+                      // ],
+                      icon: const Icon(Icons.history_toggle_off),
+                      label: "",
+                      onTap: () {
+                        _showFullHistoryModal(context);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    ActionButton(
+                      // iconConfigs: [
+                      //   IconConfig(icon: Icons.add_circle_sharp, color: Theme.of(context).colorScheme.primary),
+                      // ],
+                      icon: Icon(Icons.add_circle_sharp,
+                          color: Theme.of(context).colorScheme.primary),
+                      label: "",
+                      onTap: () {
+                        // Clear current chat and start new
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Message Input
+            const MessageInputField(),
                   ],
                 ),
               ),
@@ -262,6 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
   void _showFullPromptModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -278,6 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
   void _showFullHistoryModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -292,7 +292,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -309,7 +310,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-
               const Expanded(
                 child: ChatHistoryScreen(),
               ),
@@ -319,6 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
   void _openCreateBotModal(BuildContext context) {
     showDialog(
       context: context,
@@ -330,7 +331,8 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Container(
-              width: MediaQuery.of(context).size.width, // Full width of the screen
+              width:
+                  MediaQuery.of(context).size.width, // Full width of the screen
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(
@@ -362,6 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
   void _showAIModelsBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -369,7 +372,8 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       builder: (context) {
         return Container(
-          height: MediaQuery.of(context).size.height * 0.8, // 80% of the screen height
+          height: MediaQuery.of(context).size.height *
+              0.8, // 80% of the screen height
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -377,7 +381,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -417,23 +422,27 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isSelected ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3) : Colors.white,
+        color: isSelected
+            ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3)
+            : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade200,
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
+              : Colors.grey.shade200,
           width: isSelected ? 2 : 1,
         ),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: isSelected 
+          backgroundColor: isSelected
               ? Theme.of(context).colorScheme.primaryContainer
               : Colors.grey.shade100,
           child: Text(
             name[0],
             style: TextStyle(
-              color: isSelected 
+              color: isSelected
                   ? Theme.of(context).colorScheme.primary
                   : Colors.grey.shade600,
             ),
@@ -456,15 +465,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        trailing: isSelected ? Icon(
-          Icons.check_circle,
-          color: Theme.of(context).colorScheme.primary,
-        ) : null,
+        trailing: isSelected
+            ? Icon(
+                Icons.check_circle,
+                color: Theme.of(context).colorScheme.primary,
+              )
+            : null,
         onTap: () {
           Navigator.pop(context);
         },
       ),
     );
   }
-
 }

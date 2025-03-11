@@ -41,7 +41,7 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -53,26 +53,24 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                   'Prompt Library',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.add_box_rounded,
-                        color: Theme.of(context).primaryColor,
-                        size: 30,
+                Flexible(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon:  Icon(Icons.add_box, size: 30, color: Theme.of(context).primaryColor),
+                        onPressed: () {
+                          _showAddPromptModal(context);
+                        },
                       ),
-                      onPressed: () {
-                        _showAddPromptModal(context);
-                      },
-                    ),
-                    const SizedBox(width: 4),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

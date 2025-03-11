@@ -89,7 +89,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: Colors.grey.shade300),
                 ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
 
               ),
             ),
@@ -103,7 +103,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
               children: _categories.map((category) => _buildCategoryItem(category)).toList(),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
