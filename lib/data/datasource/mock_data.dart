@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../model/prompt.dart';
-
 final List<Map<String, dynamic>> knowledgeSources = [
   {
     'title': 'AI Research',
