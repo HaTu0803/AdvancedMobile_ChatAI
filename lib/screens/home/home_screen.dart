@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../data/datasource/mock_data.dart';
 import '../../util/themes/colors.dart';
 import '../../widgets/action_button.dart';
 import '../../widgets/typewriter_animated_text.dart';
 import '../../widgets/sidebar.dart';
 import '../../widgets/message_input.dart';
 import '../create_bot/create_bot_screens.dart';
-import '../create_prompts/create_prompt_screen.dart';
 import '../chat_history/chat_history_screen.dart';
+import '../prompt_library/create_prompt/create_prompt_screen.dart';
+import '../prompt_library/prompt_library.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -149,12 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   baseline: TextBaseline.alphabetic,
                                   child: GestureDetector(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const CreatePromptScreen(),
-                                        ),
-                                      );
+                                      _showFullPromptModal(context);
                                     },
                                     child: Text(
                                       "Prompts!",
@@ -265,6 +262,22 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+  void _showFullPromptModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 1, // Almost full screen
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: const PromptLibraryScreen(),
+        );
+      },
+    );
+  }
   void _showFullHistoryModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -349,50 +362,48 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-
-
-
   void _showAIModelsBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.7,
-      ),
       builder: (context) {
         return Container(
+          height: MediaQuery.of(context).size.height * 0.8, // 80% of the screen height
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              // Fixed Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "AI Models",
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
                   ],
                 ),
-                child: const Row(
-                  children: [
-                    Text(
-                      "Create Your Own Bot",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: aiModels.map((model) {
+                    return _buildModelOption(
+                      model["name"],
+                      model["description"],
+                      model["isSelected"],
+                    );
+                  }).toList(),
                 ),
               ),
             ],
@@ -401,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-  
+
   Widget _buildModelOption(String name, String description, bool isSelected) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
