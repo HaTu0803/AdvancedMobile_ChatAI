@@ -33,7 +33,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         child: Form(
           key: _formKey,
           child: Column(

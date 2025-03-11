@@ -5,8 +5,9 @@ import '../../widgets/typewriter_animated_text.dart';
 import '../../widgets/sidebar.dart';
 import '../../widgets/message_input.dart';
 import '../create_bot/create_bot_screens.dart';
-import '../create_prompts/create_prompt_screen.dart';
 import '../chat_history/chat_history_screen.dart';
+import '../prompt_library/create_prompt/create_prompt_screen.dart';
+import '../prompt_library/prompt_library.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -149,12 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   baseline: TextBaseline.alphabetic,
                                   child: GestureDetector(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const CreatePromptScreen(),
-                                        ),
-                                      );
+                                      _showFullPromptModal(context);
                                     },
                                     child: Text(
                                       "Prompts!",
@@ -263,6 +259,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+  void _showFullPromptModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 1, // Almost full screen
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: const PromptLibraryScreen(),
+        );
+      },
     );
   }
   void _showFullHistoryModal(BuildContext context) {
