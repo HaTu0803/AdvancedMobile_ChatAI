@@ -1,9 +1,10 @@
-import 'package:advancedmobile_chatai/util/themes/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'auth/auth.dart';
+import 'package:advancedmobile_chatai/util/themes/theme.dart';
 import 'package:advancedmobile_chatai/screens/introduction/introduction_screen.dart';
+
+import 'auth/auth.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,11 +13,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  Future<bool> checkIntroSeen() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('seenIntroduction') ?? false;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,19 +24,47 @@ class MyApp extends StatelessWidget {
           theme: TAppTheme.lightTheme,
           darkTheme: TAppTheme.darkTheme,
           themeMode: ThemeMode.system,
-          home: FutureBuilder<bool>(
-            future: checkIntroSeen(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                );
-              }
-              return snapshot.data == true ? const AuthPage() : const IntroductionScreen();
-            },
-          ),
+          home: const SplashScreen(), // Chuyển hướng từ SplashScreen
         );
       },
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _navigateToNextScreen();
+  }
+
+  Future<void> _navigateToNextScreen() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seenIntro = prefs.getBool('seenIntroduction') ?? false;
+
+    await Future.delayed(const Duration(seconds: 1)); // Tạo hiệu ứng splash nhẹ
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => seenIntro ? const AuthPage() : const IntroductionScreen(),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()), // Loading screen
     );
   }
 }
