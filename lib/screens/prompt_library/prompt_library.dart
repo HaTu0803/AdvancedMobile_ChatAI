@@ -53,61 +53,50 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                   'Prompt Library',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
-                Flexible(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon:  Icon(Icons.add_box, size: 30, color: Theme.of(context).primaryColor),
-                        onPressed: () {
-                          _showAddPromptModal(context);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
               ],
             ),
-
-            // Custom Tabs
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Row(
-                children: _tabs.map((tab) {
-                  final isSelected = tab == _selectedTab;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 4.0),
-                    child: InkWell(
-                      onTap: () => _selectTab(tab),
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : const Color(0xFFF5F5F5),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          tab,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.w500,
+                children: [
+                  ..._tabs.map((tab) {
+                    final isSelected = tab == _selectedTab;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 4.0),
+                      child: InkWell(
+                        onTap: () => _selectTab(tab),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected ? Theme.of(context).primaryColor : const Color(0xFFF5F5F5),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            tab,
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                  }).toList(),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.add_box, size: 30, color: Theme.of(context).primaryColor),
+                    onPressed: () {
+                      _showAddPromptModal(context);
+                    },
+                  ),
+                ],
               ),
             ),
 

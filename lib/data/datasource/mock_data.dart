@@ -1,3 +1,4 @@
+import 'package:advancedmobile_chatai/model/prompt.dart';
 import 'package:flutter/material.dart';
 
 final List<Map<String, dynamic>> knowledgeSources = [
