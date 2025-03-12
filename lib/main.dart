@@ -17,14 +17,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(375, 812), // Adjust this based on your design
+      designSize: const Size(375, 812),
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: TAppTheme.lightTheme,
           darkTheme: TAppTheme.darkTheme,
           themeMode: ThemeMode.system,
-          home: const SplashScreen(), // Chuyển hướng từ SplashScreen
+          home: const SplashScreen(),
         );
       },
     );
@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final prefs = await SharedPreferences.getInstance();
     final seenIntro = prefs.getBool('seenIntroduction') ?? false;
 
-    await Future.delayed(const Duration(seconds: 1)); // Tạo hiệu ứng splash nhẹ
+    await Future.delayed(const Duration(seconds: 1));
 
     if (mounted) {
       Navigator.pushReplacement(
