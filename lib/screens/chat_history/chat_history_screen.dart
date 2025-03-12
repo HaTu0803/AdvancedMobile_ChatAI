@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../model/history.dart';
+
 class ChatHistoryScreen extends StatelessWidget {
   const ChatHistoryScreen({super.key});
 
@@ -40,10 +42,6 @@ class ChatHistoryScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat History'),
-        centerTitle: true,
-      ),
       body: ListView.builder(
         itemCount: chatHistory.length,
         itemBuilder: (context, index) {
@@ -143,19 +141,5 @@ class ChatHistoryScreen extends StatelessWidget {
       return 'Just now';
     }
   }
-}
-
-class ChatItem {
-  final String title;
-  final String lastMessage;
-  final DateTime timestamp;
-  final String model;
-
-  ChatItem({
-    required this.title,
-    required this.lastMessage,
-    required this.timestamp,
-    required this.model,
-  });
 }
 

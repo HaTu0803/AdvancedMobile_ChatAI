@@ -3,15 +3,17 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class SignUPScreen extends StatefulWidget {
+import '../login/login_screen.dart';
+
+class SignUpScreen extends StatefulWidget {
   final VoidCallback show;
-  const SignUPScreen({super.key, required this.show});
+  const SignUpScreen({super.key, required this.show});
 
   @override
-  State<SignUPScreen> createState() => _SignUPScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUPScreenState extends State<SignUPScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   FocusNode _focusNode1 = FocusNode();
   FocusNode _focusNode2 = FocusNode();
   FocusNode _focusNode4 = FocusNode();
@@ -46,7 +48,6 @@ class _SignUPScreenState extends State<SignUPScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey.shade200,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -153,6 +154,7 @@ Padding WithApple() {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: Colors.grey, width: 1.w),
       ),
       child: imagePath.isNotEmpty
           ? Image.asset(imagePath, height: 30.h)
@@ -172,8 +174,12 @@ Padding WithApple() {
             style: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
           ),
           GestureDetector(
-            onTap: widget.show,
-            child: Text(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen(show: widget.show)),
+              );
+            },            child: Text(
               "Login",
               style: TextStyle(
                   color: Colors.blue,

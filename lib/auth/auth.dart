@@ -60,7 +60,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return isLogin
-        ? LoginScreen(show: toggleScreen) // Thêm tham số show
-        : SignUPScreen(show: toggleScreen);
+        ? LoginScreen(show: toggleScreen)
+        : SignUpScreen(show: toggleScreen);
   }
 }
