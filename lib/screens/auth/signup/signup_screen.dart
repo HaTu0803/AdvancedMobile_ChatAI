@@ -74,45 +74,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(height: 10.h),
-            logo(),
-            SizedBox(height: 20.h),
-            inputField(emailController, "Email", Icons.email, errorText: emailError),
-            SizedBox(height: 20.h),
-
-            inputField(nameController, "Name", Icons.person, errorText: nameError),
-            SizedBox(height: 20.h),
-
-            inputField(passwordController, "Password", Icons.lock,
-                obscureText: visibil,
-                suffixIcon: true,
-                errorText: passwordError),
-            SizedBox(height: 20.h),
-
-            inputField(confirmPasswordController, "Confirm Password", Icons.lock,
-                obscureText: visibil, errorText: confirmPasswordError),
-            SizedBox(height: 20.h),
-            signupButton(),
-            SizedBox(height: 20.h),
-            orDivider(),
-            SizedBox(height: 30.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+        child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                socialLoginButton('images/google.png'),
-                SizedBox(width: 20.w),
-                socialLoginButton('', icon: Icons.apple),
+                SizedBox(height: 10.h),
+                logo(),
+                SizedBox(height: 20.h),
+                inputField(emailController, "Email", Icons.email, errorText: emailError),
+                SizedBox(height: 20.h),
+                inputField(nameController, "Name", Icons.person, errorText: nameError),
+                SizedBox(height: 20.h),
+                inputField(passwordController, "Password", Icons.lock,
+                    obscureText: visibil, suffixIcon: true, errorText: passwordError),
+                SizedBox(height: 20.h),
+                inputField(confirmPasswordController, "Confirm Password", Icons.lock,
+                    obscureText: visibil, errorText: confirmPasswordError),
+                SizedBox(height: 20.h),
+                signupButton(),
+                SizedBox(height: 20.h),
+                orDivider(),
+                SizedBox(height: 30.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    socialLoginButton('images/google.png'),
+                    SizedBox(width: 20.w),
+                    socialLoginButton('', icon: Icons.apple),
+                  ],
+                ),
+                SizedBox(height: 40.h),
+                haveAccountText(),
+                SizedBox(height: 20.h),
               ],
             ),
-            SizedBox(height: 30.h),
-            haveAccountText(),
-          ],
+          ),
         ),
-      ),
     );
   }
 
@@ -134,10 +133,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           prefixIcon: Icon(icon),
           errorText: errorText,
           suffixIcon: suffixIcon
-              ? GestureDetector(
-            onTap: () => setState(() => visibil = !visibil),
-            child:
-            Icon(visibil ? Icons.visibility_off : Icons.visibility),
+              ? IconButton(
+            onPressed: () => setState(() => visibil = !visibil),
+            icon: Icon(visibil ? Icons.visibility_off : Icons.visibility),
           )
               : null,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
@@ -145,6 +143,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
+
 
   Padding signupButton() {
     return Padding(

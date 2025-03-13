@@ -62,10 +62,9 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 70.h),
+            SizedBox(height: 10.h),
             logo(),
-            SizedBox(height: 20.h),
-            // Email TextFormField with icon inside the input field
+            SizedBox(height: 70.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 15.w),
               child: TextFormField(
@@ -121,6 +120,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 30.h),
             haveAccountText(),
+            SizedBox(height: 20.h),
+
           ],
         ),
       ),
