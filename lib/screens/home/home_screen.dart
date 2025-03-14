@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/datasource/mock_data.dart';
 import '../../util/themes/colors.dart';
 import '../../widgets/action_button.dart';
+import '../../widgets/chat_message.dart';
 import '../../widgets/typewriter_animated_text.dart';
 import '../../widgets/sidebar.dart';
 import '../../widgets/message_input.dart';
@@ -19,6 +20,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final List<Map<String, dynamic>> messages = [];
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _messageController = TextEditingController();
+
+  void _sendMessage(String message) {
+    if (message.isNotEmpty) {
+      setState(() {
+        messages.add({'text': message, 'isUser': true});
+        _messageController.clear();
+      });
+      _scrollToBottom();
+    }
+  }
 
   // List of example prompts
   final List<String> prompts = [
@@ -28,6 +42,17 @@ class _HomeScreenState extends State<HomeScreen> {
     "Suggest 5 books on personal development",
     "Help me draft an email to my boss requesting time off"
   ];
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,12 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
-            // Main Content
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                child: Column(
+                child: messages.isEmpty
+                    ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Greeting
@@ -99,77 +123,83 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-            const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-            // Prompts Section
-            Container(
-              padding: const EdgeInsets.all(12.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .surfaceContainerHighest
-                    .withOpacity(0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Prompts",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 50,
-                    child: TypewriterAnimatedText(
-                      texts: prompts,
-                      typingSpeed: 150,
-                      pauseDuration: const Duration(seconds: 2),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      children: [
-                        const TextSpan(
-                          text: "Don't know what to say? Let's use ",
+                    // Prompts Section
+                    Container(
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
                         ),
-                        WidgetSpan(
-                          alignment: PlaceholderAlignment.baseline,
-                          baseline: TextBaseline.alphabetic,
-                          child: GestureDetector(
-                            onTap: () {
-                              _showFullPromptModal(context);
-                            },
-                            child: Text(
-                              "Prompts!",
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Prompts",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height: 50,
+                            child: TypewriterAnimatedText(
+                              texts: prompts,
+                              typingSpeed: 150,
+                              pauseDuration: const Duration(seconds: 2),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          RichText(
+                            text: TextSpan(
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              children: [
+                                const TextSpan(text: "Don't know what to say? Let's use "),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.baseline,
+                                  baseline: TextBaseline.alphabetic,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      _showFullPromptModal(context);
+                                    },
+                                    child: Text(
+                                      "Prompts!",
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                )
+                    : ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    return ChatBubble(
+                      text: messages[index]["text"],
+                      isUser: messages[index]["isUser"],
+                    );
+                  },
+                ),
               ),
             ),
 
-            const Spacer(),
-
-            // Action Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -247,17 +277,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             // Message Input
-            const MessageInputField(),
-                  ],
-                ),
-              ),
-            ),
+            MessageInputField(onSend: _sendMessage),
           ],
         ),
       ),
+
     );
   }
 
