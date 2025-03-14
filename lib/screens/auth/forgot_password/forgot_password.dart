@@ -41,9 +41,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 @override
 Widget build(BuildContext context) {
   return Scaffold(
-    backgroundColor: Colors.grey.shade200, 
+    backgroundColor: Colors.white, 
     appBar: AppBar(
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: Colors.white,
       elevation: 0,
       title: const Text('', style: TextStyle(color: Colors.black)), 
       iconTheme: const IconThemeData(color: Colors.black), 
@@ -79,7 +79,7 @@ Widget build(BuildContext context) {
           ),
           SizedBox(height: 20.h),
           emailInputField(),
-          SizedBox(height: 20.h),
+          SizedBox(height: 24.h),
           sendCodeButton(),
         ],
       ),
@@ -121,13 +121,13 @@ Widget build(BuildContext context) {
         width: double.infinity,
         height: 50.h,
         decoration: BoxDecoration(
-          color: isButtonEnabled ? Colors.blue.shade700 : Colors.grey.shade300,
+          color: isButtonEnabled ? Colors.blue : Colors.grey.shade300,
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Text(
           'Send Code',
           style: TextStyle(
-            color: isButtonEnabled ? Colors.white : Colors.grey.shade700,
+            color: isButtonEnabled ? Colors.white : Colors.grey.shade500,
             fontSize: 23.sp,
             fontWeight: FontWeight.bold,
           ),

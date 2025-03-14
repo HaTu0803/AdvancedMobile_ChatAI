@@ -1,401 +1,228 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../util/themes/colors.dart';
+import '../../../widgets/button.dart';
+import '../../../widgets/text_filed.dart';
+import '../login/login_screen.dart';
 
-class SignUPScreen extends StatefulWidget {
+class SignUpScreen extends StatefulWidget {
   final VoidCallback show;
-  const SignUPScreen({super.key, required this.show});
+  const SignUpScreen({super.key, required this.show});
 
   @override
-  State<SignUPScreen> createState() => _SignUPScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUPScreenState extends State<SignUPScreen> {
-  FocusNode _focusNode1 = FocusNode();
-  FocusNode _focusNode2 = FocusNode();
-  FocusNode _focusNode4 = FocusNode();
-  final email = TextEditingController(text: 'admin@gmail.com');
-  final password = TextEditingController(text: '12345678');
-  final name = TextEditingController(text: 'admin');
-  FocusNode _focusNode3 = FocusNode();
-  final Confirmpassword = TextEditingController(text: '12345678');
+class _SignUpScreenState extends State<SignUpScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final nameController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
   bool visibil = true;
-  @override
-  void initState() {
-    super.initState();
-    // _focusNode1.addListener(() {
-    //   setState(() {});
-    // });
-    // _focusNode2.addListener(() {
-    //   setState(() {});
-    // });
-  }
+  String? emailError, passwordError, confirmPasswordError, nameError;
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    emailController.dispose();
+    passwordController.dispose();
+    nameController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
-    email.dispose();
-    password.dispose();
-    _focusNode1.dispose();
-    _focusNode2.dispose();
+  }
+
+  void validateSignUp() {
+    setState(() {
+      emailError = emailController.text.isEmpty
+          ? "Please enter your email"
+          : (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+          .hasMatch(emailController.text)
+          ? "Invalid email format"
+          : null);
+
+      passwordError = passwordController.text.isEmpty
+          ? "Please enter your password"
+          : (!RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
+          .hasMatch(passwordController.text)
+          ? "Must have 8+ chars, 1 uppercase, 1 special char, 1 number"
+          : null);
+
+      confirmPasswordError = confirmPasswordController.text.isEmpty
+          ? "Please confirm your password"
+          : (confirmPasswordController.text != passwordController.text
+          ? "Passwords do not match"
+          : null);
+
+      nameError = nameController.text.isEmpty ? "Please enter your name" : null;
+    });
+
+    if (emailError == null &&
+        passwordError == null &&
+        confirmPasswordError == null &&
+        nameError == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(show: widget.show),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey.shade200,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              logo(),
-              textfild(),
-              SizedBox(height: 15.h),
-              textfild1(),
-              SizedBox(height: 15.w),
-              textfild2(),
-              SizedBox(height: 15.w),
-              textfild3(),
-              SizedBox(height: 20.h),
-              signupButton(),
-              SizedBox(height: 15.h),
-              or(),
-              SizedBox(height: 15.h),
-              Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                WithGoogle(),
-                SizedBox(width: 20.w),
-                WithApple(),
+                SizedBox(height: 10.h),
+                logo(),
+                SizedBox(height: 20.h),
+                inputField(emailController, "Email", Icons.email, errorText: emailError),
+                SizedBox(height: 20.h),
+                inputField(nameController, "Name", Icons.person, errorText: nameError),
+                SizedBox(height: 20.h),
+                inputField(passwordController, "Password", Icons.lock,
+                    obscureText: visibil, suffixIcon: true, errorText: passwordError),
+                SizedBox(height: 20.h),
+                inputField(confirmPasswordController, "Confirm Password", Icons.lock,
+                    obscureText: visibil, errorText: confirmPasswordError),
+                SizedBox(height: 20.h),
+                signupButton(),
+                SizedBox(height: 20.h),
+                orDivider(),
+                SizedBox(height: 30.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    socialLoginButton('images/google.png'),
+                    SizedBox(width: 20.w),
+                    socialLoginButton('', icon: Icons.apple),
+                  ],
+                ),
+                SizedBox(height: 40.h),
+                haveAccountText(),
+                SizedBox(height: 20.h),
               ],
             ),
-            SizedBox(height: 15.h),
-              have(),
-            ],
           ),
+        ),
+    );
+  }
+
+  Padding inputField(
+      TextEditingController controller,
+      String hint,
+      IconData icon, {
+        bool obscureText = false,
+        bool suffixIcon = false,
+        String? errorText,
+      }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15.w),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          hintText: hint,
+          prefixIcon: Icon(icon),
+          errorText: errorText,
+          suffixIcon: suffixIcon
+              ? IconButton(
+            onPressed: () => setState(() => visibil = !visibil),
+            icon: Icon(visibil ? Icons.visibility_off : Icons.visibility),
+          )
+              : null,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
         ),
       ),
-
     );
   }
 
-  Row or() {
-    return Row(
-      children: [
-        Expanded(
-            child: Divider(
-              thickness: 1.5.w,
-              endIndent: 4,
-              indent: 20,
-            )),
-        Text(
-          "Or continue with",
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 14,
-          ),
-        ),
-        Expanded(
-            child: Divider(
-              thickness: 1.5.w,
-              endIndent: 20,
-              indent: 4,
-            ))
-      ],
-    );
-  }
 
   Padding signupButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: GestureDetector(
-        onTap: () {},
-        child: Container(
+      child: TCustomButton(
+        text: 'Sign Up',
+        onPressed: validateSignUp,
+        type: ButtonType.filled,
+        customStyle: ButtonStyle(
+          backgroundColor: WidgetStateProperty.all(AppColors.primary),
+          padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 16.h)),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+          ),
+          minimumSize: WidgetStateProperty.all(Size(double.infinity, 50.h)),
           alignment: Alignment.center,
-          width: double.infinity,
-          height: 50.h,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          child: Text(
-            'Sign Up',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 23.sp,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
         ),
       ),
     );
   }
 
-  Padding WithGoogle() {
-  return socialLoginButton('images/google.png');
-}
-
-Padding WithApple() {
-  return socialLoginButton('', icon: Icons.apple);
-}
-
+  Row orDivider() {
+    return Row(
+      children: [
+        Expanded(child: Divider(thickness: 1.5.w, endIndent: 4, indent: 20)),
+        Text("Or continue with",
+            style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+        Expanded(child: Divider(thickness: 1.5.w, endIndent: 20, indent: 4))
+      ],
+    );
+  }
 
   Padding socialLoginButton(String imagePath, {IconData? icon}) {
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 15.w),
-    child: Container(
-      alignment: Alignment.center,
-      width: 60.w,
-      height: 60.w,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.r),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 15.w),
+      child: Container(
+        alignment: Alignment.center,
+        width: 60.w,
+        height: 60.w,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(color: Colors.grey, width: 1),
+        ),
+        child: imagePath.isNotEmpty
+            ? Image.asset(imagePath, height: 30.h)
+            : Icon(icon, color: Colors.black, size: 30.sp),
       ),
-      child: imagePath.isNotEmpty
-          ? Image.asset(imagePath, height: 30.h)
-          : Icon(icon, color: Colors.black, size: 30.sp),
-    ),
-  );
-}
+    );
+  }
 
-  Padding have() {
+  Padding haveAccountText() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            "Already have an account?  ",
-            style: TextStyle(color: Colors.grey[700], fontSize: 14.sp),
-          ),
+          Text("Already have an account?",
+              style: TextStyle(fontSize: 14.sp, color: Colors.grey[700])),
           GestureDetector(
-            onTap: widget.show,
-            child: Text(
-              "Login",
-              style: TextStyle(
-                  color: Colors.blue,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold),
-            ),
+            onTap: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => LoginScreen(show: widget.show))),
+            child: Text(" Login",
+                style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue)),
           ),
         ],
-      ),
-    );
-  }
-
-  Padding textfild() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: TextField(
-          style: TextStyle(fontSize: 18.sp, color: Colors.black),
-          controller: email,
-          focusNode: _focusNode1,
-          decoration: InputDecoration(
-            hintText: 'Email',
-            prefixIcon: Icon(
-              Icons.email,
-              color: _focusNode1.hasFocus ? Colors.black : Colors.grey[600],
-            ),
-            contentPadding:
-            EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                color: Color(0xffc5c5c5),
-                width: 2.w,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                width: 2.w,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Padding textfild1() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: TextField(
-          style: TextStyle(fontSize: 18.sp, color: Colors.black),
-          controller: name,
-          focusNode: _focusNode4,
-          decoration: InputDecoration(
-            hintText: 'Name',
-            prefixIcon: Icon(
-              Icons.email,
-              color: _focusNode4.hasFocus ? Colors.black : Colors.grey[600],
-            ),
-            contentPadding:
-            EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                color: Color(0xffc5c5c5),
-                width: 2.w,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                width: 2.w,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Padding textfild2() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: TextField(
-          style: TextStyle(fontSize: 18.sp, color: Colors.black),
-          controller: password,
-          focusNode: _focusNode2,
-          obscureText: visibil,
-          obscuringCharacter: '*',
-          decoration: InputDecoration(
-            suffixIcon: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    visibil = !visibil;
-                  });
-                },
-                child: Icon(
-                  visibil ? Icons.visibility_off : Icons.visibility,
-                  color: _focusNode2.hasFocus ? Colors.black : Colors.grey[600],
-                )),
-            hintText: 'Password',
-            prefixIcon: Icon(
-              Icons.key,
-              color: _focusNode2.hasFocus ? Colors.black : Colors.grey[600],
-            ),
-            contentPadding:
-            EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                color: const Color(0xffc5c5c5),
-                width: 2.w,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                width: 2.w,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Padding textfild3() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15.w),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: TextField(
-          style: TextStyle(fontSize: 18.sp, color: Colors.black),
-          controller: Confirmpassword,
-          focusNode: _focusNode3,
-          obscureText: visibil,
-          obscuringCharacter: '*',
-          decoration: InputDecoration(
-            hintText: 'Confirmpassword',
-            prefixIcon: Icon(
-              Icons.key,
-              color: _focusNode2.hasFocus ? Colors.black : Colors.grey[600],
-            ),
-            contentPadding:
-            EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                color: const Color(0xffc5c5c5),
-                width: 2.w,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(
-                width: 2.w,
-                color: Colors.black,
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
 
   Padding logo() {
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 50.w),
-    child: Image.asset(
-      'images/logo.png',
-      width: 160.w,
-      height: 160.h,
-      fit: BoxFit.contain,
-    ),
-  );
-}
-
-}
-
-Future<void> _dialogBuilder(BuildContext context, String message) {
-  return showDialog<void>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(
-          'Error',
-          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w900),
-        ),
-        content: Text(message, style: TextStyle(fontSize: 17.sp)),
-        actions: <Widget>[
-          TextButton(
-            style: TextButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.labelLarge,
-            ),
-            child: const Text('Ok'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 50.w),
+      child: Image.asset('images/logo.png', width: 160.w, height: 160.h),
+    );
+  }
 }

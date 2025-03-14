@@ -4,14 +4,14 @@ class CustomDialog extends StatelessWidget {
   final String title;
   final String message;
   final VoidCallback? onConfirm;
-  final bool isConfirmation; // Kiểm tra loại hộp thoại
+  final bool isConfirmation;
 
   const CustomDialog({
     Key? key,
     required this.title,
     required this.message,
     this.onConfirm,
-    this.isConfirmation = false, // Mặc định là hộp thoại thông báo
+    this.isConfirmation = false,
   }) : super(key: key);
 
   @override
@@ -20,19 +20,19 @@ class CustomDialog extends StatelessWidget {
       title: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
       content: Text(message, style: const TextStyle(fontSize: 16)),
       actions: [
-        if (isConfirmation) // Nếu là hộp thoại xác nhận, hiển thị nút "Cancel"
+        if (isConfirmation)
           TextButton(
-            onPressed: () => Navigator.pop(context), // Đóng hộp thoại khi bấm "Cancel"
+            onPressed: () => Navigator.pop(context),
             child: const Text("Cancel"),
           ),
         TextButton(
           onPressed: () {
-            Navigator.pop(context); // Đóng hộp thoại trước
+            Navigator.pop(context);
             if (onConfirm != null) {
-              Future.microtask(onConfirm!); // Chạy hành động sau khi đóng hộp thoại
+              Future.microtask(onConfirm!);
             }
           },
-          child: Text(isConfirmation ? "Confirm" : "OK"), // Nếu là xác nhận thì hiển thị "Confirm"
+          child: Text(isConfirmation ? "Confirm" : "OK"),
         ),
       ],
     );

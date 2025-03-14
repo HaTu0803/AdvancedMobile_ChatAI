@@ -25,8 +25,8 @@ class TAppTheme {
       secondary: AppColors.secondary,
       onSecondary: AppColors.textDark,
       secondaryContainer: AppColors.secondaryLight,
-      background: AppColors.backgroundLight,
-      onBackground: AppColors.textDark,
+      surface: AppColors.backgroundLight,
+      onSurface: AppColors.textDark,
       error: AppColors.error,
     ),
   );

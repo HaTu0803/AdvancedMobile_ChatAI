@@ -6,14 +6,14 @@ class AppColors {
   // 🌟 Màu chính (Chủ đạo)
   static const Color primary = Color(0xFF8884FA);
 
-  static const Color primaryLight = Color(0xFFE7F0FF);
-  static const Color primaryLightActive = Color(0xFFDBE8FF);
-  static const Color primaryLightHover = Color(0xFFDBE8FF);
+  static const Color primaryLight = Color(0xFFF3F3FF);
+  static const Color primaryLightActive = Color(0xFFDAD9FD);
+  static const Color primaryLightHover = Color(0xFFEDEDFE);
 
-  static const Color primaryDark = Color(0xFF0B4DBE);
-  static const Color primaryDarkActive = Color(0xFF072E72);
-  static const Color primaryDarkHover = Color(0xFF093E98);
-  static const Color primaryDarker = Color(0xFF052459);
+  static const Color primaryDark = Color(0xFF6663BC);
+  static const Color primaryDarkActive = Color(0xFF3D3B70);
+  static const Color primaryDarkHover = Color(0xFF524F96);
+  static const Color primaryDarker = Color(0xFF302E58);
 
   // 🌟 Màu phụ
   static const Color secondary = Color(0xFFFA4D5E);
@@ -38,6 +38,10 @@ class AppColors {
   // ⚫ Màu nền
   static const Color backgroundLight = Colors.white;
   static const Color backgroundDark = Color(0xFF121212);
+  // ⚫ Màu viền
+  static const Color borderLight = Color(0xFFE5E5E5);
+  static const Color borderDark = Color(0xFF303030);
+  static const Color borderGray = Color(0xFFD9D9D9);
 
   // ⚪ Màu văn bản
   static const Color textLight = Colors.white;
