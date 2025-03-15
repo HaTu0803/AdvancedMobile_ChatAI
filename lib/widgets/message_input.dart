@@ -1,10 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/prompt_library/prompt_library.dart';
 import '../util/themes/colors.dart';
 
 class MessageInputField extends StatefulWidget {
-  const MessageInputField({super.key});
+  final Function(String) onSend;
+
+  const MessageInputField({super.key, required this.onSend});
 
   @override
   State<MessageInputField> createState() => _MessageInputFieldState();
@@ -37,7 +40,6 @@ class _MessageInputFieldState extends State<MessageInputField> {
           Row(
             children: [
               Expanded(
-                // flex: 3, // Chiếm 3/4
                 child: TextField(
                   controller: _controller,
                   style: Theme.of(context).textTheme.bodyMedium,
@@ -58,7 +60,6 @@ class _MessageInputFieldState extends State<MessageInputField> {
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
                   ),
-
                   onChanged: (text) {
                     setState(() {
                       _isComposing = text.isNotEmpty;
@@ -76,15 +77,14 @@ class _MessageInputFieldState extends State<MessageInputField> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    _buildActionButton(Icons.terminal_outlined,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PromptLibraryScreen(),
-                            ),
-                          );
-                        }),
+                    _buildActionButton(Icons.terminal_outlined, onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PromptLibraryScreen(),
+                        ),
+                      );
+                    }),
                     _buildActionButton(Icons.attach_file_outlined, onPressed: () {}),
                     _buildActionButton(
                       Icons.arrow_upward,
@@ -96,7 +96,6 @@ class _MessageInputFieldState extends State<MessageInputField> {
               ),
             ],
           ),
-
         ],
       ),
     );
@@ -111,7 +110,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
       icon: Icon(
         icon,
         size: 20,
-        color: isActive ? Theme.of(context).primaryColor: AppColors.textGray,
+        color: isActive ? Theme.of(context).primaryColor : AppColors.textGray,
       ),
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(
@@ -124,6 +123,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
   }
 
   void _handleSubmitted(String text) {
+    widget.onSend(text);
     _controller.clear();
     setState(() {
       _isComposing = false;

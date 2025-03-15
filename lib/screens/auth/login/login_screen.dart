@@ -56,10 +56,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
+Widget build(BuildContext context) {
+  return Scaffold(
+    resizeToAvoidBottomInset: false,
+    body: SafeArea(
+      child: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(height: 10.h),
@@ -79,7 +80,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(height: 15.w),
-            // Password TextFormField with icon inside the input field
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 15.w),
               child: TextFormField(
@@ -121,12 +121,13 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 30.h),
             haveAccountText(),
             SizedBox(height: 20.h),
-
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Padding loginButton() {
     return Padding(
@@ -134,15 +135,15 @@ class _LoginScreenState extends State<LoginScreen> {
       child: TCustomButton(
         text: 'Login',
         onPressed: validateLogin,
-        type: ButtonType.filled, // You can choose other types as well
+        type: ButtonType.filled,
         customStyle: ButtonStyle(
-          backgroundColor: WidgetStateProperty.all(AppColors.primary), // Set the background color
-          padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 16.h)), // Adjust height
+          backgroundColor: WidgetStateProperty.all(AppColors.primary),
+          padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 16.h)),
           shape: WidgetStateProperty.all(RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.r), // Rounded corners
+            borderRadius: BorderRadius.circular(10.r),
           )),
-          minimumSize: WidgetStateProperty.all(Size(double.infinity, 50.h)), // Full width and fixed height
-          alignment: Alignment.center, // Ensure the content is centered
+          minimumSize: WidgetStateProperty.all(Size(double.infinity, 50.h)),
+          alignment: Alignment.center,
         ),
       ),
     );
@@ -195,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Text(
               "Sign up",
               style: TextStyle(
-                color: Colors.blue,
+                color: Color.fromARGB(255, 136, 132, 250),
                 fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
               ),
