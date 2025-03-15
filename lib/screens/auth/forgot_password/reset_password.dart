@@ -55,17 +55,16 @@ class _ResetPasswordState extends State<ResetPassword> {
       }
 
       // Check if form is valid
-      _isFormValid = _passwordError == null && 
-                     _confirmPasswordError == null && 
-                     _passwordController.text.isNotEmpty &&
-                     _confirmPasswordController.text.isNotEmpty;
+      _isFormValid = _passwordError == null &&
+          _confirmPasswordError == null &&
+          _passwordController.text.isNotEmpty &&
+          _confirmPasswordController.text.isNotEmpty;
     });
   }
 
   void _resetPassword() {
     if (_isFormValid) {
       // Here you would typically call your API to reset the password
-      // For now, we'll just navigate to the success screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -75,10 +74,97 @@ class _ResetPasswordState extends State<ResetPassword> {
     }
   }
 
+  Widget _buildPasswordField({
+    required String label,
+    required TextEditingController controller,
+    required bool isVisible,
+    required Function() onToggleVisibility,
+    String? errorText,
+    String hintText = '',
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF1A1A1A),
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: !isVisible,
+            style: TextStyle(fontSize: 16.sp),
+            decoration: InputDecoration(
+              hintText: hintText,
+              hintStyle: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 16.sp,
+              ),
+              errorText: errorText,
+              errorStyle: TextStyle(
+                color: const Color(0xFFE53935),
+                fontSize: 12.sp,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.5),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Color(0xFFE53935)),
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  isVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                  color: Colors.grey[600],
+                ),
+                onPressed: onToggleVisibility,
+              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: Color(0xFF1A1A1A)),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -86,12 +172,17 @@ class _ResetPasswordState extends State<ResetPassword> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 40.h),
+                SizedBox(height: 24.h),
 
-                // Title
+                // Header
                 Text(
                   "Reset Password",
-                  style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1A1A1A),
+                    letterSpacing: -0.5,
+                  ),
                 ),
 
                 SizedBox(height: 8.h),
@@ -99,70 +190,37 @@ class _ResetPasswordState extends State<ResetPassword> {
                 // Subtitle
                 Text(
                   "Create a new password for ${widget.email}",
-                  style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
-                ),
-
-                SizedBox(height: 32.h),
-
-                // Password field
-                Text(
-                  "New Password",
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-                ),
-                SizedBox(height: 8.h),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: !_isPasswordVisible,
-                  decoration: InputDecoration(
-                    hintText: "Enter new password",
-                    errorText: _passwordError,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: Colors.grey[600],
+                    height: 1.5,
                   ),
+                ),
+
+                SizedBox(height: 40.h),
+
+                // Password fields
+                _buildPasswordField(
+                  label: "New Password",
+                  controller: _passwordController,
+                  isVisible: _isPasswordVisible,
+                  onToggleVisibility: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                  errorText: _passwordError,
+                  hintText: "Enter new password",
                 ),
 
                 SizedBox(height: 24.h),
 
-                // Confirm password field
-                Text(
-                  "Confirm Password",
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-                ),
-                SizedBox(height: 8.h),
-                TextField(
+                _buildPasswordField(
+                  label: "Confirm Password",
                   controller: _confirmPasswordController,
-                  obscureText: !_isConfirmPasswordVisible,
-                  decoration: InputDecoration(
-                    hintText: "Confirm your password",
-                    errorText: _confirmPasswordError,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isConfirmPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
+                  isVisible: _isConfirmPasswordVisible,
+                  onToggleVisibility: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+                  errorText: _confirmPasswordError,
+                  hintText: "Confirm your password",
                 ),
 
-                SizedBox(height: 32.h),
+                SizedBox(height: 40.h),
 
                 // Reset Password button
                 GestureDetector(
@@ -172,7 +230,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                     height: 50.h,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: _isFormValid ? Colors.blue : Colors.grey.shade300,
+                      color: _isFormValid ? Color.fromARGB(255, 136, 132, 250) : Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Text(
