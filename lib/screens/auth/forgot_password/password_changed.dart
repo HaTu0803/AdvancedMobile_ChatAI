@@ -13,16 +13,19 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
 
+  // Define the custom purple color
+  final Color customPurple = const Color.fromARGB(255, 136, 132, 250);
+
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animation controller
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     // Scale animation for the check icon
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -30,7 +33,7 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
         curve: Curves.elasticOut,
       ),
     );
-    
+
     // Opacity animation for the stars/sparkles
     _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -38,7 +41,7 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
         curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
       ),
     );
-    
+
     // Start the animation
     _animationController.forward();
   }
@@ -75,7 +78,7 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
                             height: 120.h,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.blue.withOpacity(0.1),
+                              color: customPurple.withOpacity(0.1),
                             ),
                           ),
                         ),
@@ -86,20 +89,20 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
                             height: 90.h,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.blue.withOpacity(0.2),
+                              color: customPurple.withOpacity(0.2),
                             ),
                           ),
                         ),
-                        
+
                         // Main circle with check icon
                         Transform.scale(
                           scale: _scaleAnimation.value,
                           child: Container(
                             width: 60.w,
                             height: 60.h,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.blue,
+                              color: customPurple,
                             ),
                             child: Icon(
                               Icons.check,
@@ -108,14 +111,14 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
                             ),
                           ),
                         ),
-                        
+
                         // Sparkles/stars
                         Positioned(
                           top: 10.h,
                           right: 10.w,
                           child: Opacity(
                             opacity: _opacityAnimation.value,
-                            child: Icon(Icons.star, color: Colors.blue, size: 16.sp),
+                            child: Icon(Icons.star, color: customPurple, size: 16.sp),
                           ),
                         ),
                         Positioned(
@@ -123,7 +126,7 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
                           left: 10.w,
                           child: Opacity(
                             opacity: _opacityAnimation.value,
-                            child: Icon(Icons.star, color: Colors.blue, size: 16.sp),
+                            child: Icon(Icons.star, color: customPurple, size: 16.sp),
                           ),
                         ),
                         Positioned(
@@ -131,7 +134,7 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
                           right: 20.w,
                           child: Opacity(
                             opacity: _opacityAnimation.value,
-                            child: Icon(Icons.star, color: Colors.blue, size: 16.sp),
+                            child: Icon(Icons.star, color: customPurple, size: 16.sp),
                           ),
                         ),
                         Positioned(
@@ -139,7 +142,7 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
                           left: 30.w,
                           child: Opacity(
                             opacity: _opacityAnimation.value,
-                            child: Icon(Icons.star, color: Colors.blue, size: 16.sp),
+                            child: Icon(Icons.star, color: customPurple, size: 16.sp),
                           ),
                         ),
                       ],
@@ -183,7 +186,7 @@ class _PasswordChangedState extends State<PasswordChanged> with SingleTickerProv
                     height: 50.h,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Colors.blue,
+                      color: customPurple,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Text(
