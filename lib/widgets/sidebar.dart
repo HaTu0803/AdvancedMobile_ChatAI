@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../screens/profile/profile_screen.dart';
-import '../screens/upgrade_plans/upgrade_plans_screen.dart';
-import '../screens/auth/login/login_screen.dart';
+import '../view_app/screens/profile/profile_screen.dart';
+import '../view_app/screens/upgrade_plans/upgrade_plans_screen.dart';
+import '../view_app/screens/auth/login/login_screen.dart';
 class AppSidebar extends StatelessWidget {
   const AppSidebar({super.key});
 

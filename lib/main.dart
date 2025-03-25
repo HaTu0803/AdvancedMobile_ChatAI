@@ -1,8 +1,8 @@
+import 'package:advancedmobile_chatai/util/themes/theme.dart';
+import 'package:advancedmobile_chatai/view_app/screens/introduction/introduction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:advancedmobile_chatai/util/themes/theme.dart';
-import 'package:advancedmobile_chatai/screens/introduction/introduction_screen.dart';
 
 import 'auth/auth.dart';
 
@@ -55,7 +55,8 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => seenIntro ? const AuthPage() : const IntroductionScreen(),
+          builder: (context) =>
+              seenIntro ? const AuthPage() : const IntroductionScreen(),
         ),
       );
     }

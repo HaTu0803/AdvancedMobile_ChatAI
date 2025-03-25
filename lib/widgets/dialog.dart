@@ -7,12 +7,12 @@ class CustomDialog extends StatelessWidget {
   final bool isConfirmation;
 
   const CustomDialog({
-    Key? key,
+    super.key,
     required this.title,
     required this.message,
     this.onConfirm,
     this.isConfirmation = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

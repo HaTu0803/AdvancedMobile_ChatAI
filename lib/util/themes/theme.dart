@@ -18,7 +18,7 @@ class TAppTheme {
     inputDecorationTheme: TTextFormFieldTheme.lightInputDecorationTheme,
     elevatedButtonTheme: TElevatedButtonTheme.lightElevatedButtonTheme,
     outlinedButtonTheme: TOutlinedButtonTheme.LightOutlinedButtonTheme,
-    colorScheme: ColorScheme.light(
+    colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
       onPrimary: AppColors.textLight,
       primaryContainer: AppColors.primaryLight,
@@ -41,15 +41,15 @@ class TAppTheme {
     inputDecorationTheme: TTextFormFieldTheme.darkInputDecorationTheme,
     elevatedButtonTheme: TElevatedButtonTheme.darkElevatedButtonTheme,
     outlinedButtonTheme: TOutlinedButtonTheme.DarkOutlinedButtonTheme,
-    colorScheme: ColorScheme.dark(
+    colorScheme: const ColorScheme.dark(
       primary: AppColors.primaryDark,
       onPrimary: AppColors.textLight,
       primaryContainer: AppColors.primary,
       secondary: AppColors.secondaryDark,
       onSecondary: AppColors.textLight,
       secondaryContainer: AppColors.secondaryDarkHover,
-      background: AppColors.backgroundDark,
-      onBackground: AppColors.textLight,
+      surface: AppColors.backgroundDark,
+      onSurface: AppColors.textLight,
       error: AppColors.error,
     ),
   );

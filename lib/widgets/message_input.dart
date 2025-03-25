@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../screens/prompt_library/prompt_library.dart';
 import '../util/themes/colors.dart';
+import '../view_app/screens/prompt_library/prompt_library.dart';
 
 class MessageInputField extends StatefulWidget {
   final Function(String) onSend;
@@ -81,14 +80,17 @@ class _MessageInputFieldState extends State<MessageInputField> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PromptLibraryScreen(),
+                          builder: (context) => const PromptLibraryScreen(),
                         ),
                       );
                     }),
-                    _buildActionButton(Icons.attach_file_outlined, onPressed: () {}),
+                    _buildActionButton(Icons.attach_file_outlined,
+                        onPressed: () {}),
                     _buildActionButton(
                       Icons.arrow_upward,
-                      onPressed: _isComposing ? () => _handleSubmitted(_controller.text) : null,
+                      onPressed: _isComposing
+                          ? () => _handleSubmitted(_controller.text)
+                          : null,
                       isActive: _isComposing,
                     ),
                   ],
@@ -102,10 +104,10 @@ class _MessageInputFieldState extends State<MessageInputField> {
   }
 
   Widget _buildActionButton(
-      IconData icon, {
-        required VoidCallback? onPressed,
-        bool isActive = false,
-      }) {
+    IconData icon, {
+    required VoidCallback? onPressed,
+    bool isActive = false,
+  }) {
     return IconButton(
       icon: Icon(
         icon,

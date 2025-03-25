@@ -1,8 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../data/datasource/authentication_datasource.dart';
-import '../data/repository/authentication_repository.dart';
+
+import '../data_app/datasource/authentication_datasource.dart';
+import '../data_app/repository/authentication_repository.dart';
 
 var locator = GetIt.instance;
 
