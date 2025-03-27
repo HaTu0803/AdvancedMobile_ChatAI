@@ -1,38 +1,18 @@
-import 'package:either_dart/either.dart';
+import 'package:advancedmobile_chatai/data_app/model/auth/auth_model.dart';
+import 'package:advancedmobile_chatai/data_app/remote/auth/auth_api_client.dart';
 
-import '../../gitit/gitit.dart';
-import '../../util/exception.dart';
-import '../datasource/authentication_datasource.dart';
+class AuthRepository {
+  final authApiClient = AuthApiClient();
 
-abstract class IAuthRepository {
-  Future<Either<String, String>> register(String email, String password);
-
-  Future<Either<String, String>> login(String email, String password);
-}
-
-class AuthenticationRepository extends IAuthRepository {
-  final IAuthenticationDatasource _datasource = locator.get();
-  @override
-  Future<Either<String, String>> login(String email, String password) async {
-    try {
-      String token = await _datasource.login(email, password);
-      if (token.isNotEmpty) {
-        return const Right('login please');
-      } else {
-        return const Left('error');
-      }
-    } on ApiException catch (ex) {
-      return Left('${ex.message}');
-    }
+  Future<AuthResponse> signUp(SignUpRequest request) async {
+    return await authApiClient.fetchSignUp(request);
   }
 
-  @override
-  Future<Either<String, String>> register(String email, String password) async {
-    try {
-      await _datasource.register(email, password);
-      return const Right('Done');
-    } on ApiException catch (ex) {
-      return Left(ex.message ?? 'Error');
-    }
+  Future<AuthResponse> signIn(SignInRequest request) async {
+    return await authApiClient.fetchSignIn(request);
+  }
+
+  Future<void> logOut(String token, String refreshToken) async {
+    return await authApiClient.fetchLogOut(token, refreshToken);
   }
 }

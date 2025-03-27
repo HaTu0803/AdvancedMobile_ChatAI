@@ -1,5 +1,6 @@
 import 'package:advancedmobile_chatai/util/themes/theme.dart';
 import 'package:advancedmobile_chatai/view_app/screens/introduction/introduction_screen.dart';
+import 'package:advancedmobile_chatai/core/view_components/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
       designSize: const Size(375, 812),
       builder: (context, child) {
         return MaterialApp(
+          navigatorKey: DialogHelper.navigatorKey,
           debugShowCheckedModeBanner: false,
           theme: TAppTheme.lightTheme,
           darkTheme: TAppTheme.darkTheme,
