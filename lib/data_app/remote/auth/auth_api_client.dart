@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:advancedmobile_chatai/core/constants/api_headers.dart';
+import 'package:advancedmobile_chatai/core/config/api_headers.dart';
 import 'package:advancedmobile_chatai/data_app/model/auth/auth_model.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/auth/auth_url.dart';
 import 'package:http/http.dart' as http;
 
 class AuthApiClient {
-  Future<AuthResponse> fetchSignUp(SignUpRequest request) async {
+  Future<AuthResponse> signUp(SignUpRequest request) async {
     final response = await http.post(
       Uri.parse(ApiAuthUrl.signUp),
       headers: ApiHeaders.defaultHeaders,
@@ -19,7 +19,7 @@ class AuthApiClient {
     }
   }
 
-  Future<AuthResponse> fetchSignIn(SignInRequest request) async {
+  Future<AuthResponse> signIn(SignInRequest request) async {
     final response = await http.post(
       Uri.parse(ApiAuthUrl.signIn),
       headers: ApiHeaders.defaultHeaders,
@@ -32,7 +32,7 @@ class AuthApiClient {
     }
   }
 
-  Future fetchLogOut(String token, String refreshToken) async {
+  Future logOut(String token, String refreshToken) async {
     final response = await http.post(
       Uri.parse(ApiAuthUrl.logout),
       headers: ApiHeaders.getLogoutHeaders(token, refreshToken),

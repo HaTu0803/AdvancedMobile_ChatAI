@@ -1,7 +1,7 @@
+import 'package:advancedmobile_chatai/core/navigation/routes.dart';
 import 'package:flutter/material.dart';
-import '../view_app/screens/profile/profile_screen.dart';
-import '../view_app/screens/upgrade_plans/upgrade_plans_screen.dart';
-import '../view_app/screens/auth/login/login_screen.dart';
+import 'package:go_router/go_router.dart';
+
 class AppSidebar extends StatelessWidget {
   const AppSidebar({super.key});
 
@@ -15,7 +15,10 @@ class AppSidebar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primaryContainer
+                    .withOpacity(0.5),
               ),
               child: Row(
                 children: [
@@ -55,7 +58,7 @@ class AppSidebar extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Menu Items
             Expanded(
               child: ListView(
@@ -66,13 +69,7 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.person_outline,
                     title: "My Profile",
                     onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfileScreen(),
-                        ),
-                      );
+                      context.go(AppRoutes.profile);
                     },
                   ),
                   _buildMenuItem(
@@ -80,13 +77,7 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.workspace_premium,
                     title: "Upgrade Plans",
                     onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UpgradePlansScreen(),
-                        ),
-                      );
+                      context.go(AppRoutes.upgradePlans);
                     },
                   ),
                   const Divider(),
@@ -111,7 +102,7 @@ class AppSidebar extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Logout Button
             Container(
               padding: const EdgeInsets.all(16),
@@ -130,14 +121,8 @@ class AppSidebar extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                builder: (context) => LoginScreen(show: () {}),
-                              ),
-                              (route) => false, // Removes all previous routes from the stack
-                            );
+                            context.go(AppRoutes.login);
                           },
-
                           child: const Text("Log Out"),
                         ),
                       ],
@@ -178,7 +163,7 @@ class AppSidebar extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildMenuItem(
     BuildContext context, {
     required IconData icon,
@@ -192,4 +177,3 @@ class AppSidebar extends StatelessWidget {
     );
   }
 }
-

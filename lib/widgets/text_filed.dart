@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../util/themes/colors.dart';
-import '../util/themes/custom_themes/text_theme.dart';
+
+import '../core/util/themes/colors.dart';
+import '../core/util/themes/custom_themes/text_theme.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -33,7 +34,9 @@ class CustomTextField extends StatelessWidget {
     final textColor = isDarkMode ? AppColors.textLight : AppColors.textDark;
     final borderColor = errorText != null
         ? AppColors.error
-        : (isDarkMode ? AppColors.primaryDarkActive : AppColors.primaryLightActive);
+        : (isDarkMode
+            ? AppColors.primaryDarkActive
+            : AppColors.primaryLightActive);
 
     final inputTextStyle = isDarkMode
         ? TTextTheme.darkTextTheme.bodyLarge
@@ -57,20 +60,23 @@ class CustomTextField extends StatelessWidget {
                 icon,
                 color: focusNode.hasFocus
                     ? textColor
-                    : AppColors.primary, // Only change color when the field is focused
+                    : AppColors
+                        .primary, // Only change color when the field is focused
               ),
               suffixIcon: isPassword
                   ? GestureDetector(
-                onTap: toggleVisibility,
-                child: Icon(
-                  obscureText ? Icons.visibility_off : Icons.visibility,
-                  color: focusNode.hasFocus
-                      ? textColor
-                      : AppColors.textGray, // Only change color when the password field is focused
-                ),
-              )
+                      onTap: toggleVisibility,
+                      child: Icon(
+                        obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: focusNode.hasFocus
+                            ? textColor
+                            : AppColors
+                                .textGray, // Only change color when the password field is focused
+                      ),
+                    )
                   : null,
-              contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
               enabledBorder: OutlineInputBorder(
                 borderSide: const BorderSide(
                   color: AppColors.primaryLightHover,
@@ -78,12 +84,16 @@ class CustomTextField extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10.r),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: borderColor), // Border when focused
+                borderSide:
+                    BorderSide(color: borderColor), // Border when focused
                 borderRadius: BorderRadius.circular(10.r),
               ),
               errorText: errorText,
               filled: true, // Enable filling the background
-              fillColor: backgroundColor ?? (isDarkMode ? AppColors.backgroundDark : AppColors.backgroundLight), // Set the background color
+              fillColor: backgroundColor ??
+                  (isDarkMode
+                      ? AppColors.backgroundDark
+                      : AppColors.backgroundLight), // Set the background color
             ),
           ),
         ],

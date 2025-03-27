@@ -1,4 +1,4 @@
-import 'package:advancedmobile_chatai/util/themes/custom_themes/text_theme.dart';
+import 'package:advancedmobile_chatai/core/util/themes/custom_themes/text_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../colors.dart';
@@ -23,7 +23,7 @@ class TElevatedButtonTheme {
 
   static ElevatedButtonThemeData darkElevatedButtonTheme =
       ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
+    style: ElevatedButton.styleFrom(
       elevation: 0,
       foregroundColor: AppColors.textLight,
       backgroundColor: AppColors.primaryDark,

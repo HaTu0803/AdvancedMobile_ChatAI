@@ -1,4 +1,4 @@
-import 'package:advancedmobile_chatai/view_app/screens/prompt_library/public_prompt/public_prompt.dart';
+import 'package:advancedmobile_chatai/view_app/auth/screens/prompt_library/public_prompt/public_prompt.dart';
 import 'package:flutter/material.dart';
 
 import 'create_prompt/create_prompt_screen.dart';

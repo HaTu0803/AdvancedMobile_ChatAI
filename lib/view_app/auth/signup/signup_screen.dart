@@ -1,13 +1,13 @@
+import 'package:advancedmobile_chatai/core/navigation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../util/themes/colors.dart';
-import '../../../../widgets/button.dart';
-import '../login/login_screen.dart';
+import '../../../core/util/themes/colors.dart';
+import '../../../widgets/button.dart';
 
 class SignUpScreen extends StatefulWidget {
-  final VoidCallback show;
-  const SignUpScreen({super.key, required this.show});
+  const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -18,7 +18,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final nameController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
   bool visibil = true;
@@ -28,7 +27,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    nameController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
   }
@@ -54,20 +52,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
           : (confirmPasswordController.text != passwordController.text
               ? "Passwords do not match"
               : null);
-
-      nameError = nameController.text.isEmpty ? "Please enter your name" : null;
     });
 
     if (emailError == null &&
         passwordError == null &&
         confirmPasswordError == null &&
         nameError == null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(show: widget.show),
-        ),
-      );
+      context.go(AppRoutes.login);
     }
   }
 
@@ -85,9 +76,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               SizedBox(height: 20.h),
               inputField(emailController, "Email", Icons.email,
                   errorText: emailError),
-              SizedBox(height: 20.h),
-              inputField(nameController, "Name", Icons.person,
-                  errorText: nameError),
               SizedBox(height: 20.h),
               inputField(passwordController, "Password", Icons.lock,
                   obscureText: visibil,
@@ -209,10 +197,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           Text("Already have an account?",
               style: TextStyle(fontSize: 14.sp, color: Colors.grey[700])),
           GestureDetector(
-            onTap: () => Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => LoginScreen(show: widget.show))),
+            onTap: () => context.go(AppRoutes.login),
             child: Text(" Login",
                 style: TextStyle(
                     fontSize: 16.sp,

@@ -1,8 +1,11 @@
+import 'package:advancedmobile_chatai/core/navigation/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'forgot_password.dart'; // Import màn hình ForgotPassword
+import 'package:go_router/go_router.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
+
 import 'reset_password.dart';
+
 class VerifyOTP extends StatefulWidget {
   final String email;
 
@@ -38,10 +41,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => ForgotPassword(show: () {})),
-            );
+            context.go(AppRoutes.forgotPassword);
           },
         ),
       ),
@@ -56,13 +56,12 @@ class _VerifyOTPState extends State<VerifyOTP> {
                   child: Center(
                     child: Image.asset(
                       'images/pincode.png',
-                      width: 150.w,  // Điều chỉnh kích thước hình ảnh
+                      width: 150.w, // Điều chỉnh kích thước hình ảnh
                       height: 150.w,
                       fit: BoxFit.contain,
                     ),
                   ),
                 ),
-
 
                 SizedBox(height: 20.h),
 
@@ -95,7 +94,8 @@ class _VerifyOTPState extends State<VerifyOTP> {
                   controller: otpController,
                   keyboardType: TextInputType.number,
                   cursorColor: Colors.blue,
-                  textStyle: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+                  textStyle:
+                      TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
                   pinTheme: PinTheme(
                     shape: PinCodeFieldShape.box,
                     borderRadius: BorderRadius.circular(12.r),
@@ -118,20 +118,23 @@ class _VerifyOTPState extends State<VerifyOTP> {
                 GestureDetector(
                   onTap: isOtpFilled
                       ? () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ResetPassword(email: widget.email),
-                      ),
-                    );
-                  }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ResetPassword(email: widget.email),
+                            ),
+                          );
+                        }
                       : null,
                   child: Container(
                     width: double.infinity,
                     height: 50.h,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: isOtpFilled ? const Color.fromARGB(255, 136, 132, 250) : Colors.grey.shade300,
+                      color: isOtpFilled
+                          ? const Color.fromARGB(255, 136, 132, 250)
+                          : Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Text(

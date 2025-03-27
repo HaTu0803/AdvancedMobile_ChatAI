@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../data_app/datasource/mock_data.dart';
+import '../../../../data_app/datasource/mock_data.dart';
 
 class AIModelSelection extends StatefulWidget {
   const AIModelSelection({super.key});

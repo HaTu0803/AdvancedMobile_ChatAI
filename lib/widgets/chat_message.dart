@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../util/themes/colors.dart';
+import '../core/util/themes/colors.dart';
 
 class ChatBubble extends StatelessWidget {
   final String text;
@@ -26,29 +26,32 @@ class ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment:
-      isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment:
+              isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: [
             if (!isUser)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primaryContainer,
                   radius: 20,
-                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+                  backgroundImage:
+                      avatarUrl != null ? NetworkImage(avatarUrl!) : null,
                   child: avatarUrl == null
-                      ? const Icon(Icons.smart_toy_rounded, size: 24, color: Colors.white)
+                      ? const Icon(Icons.smart_toy_rounded,
+                          size: 24, color: Colors.white)
                       : null,
                 ),
               ),
-
             Flexible(
               child: Column(
                 crossAxisAlignment:
-                isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -70,7 +73,6 @@ class ChatBubble extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   if (!isUser)
                     Row(
                       mainAxisSize: MainAxisSize.min,

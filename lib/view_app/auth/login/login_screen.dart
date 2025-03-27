@@ -1,15 +1,13 @@
+import 'package:advancedmobile_chatai/core/navigation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../util/themes/colors.dart';
-import '../../../../widgets/button.dart';
-import '../../home/home_screen.dart';
-import '../forgot_password/forgot_password.dart';
-import '../signup/signup_screen.dart';
+import '../../../core/util/themes/colors.dart';
+import '../../../widgets/button.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback show;
-  const LoginScreen({super.key, required this.show});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -49,10 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // If no errors, navigate to the home screen
     if (emailError == null && passwordError == null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const HomeScreen()),
+      // );
+      context.go(AppRoutes.home);
     }
   }
 
@@ -190,11 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(color: Colors.grey[700], fontSize: 14.sp)),
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SignUpScreen(show: widget.show)),
-              );
+              context.go(AppRoutes.signup);
             },
             child: Text(
               "Sign up",
@@ -218,12 +213,13 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ForgotPassword(show: widget.show),
-                ),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => ForgotPassword(show: widget.show),
+              //   ),
+              // );
+              context.go(AppRoutes.forgotPassword);
             },
             child: Text(
               "Forgot Password?",

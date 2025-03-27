@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:advancedmobile_chatai/core/view_components/dialog_helper.dart';
+import 'package:advancedmobile_chatai/core/helpers/dialog_helper.dart';
 import 'package:http/http.dart' as http;
 
 class BaseError {

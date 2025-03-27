@@ -1,12 +1,10 @@
 class SignUpRequest {
   final String email;
   final String password;
-  final String verificationCallbackUrl;
 
   SignUpRequest({
     required this.email,
     required this.password,
-    required this.verificationCallbackUrl,
   });
 
   Map<String, dynamic> toJson() => {

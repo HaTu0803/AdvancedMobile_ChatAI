@@ -1,6 +1,7 @@
+import 'package:advancedmobile_chatai/core/navigation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'password_changed.dart';
+import 'package:go_router/go_router.dart';
 
 class ResetPassword extends StatefulWidget {
   final String email;
@@ -13,7 +14,8 @@ class ResetPassword extends StatefulWidget {
 
 class _ResetPasswordState extends State<ResetPassword> {
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _isFormValid = false;
@@ -64,13 +66,7 @@ class _ResetPasswordState extends State<ResetPassword> {
 
   void _resetPassword() {
     if (_isFormValid) {
-      // Here you would typically call your API to reset the password
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const PasswordChanged(),
-        ),
-      );
+      context.go(AppRoutes.passwordChanged);
     }
   }
 
@@ -132,7 +128,8 @@ class _ResetPasswordState extends State<ResetPassword> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: const BorderSide(color: Color(0xFF6366F1), width: 1.5),
+                borderSide:
+                    const BorderSide(color: Color(0xFF6366F1), width: 1.5),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
@@ -140,12 +137,15 @@ class _ResetPasswordState extends State<ResetPassword> {
               ),
               suffixIcon: IconButton(
                 icon: Icon(
-                  isVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                  isVisible
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
                   color: Colors.grey[600],
                 ),
                 onPressed: onToggleVisibility,
               ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             ),
           ),
         ),
@@ -161,7 +161,8 @@ class _ResetPasswordState extends State<ResetPassword> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Color(0xFF1A1A1A)),
+          icon: const Icon(Icons.arrow_back_ios_rounded,
+              color: Color(0xFF1A1A1A)),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -204,7 +205,8 @@ class _ResetPasswordState extends State<ResetPassword> {
                   label: "New Password",
                   controller: _passwordController,
                   isVisible: _isPasswordVisible,
-                  onToggleVisibility: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                  onToggleVisibility: () =>
+                      setState(() => _isPasswordVisible = !_isPasswordVisible),
                   errorText: _passwordError,
                   hintText: "Enter new password",
                 ),
@@ -215,7 +217,8 @@ class _ResetPasswordState extends State<ResetPassword> {
                   label: "Confirm Password",
                   controller: _confirmPasswordController,
                   isVisible: _isConfirmPasswordVisible,
-                  onToggleVisibility: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+                  onToggleVisibility: () => setState(() =>
+                      _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
                   errorText: _confirmPasswordError,
                   hintText: "Confirm your password",
                 ),
@@ -230,7 +233,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                     height: 50.h,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: _isFormValid ? const Color.fromARGB(255, 136, 132, 250) : Colors.grey.shade300,
+                      color: _isFormValid
+                          ? const Color.fromARGB(255, 136, 132, 250)
+                          : Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Text(
