@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/util/themes/colors.dart';
-import '../view_app/screens/prompt_library/prompt_library.dart';
+import '../view_app/jarvis/screens/prompt_library/prompt_library.dart';
 
 class MessageInputField extends StatefulWidget {
   final Function(String) onSend;
