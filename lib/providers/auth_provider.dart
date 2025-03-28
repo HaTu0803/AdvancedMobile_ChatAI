@@ -33,6 +33,7 @@ class AuthProvider with ChangeNotifier {
   Future<bool> signUp(String email, String password) async {
     setLoading(true);
     try {
+      debugPrint("🔍 Sending SignUp Request: email=$email, password=$password");
       await authRepository.signUp(SignUpRequest(
         email: email,
         password: password,

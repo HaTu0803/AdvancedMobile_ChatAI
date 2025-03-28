@@ -2,9 +2,12 @@ import 'package:advancedmobile_chatai/core/navigation/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/util/themes/colors.dart';
+import '../../../../providers/auth_provider.dart';
 import '../../../../widgets/button.dart';
+import '../../../../widgets/dialog.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -21,7 +24,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final confirmPasswordController = TextEditingController();
 
   bool visibil = true;
-  String? emailError, passwordError, confirmPasswordError, nameError;
+  String? emailError, passwordError, confirmPasswordError;
 
   @override
   void dispose() {
@@ -31,7 +34,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void validateSignUp() {
+  void validateSignUp() async {
     setState(() {
       emailError = emailController.text.isEmpty
           ? "Please enter your email"
@@ -42,10 +45,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       passwordError = passwordController.text.isEmpty
           ? "Please enter your password"
-          : (!RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
-                  .hasMatch(passwordController.text)
-              ? "Must have 8+ chars, 1 uppercase, 1 special char, 1 number"
-              : null);
+          : (passwordController.text.length < 8
+          ? "Password must be at least 8 characters"
+          : null);
 
       confirmPasswordError = confirmPasswordController.text.isEmpty
           ? "Please confirm your password"
@@ -56,9 +58,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (emailError == null &&
         passwordError == null &&
-        confirmPasswordError == null &&
-        nameError == null) {
-      context.go(AppRoutes.login);
+        confirmPasswordError == null ) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      bool isSuccess = await authProvider.signUp(emailController.text, passwordController.text);
+      if (!context.mounted) return;
+      print("isSuccess: $isSuccess");
+      if (isSuccess) {
+        showCustomDialog(
+            context: context,
+            title: "Success",
+            message: "You have successfully signed up",
+            onConfirm: () {
+              context.go(AppRoutes.login);
+            });
+      }
     }
   }
 

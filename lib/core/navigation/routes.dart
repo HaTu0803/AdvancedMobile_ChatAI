@@ -71,11 +71,24 @@ final GoRouter router = GoRouter(
         path: AppRoutes.forgotPassword,
         builder: (context, state) => const ForgotPassword()),
   ],
-  redirect: (context, state) async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final isAuthenticated = await authProvider.isAuthenticated();
+    redirect: (context, state) async {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final isAuthenticated = await authProvider.isAuthenticated();
 
-    if (isAuthenticated) return AppRoutes.home;
-    return AppRoutes.login;
-  },
+      // Nếu đã đăng nhập, đưa về Home
+      if (isAuthenticated) return AppRoutes.home;
+
+      // Cho phép truy cập các trang không cần đăng nhập
+      if ([
+        AppRoutes.signup,
+        AppRoutes.forgotPassword,
+        AppRoutes.passwordChanged, // Thêm dòng này để tránh bị chặn
+      ].contains(state.uri.path)) {
+        return null;
+      }
+
+      return AppRoutes.login;
+    }
+
+
 );

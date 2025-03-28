@@ -44,17 +44,13 @@ class _LoginScreenState extends State<LoginScreen> {
               ? "Invalid email format"
               : null);
 
-      passwordError =
-          password.text.isEmpty ? "Please enter your password" : null;
+      passwordError = password.text.isEmpty
+          ? "Please enter your password"
+          : (password.text.length < 8 ? "Password must be at least 8 characters" : null);
     });
 
     // If no errors, navigate to the home screen
     if (emailError == null && passwordError == null) {
-      // // Navigator.pushReplacement(
-      // //   context,
-      // //   MaterialPageRoute(builder: (context) => const HomeScreen()),
-      // // );
-      // context.go(AppRoutes.home);
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       bool isSuccess = await authProvider.signIn(email.text, password.text);
       if (!context.mounted) return; // Kiểm tra widget có còn tồn tại không
@@ -199,8 +195,10 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(color: Colors.grey[700], fontSize: 14.sp)),
           GestureDetector(
             onTap: () {
-              context.go(AppRoutes.signup);
-            },
+              if (!context.mounted) return;
+              print("🔍 AppRoutes.signup: ${AppRoutes.signup}");
+
+              context.go(AppRoutes.signup);            },
             child: Text(
               "Sign up",
               style: TextStyle(

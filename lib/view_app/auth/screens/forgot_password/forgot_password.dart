@@ -1,7 +1,9 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/navigation/routes.dart';
 import 'verify_otp.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -42,7 +44,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.go(AppRoutes.login),
         ),
       ),
       body: SafeArea(
