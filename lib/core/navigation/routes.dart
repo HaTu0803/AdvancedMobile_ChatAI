@@ -1,16 +1,17 @@
-import 'package:advancedmobile_chatai/main.dart';
+import 'package:advancedmobile_chatai/core/helpers/dialog_helper.dart';
 import 'package:advancedmobile_chatai/providers/auth_provider.dart';
-import 'package:advancedmobile_chatai/view_app/auth/forgot_password/forgot_password.dart';
-import 'package:advancedmobile_chatai/view_app/auth/forgot_password/password_changed.dart';
-import 'package:advancedmobile_chatai/view_app/auth/login/login_screen.dart';
-import 'package:advancedmobile_chatai/view_app/auth/screens/home/home_screen.dart';
-import 'package:advancedmobile_chatai/view_app/auth/screens/introduction/introduction_screen.dart';
-import 'package:advancedmobile_chatai/view_app/auth/signup/signup_screen.dart';
-import 'package:advancedmobile_chatai/view_app/screens/profile/profile_screen.dart';
-import 'package:advancedmobile_chatai/view_app/screens/upgrade_plans/upgrade_plans_screen.dart';
-import 'package:flutter/material.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+import '../../view_app/auth/screens/forgot_password/forgot_password.dart';
+import '../../view_app/auth/screens/forgot_password/password_changed.dart';
+import '../../view_app/auth/screens/introduction/introduction_screen.dart';
+import '../../view_app/auth/screens/login/login_screen.dart';
+import '../../view_app/auth/screens/signup/signup_screen.dart';
+import '../../view_app/jarvis/screens/home/home_screen.dart';
+import '../../view_app/jarvis/screens/profile/profile_screen.dart';
+import '../../view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -24,17 +25,23 @@ class AppRoutes {
   static const String upgradePlans = '/upgrade-plans';
 }
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
-
 // Khởi tạo GoRouter
 final GoRouter router = GoRouter(
-  navigatorKey: _rootNavigatorKey, // ✅ Thêm navigatorKey vào đây
-
+  navigatorKey: DialogHelper.navigatorKey,
   initialLocation: AppRoutes.splash,
   routes: [
     GoRoute(
       path: AppRoutes.splash,
-      builder: (context, state) => const SplashScreen(),
+      redirect: (context, state) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+        // Nếu dữ liệu chưa load xong, chờ đợi
+        if (authProvider.hasSeenIntro == null) {
+          return null; // Không điều hướng ngay
+        }
+
+        return authProvider.hasSeenIntro ? AppRoutes.login : AppRoutes.intro;
+      },
     ),
     GoRoute(
       path: AppRoutes.home,
@@ -67,10 +74,8 @@ final GoRouter router = GoRouter(
   ],
   redirect: (context, state) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final seenIntro = await authProvider.hasSeenIntro();
     final isAuthenticated = await authProvider.isAuthenticated();
 
-    if (!seenIntro) return AppRoutes.intro;
     if (isAuthenticated) return AppRoutes.home;
     return AppRoutes.login;
   },

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/navigation/routes.dart';
 import '../../../../data_app/model/jarvis/intro.dart';
 
 class IntroductionScreen extends StatefulWidget {
@@ -32,8 +33,12 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
   Future<void> _completeIntroduction() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('seenIntroduction', true);
-    context.go('/auth'); // Điều hướng đến màn hình đăng nhập
+
+    if (!mounted) return;
+
+    context.go(AppRoutes.login);
   }
+
 
   @override
   Widget build(BuildContext context) {

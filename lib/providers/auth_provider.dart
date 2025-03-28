@@ -1,80 +1,86 @@
-import 'package:advancedmobile_chatai/core/local_storage/base_preferences.dart';
 import 'package:advancedmobile_chatai/data_app/model/auth/auth_model.dart';
-import 'package:advancedmobile_chatai/data_app/remote/auth/auth_api_client.dart';
+import 'package:advancedmobile_chatai/data_app/repository/authentication_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
-  final AuthApiClient _authApiClient = AuthApiClient();
-  final BasePreferences _basePreferences = BasePreferences();
+  final AuthRepository authRepository = AuthRepository();
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  void setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  bool _hasSeenIntro = false; // Giá trị mặc định
+  bool get hasSeenIntro => _hasSeenIntro;
+
+  Future<void> loadHasSeenIntro() async {
+    final prefs = await SharedPreferences.getInstance();
+    _hasSeenIntro = prefs.getBool('seenIntroduction') ?? false;
+    notifyListeners(); // Thông báo UI cập nhật
+  }
+
+  Future<void> setHasSeenIntro(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('seenIntroduction', value);
+    _hasSeenIntro = value;
+    notifyListeners();
+  }
 
   Future<bool> signUp(String email, String password) async {
+    setLoading(true);
     try {
-      final response = await _authApiClient.signUp(SignUpRequest(
+      await authRepository.signUp(SignUpRequest(
         email: email,
         password: password,
       ));
-      await _basePreferences.setTokenPreferred(
-          'access_token', response.accessToken);
-      await _basePreferences.setTokenPreferred(
-          'refresh_token', response.refreshToken);
       return true;
     } catch (e) {
-      print("SignUp Error: $e");
+      debugPrint("SignUp Error: $e");
       return false;
+    } finally {
+      setLoading(false);
     }
   }
 
   Future<bool> signIn(String email, String password) async {
+    setLoading(true);
     try {
-      final response = await _authApiClient.signIn(SignInRequest(
+      debugPrint("🔍 Sending SignIn Request: email=$email, password=$password");
+      print("email: $email");
+      print("password: $password");
+      await authRepository.signIn(SignInRequest(
         email: email,
         password: password,
       ));
-
-      await _basePreferences.setTokenPreferred(
-          'access_token', response.accessToken);
-      await _basePreferences.setTokenPreferred(
-          'refresh_token', response.refreshToken);
-
       return true;
     } catch (e) {
-      print("SignIn Error: $e");
+      debugPrint("SignIn Error: $e");
       return false;
+    } finally {
+      setLoading(false);
     }
   }
 
   Future<bool> logOut() async {
+    setLoading(true);
     try {
-      final accessToken =
-          await _basePreferences.getTokenPreferred('access_token');
-      final refreshToken =
-          await _basePreferences.getTokenPreferred('refresh_token');
-
-      await _authApiClient.logOut(accessToken, refreshToken);
-
-      // Xóa token khỏi SharedPreferences
-      await _basePreferences.removeTokenPreferred('access_token');
-      await _basePreferences.removeTokenPreferred('refresh_token');
+      debugPrint("🔍 Sending LogOut Request: ");
+      await authRepository.logOut();
 
       return true;
     } catch (e) {
-      print("LogOut Error: $e");
+      debugPrint("LogOut Error: $e");
       return false;
+    } finally {
+      setLoading(false);
     }
   }
 
-  Future<bool> hasSeenIntro() async {
-    final seen = await _basePreferences.getTokenPreferred('seen_intro');
-    return seen == 'true';
-  }
-
-  Future<void> setSeenIntro() async {
-    await _basePreferences.setTokenPreferred('seen_intro', 'true');
-  }
-
   Future<bool> isAuthenticated() async {
-    final accessToken =
-        await _basePreferences.getTokenPreferred('access_token');
-    return accessToken.isNotEmpty;
+    return await authRepository.isAuthenticated();
   }
 }

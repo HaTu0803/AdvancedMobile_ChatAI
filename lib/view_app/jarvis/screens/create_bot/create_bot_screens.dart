@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../data_app/datasource/mock_data.dart';
-import '../knowledge_source/knowledge_source.dart';
+import '../../../knowledge_base/screens/knowledge_source/knowledge_source.dart';
 
 class CreateYourOwnBotScreen extends StatefulWidget {
   const CreateYourOwnBotScreen({super.key});

@@ -27,4 +27,9 @@ class BasePreferences {
     if (_prefs == null) await init();
     return _prefs!.remove('$_storageKey$key');
   }
+
+  Future<void> clearTokens() async {
+    await removeTokenPreferred('access_token');
+    await removeTokenPreferred('refresh_token');
+  }
 }

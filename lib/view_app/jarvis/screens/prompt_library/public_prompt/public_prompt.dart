@@ -1,8 +1,8 @@
-import 'package:advancedmobile_chatai/view_app/auth/screens/prompt_library/prompt_item/prompt_item.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../data_app/datasource/mock_data.dart';
-import '../../../../../data_app/model/jarvis/prompt.dart';
+import '../../../../../../data_app/datasource/mock_data.dart';
+import '../../../../../../data_app/model/jarvis/prompt.dart';
+import '../prompt_item/prompt_item.dart';
 
 class PublicPromptsScreen extends StatefulWidget {
   const PublicPromptsScreen({super.key});

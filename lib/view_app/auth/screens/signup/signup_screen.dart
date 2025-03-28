@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/util/themes/colors.dart';
-import '../../../widgets/button.dart';
+import '../../../../core/util/themes/colors.dart';
+import '../../../../widgets/button.dart';
+
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});

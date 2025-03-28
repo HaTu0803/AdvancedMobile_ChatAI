@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../data_app/model/jarvis/history.dart';
+import '../../../../../data_app/model/jarvis/history.dart';
 
 class ChatHistoryScreen extends StatelessWidget {
   const ChatHistoryScreen({super.key});

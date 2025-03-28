@@ -31,19 +31,9 @@ class BaseError {
     final responseData = jsonDecode(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      // Show success message if provided
-      if (responseData['message'] != null) {
-        DialogHelper.showSuccess(responseData['message']);
-      }
       return responseData;
     } else {
-      // Show error message
       final error = responseData['error'] ?? 'Có lỗi xảy ra';
-
-      /// `DialogHelper.showError(error);` is a method call that is used to display an error message to
-      /// the user. It is likely a custom method defined in the codebase that shows an error dialog or
-      /// message to the user interface. The `error` parameter passed to this method is the error
-      /// message that will be displayed to the user.
       DialogHelper.showError(error);
       throw Exception(error);
     }
