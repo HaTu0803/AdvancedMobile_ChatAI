@@ -1,17 +1,16 @@
 import 'package:advancedmobile_chatai/core/helpers/dialog_helper.dart';
 import 'package:advancedmobile_chatai/providers/auth_provider.dart';
-
+import 'package:advancedmobile_chatai/view_app/auth/screens/forgot_password/forgot_password.dart';
+import 'package:advancedmobile_chatai/view_app/auth/screens/forgot_password/password_changed.dart';
+import 'package:advancedmobile_chatai/view_app/auth/screens/introduction/introduction_screen.dart';
+import 'package:advancedmobile_chatai/view_app/auth/screens/login/login_screen.dart';
+import 'package:advancedmobile_chatai/view_app/auth/screens/signup/signup_screen.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/screens/profile/profile_screen.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../view_app/auth/screens/forgot_password/forgot_password.dart';
-import '../../view_app/auth/screens/forgot_password/password_changed.dart';
-import '../../view_app/auth/screens/introduction/introduction_screen.dart';
-import '../../view_app/auth/screens/login/login_screen.dart';
-import '../../view_app/auth/screens/signup/signup_screen.dart';
 import '../../view_app/jarvis/screens/home/home_screen.dart';
-import '../../view_app/jarvis/screens/profile/profile_screen.dart';
-import '../../view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';

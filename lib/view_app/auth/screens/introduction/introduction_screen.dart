@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../../data_app/model/jarvis/intro.dart';
 import '../../../../core/navigation/routes.dart';
-import '../../../../data_app/model/jarvis/intro.dart';
 
 class IntroductionScreen extends StatefulWidget {
   const IntroductionScreen({super.key});
@@ -36,9 +36,8 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
 
     if (!mounted) return;
 
-    context.go(AppRoutes.login);
+    context.go(AppRoutes.login); // Điều hướng sang trang đăng nhập
   }
-
 
   @override
   Widget build(BuildContext context) {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../data_app/datasource/mock_data.dart';
-import '../../../../widgets/action_button.dart';
-import '../../../../widgets/chat_message.dart';
-import '../../widgets/message_input.dart';
-import '../../../../widgets/sidebar.dart';
-import '../../../../widgets/typewriter_animated_text.dart';
+import '../../../../../data_app/datasource/mock_data.dart';
+import '../../../../../widgets/action_button.dart';
+import '../../../../../widgets/chat_message.dart';
+import '../../../../../widgets/message_input.dart';
+import '../../../../../widgets/sidebar.dart';
+import '../../../../../widgets/typewriter_animated_text.dart';
 import '../chat_history/chat_history_screen.dart';
 import '../create_bot/create_bot_screens.dart';
 import '../prompt_library/prompt_library.dart';
