@@ -31,6 +31,27 @@ class JarvisPromptApiClient {
     }
   }
 
+  // Future<List<dynamic>> getCategories() async {
+  //   await BasePreferences.init();
+  //   String token = await BasePreferences().getTokenPreferred('access_token');
+
+  //   final headers = {
+  //     ...ApiHeaders.defaultHeaders,
+  //     'Authorization': 'Bearer $token',
+  //   };
+
+  //   final response = await http.get(
+  //     Uri.parse(ApiJarvisPromptUrl.getCategories),
+  //     headers: headers,
+  //   );
+  //   
+  //   if (response.statusCode == 200) {
+  //     final List<dynamic> jsonResponse = jsonDecode(response.body);
+  //     return jsonResponse;
+  //   } else {
+  //     throw Exception('Failed to fetch categories');
+  //   }
+  // }
 
   // Future<PromptModel> createPrompt(CreatePromptRequest request) async {
   //   final response = await http.post(

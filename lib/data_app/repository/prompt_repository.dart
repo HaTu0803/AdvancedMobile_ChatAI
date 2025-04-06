@@ -16,6 +16,19 @@ class PromptRepository {
     }
   }
 
+  // Future<List<PromptCategory>> getCategories() async {
+  //   try {
+  //     final dynamicList = await promptApiClient.getCategories();
+  //     return dynamicList.map((category) => PromptCategory(
+  //       name: category['name'] ?? 'Unknown',
+  //       isSelected: false,
+  //       id: category['id'] ?? '',
+  //     )).toList();
+  //   } catch (e) {
+  //     debugPrint("Error fetching categories: $e");
+  //     rethrow;
+  //   }
+  // }
 
   // Future<PromptModel> createPrompt(CreatePromptRequest request) async {
   //   try {

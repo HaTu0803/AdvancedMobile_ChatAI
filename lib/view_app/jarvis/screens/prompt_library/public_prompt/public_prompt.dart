@@ -17,13 +17,17 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   List<Prompt> _filteredPrompts = [];
   String _searchQuery = '';
 
-  late List<Category> _categories = [];
+  late List<PromptCategory> _categories = [];
   late List<Prompt> _prompts = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchPromptsFromApi();  // Gọi API ngay khi màn hình được hiển thị
+    _fetchPromptsFromApi();
+    print("Categories from API:");
+    _categories.forEach((category) {
+      print("Category: ${category.name}, ID: ${category.id}");
+    });
   }
 
   @override
@@ -35,19 +39,15 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   Future<void> _fetchPromptsFromApi() async {
     try {
       final promptProvider = Provider.of<PromptProvider>(context, listen: false);
-      await promptProvider.fetchPrompts();
+      await Future.wait([
+        promptProvider.fetchPrompts(),
+        promptProvider.fetchCategories(),
+      ]);
 
       // Lấy danh sách prompts và categories từ provider
       final prompts = promptProvider.prompts?.items ?? [];
       print(promptProvider.prompts);
-      // Dữ liệu categories giả định, bạn có thể lấy từ API
-      final List<Category> categories = [
-        Category(name: 'All', isSelected: true, id: 'all'),
-        Category(name: 'Science', isSelected: false, id: 'science'),
-        Category(name: 'Technology', isSelected: false, id: 'technology'),
-        Category(name: 'Art', isSelected: false, id: 'art'),
-      ];
-
+      
       setState(() {
          _prompts = prompts.map((data) => Prompt(
             id: data.id,
@@ -55,8 +55,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             description: data.description ?? '',
             category: data.category ?? '', 
             isFavorite: data.isFavorite ?? false,
-            createdAt: DateTime.parse(data.createdAt), // Chuyển đổi createdAt từ String sang DateTime
-            updatedAt: DateTime.parse(data.updatedAt), // Cũng chuyển updatedAt từ String sang DateTime
+            createdAt: DateTime.parse(data.createdAt),
+            updatedAt: DateTime.parse(data.updatedAt),
             content: data.content ?? '', 
             isPublic: data.isPublic ?? false, 
             language: data.language ?? '',
@@ -64,7 +64,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             userName: data.userName ?? '', 
           )).toList();
 
-        _categories = categories;
+        _categories = promptProvider.categories;
         _filterPrompts();
       });
 
@@ -127,12 +127,11 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Public Prompts')),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
                 Expanded(
@@ -152,53 +151,34 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  onPressed: _fetchPromptsFromApi,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Call API'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
+              
               ],
             ),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 40,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              children: _categories
-                  .map((category) => _buildCategoryItem(category))
-                  .toList(),
-            ),
-          ),
-          const SizedBox(height: 8),
+          _buildCategoriesList(),
+          const SizedBox(height: 16),
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               itemCount: _filteredPrompts.length,
               separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
                 final prompt = _filteredPrompts[index];
-             return PromptItem(
-              id: prompt.id, 
-              createdAt: prompt.createdAt.toString(),
-              updatedAt: prompt.updatedAt.toString(),
-              category: prompt.category, 
-              content: prompt.content,
-              description: prompt.description, 
-              isPublic: prompt.isPublic,
-              language: prompt.language, 
-              title: prompt.title,
-              userId: prompt.userId,
-              userName: prompt.userName,
-              isFavorite: prompt.isFavorite,
-              );
+                return PromptItem(
+                  id: prompt.id, 
+                  createdAt: prompt.createdAt.toString(),
+                  updatedAt: prompt.updatedAt.toString(),
+                  category: prompt.category, 
+                  content: prompt.content,
+                  description: prompt.description, 
+                  isPublic: prompt.isPublic,
+                  language: prompt.language, 
+                  title: prompt.title,
+                  userId: prompt.userId,
+                  userName: prompt.userName,
+                  isFavorite: prompt.isFavorite,
+                );
               },
             ),
           ),
@@ -207,28 +187,50 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
     );
   }
 
-  Widget _buildCategoryItem(Category category) {
+  Widget _buildCategoryItem(PromptCategory category) {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: InkWell(
         onTap: () => _selectCategory(category.name),
-        borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           decoration: BoxDecoration(
             color: category.isSelected
-                ? Theme.of(context).primaryColor
+                ? const Color(0xFF7B68EE)
                 : const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: category.isSelected
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF7B68EE).withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
           ),
           child: Text(
             category.name,
             style: TextStyle(
-              color: category.isSelected ? Colors.white : Colors.black,
-              fontWeight: FontWeight.w500,
+              color: category.isSelected ? Colors.white : Colors.black87,
+              fontWeight: category.isSelected ? FontWeight.w600 : FontWeight.w500,
+              fontSize: 16,
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCategoriesList() {
+    return SizedBox(
+      height: 50,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        children: _categories
+            .map((category) => _buildCategoryItem(category))
+            .toList(),
       ),
     );
   }

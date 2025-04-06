@@ -21,19 +21,19 @@ final List<Map<String, dynamic>> knowledgeSources = [
 class MockData {
   static final List<String> tabs = ['Public Prompts', 'My Prompts'];
 
-  static final List<Category> categories = [
-    Category(id : '1', name: 'All', isSelected: true),
-    Category(id : '1', name: 'Marketing', isSelected: false),
-    Category(id : '1', name: 'Business', isSelected: false),
-    Category(id : '1', name: 'SEO', isSelected: false),
-    Category(id : '1', name: 'Writing', isSelected: false),
-    Category(id : '1', name: 'Coding', isSelected: false),
-    Category(id : '1', name: 'Career', isSelected: false),
-    Category(id : '1', name: 'Chatbot', isSelected: false),
-    Category(id : '1', name: 'Education', isSelected: false),
-    Category(id : '1', name: 'Fun', isSelected: false),
-    Category(id : '1', name: 'Productivity', isSelected: false),
-    Category(id : '1', name: 'Other', isSelected: false),
+  static final List<PromptCategory> categories = [
+    PromptCategory(id : '1', name: 'All', isSelected: true),
+    PromptCategory(id : '1', name: 'Marketing', isSelected: false),
+    PromptCategory(id : '1', name: 'Business', isSelected: false),
+    PromptCategory(id : '1', name: 'SEO', isSelected: false),
+    PromptCategory(id : '1', name: 'Writing', isSelected: false),
+    PromptCategory(id : '1', name: 'Coding', isSelected: false),
+    PromptCategory(id : '1', name: 'Career', isSelected: false),
+    PromptCategory(id : '1', name: 'Chatbot', isSelected: false),
+    PromptCategory(id : '1', name: 'Education', isSelected: false),
+    PromptCategory(id : '1', name: 'Fun', isSelected: false),
+    PromptCategory(id : '1', name: 'Productivity', isSelected: false),
+    PromptCategory(id : '1', name: 'Other', isSelected: false),
   ];
 
   static final List<Prompt> prompts = [

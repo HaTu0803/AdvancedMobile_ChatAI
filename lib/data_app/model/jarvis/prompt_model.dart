@@ -151,12 +151,12 @@ class Prompt {
 }
 
 // Model cho Category
-class Category {
+class PromptCategory {
   final String name;
   bool isSelected;
   final String id;
 
-  Category({
+  PromptCategory({
     required this.name,
     required this.isSelected,
     required this.id,
