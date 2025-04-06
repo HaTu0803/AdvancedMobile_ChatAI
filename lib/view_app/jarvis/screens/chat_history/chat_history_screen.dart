@@ -1,62 +1,85 @@
+import 'package:advancedmobile_chatai/data_app/repository/ai_chat_repository.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data_app/model/jarvis/history.dart';
 
-class ChatHistoryScreen extends StatelessWidget {
+class ChatHistoryScreen extends StatefulWidget {
   const ChatHistoryScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Sample chat history data
-    final List<ChatItem> chatHistory = [
-      ChatItem(
-        title: "How to improve productivity",
-        lastMessage: "Here are 5 tips to improve your daily productivity...",
-        timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-        model: "GPT-4",
-      ),
-      ChatItem(
-        title: "Recipe for chocolate cake",
-        lastMessage:
-            "To make a delicious chocolate cake, you'll need the following ingredients...",
-        timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        model: "Claude",
-      ),
-      ChatItem(
-        title: "Writing a cover letter",
-        lastMessage:
-            "Here's a template for your job application cover letter...",
-        timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-        model: "GPT-4",
-      ),
-      ChatItem(
-        title: "Learning Flutter development",
-        lastMessage:
-            "Flutter is a UI toolkit for building natively compiled applications...",
-        timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        model: "Gemini",
-      ),
-      ChatItem(
-        title: "Planning a trip to Japan",
-        lastMessage:
-            "For your 10-day trip to Japan, I recommend the following itinerary...",
-        timestamp: DateTime.now().subtract(const Duration(days: 2)),
-        model: "JARVIS",
-      ),
-    ];
+  State<ChatHistoryScreen> createState() => _ChatHistoryScreenState();
+}
 
+class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
+  late Future<ConversationResponse> _conversationFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _conversationFuture = _fetchConversations();
+  }
+
+  Future<ConversationResponse> _fetchConversations() async {
+    final repository = AiChatRepository();
+    final request = ConversationRequest(
+      cursor: null, // Hoặc giá trị phù hợp
+      limit: "20",
+      assistantId: "gpt-4o-mini",
+    );
+    return await repository.getConversations(request);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-        itemCount: chatHistory.length,
-        itemBuilder: (context, index) {
-          final chat = chatHistory[index];
-          return _buildChatItem(context, chat);
+      body: FutureBuilder<ConversationResponse>(
+        future: _conversationFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.items.isEmpty) {
+            return _buildEmptyState(); // 🛠 Thêm UI khi không có dữ liệu
+          }
+
+          final chatHistory = snapshot.data!.items;
+
+          return ListView.builder(
+            itemCount: chatHistory.length,
+            itemBuilder: (context, index) {
+              final chat = chatHistory[index];
+              return _buildChatItem(context, chat);
+            },
+          );
         },
       ),
     );
   }
 
-  Widget _buildChatItem(BuildContext context, ChatItem chat) {
+  /// 🖼️ Hiển thị UI khi không có dữ liệu
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            "/images/no_found.png", // 📌 Đặt hình ảnh ở thư mục `assets/images/`
+            width: 200,
+            height: 200,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "No history found",
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChatItem(BuildContext context, Items chat) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 0,
@@ -81,7 +104,7 @@ class ChatHistoryScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      chat.title,
+                      chat.title ?? "Untitled",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -98,7 +121,7 @@ class ChatHistoryScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      chat.model,
+                      chat.id, // Hiển thị ID hoặc thông tin phù hợp
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -109,7 +132,7 @@ class ChatHistoryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                chat.lastMessage,
+                "Created at: ${_formatTimestamp(chat.createAt ?? 0)}",
                 style: TextStyle(
                   color:
                       Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
@@ -118,15 +141,6 @@ class ChatHistoryScreen extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 8),
-              Text(
-                _formatTimestamp(chat.timestamp),
-                style: TextStyle(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-                  fontSize: 12,
-                ),
-              ),
             ],
           ),
         ),
@@ -134,9 +148,10 @@ class ChatHistoryScreen extends StatelessWidget {
     );
   }
 
-  String _formatTimestamp(DateTime timestamp) {
+  String _formatTimestamp(int timestamp) {
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
     final now = DateTime.now();
-    final difference = now.difference(timestamp);
+    final difference = now.difference(dateTime);
 
     if (difference.inDays > 0) {
       return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
