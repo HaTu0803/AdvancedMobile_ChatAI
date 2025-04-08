@@ -38,7 +38,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
 
   Future<void> _fetchPromptsFromApi() async {
     try {
-      final promptProvider = Provider.of<PromptProvider>(context, listen: false);
+      final promptProvider =
+          Provider.of<PromptProvider>(context, listen: false);
       await Future.wait([
         promptProvider.fetchPrompts(),
         promptProvider.fetchCategories(),
@@ -47,22 +48,24 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
       // Lấy danh sách prompts và categories từ provider
       final prompts = promptProvider.prompts?.items ?? [];
       print(promptProvider.prompts);
-      
+
       setState(() {
-         _prompts = prompts.map((data) => Prompt(
-            id: data.id,
-            title: data.title ?? '',
-            description: data.description ?? '',
-            category: data.category ?? '', 
-            isFavorite: data.isFavorite ?? false,
-            createdAt: DateTime.parse(data.createdAt),
-            updatedAt: DateTime.parse(data.updatedAt),
-            content: data.content ?? '', 
-            isPublic: data.isPublic ?? false, 
-            language: data.language ?? '',
-            userId: data.userId ?? '', 
-            userName: data.userName ?? '', 
-          )).toList();
+        _prompts = prompts
+            .map((data) => Prompt(
+                  id: data.id,
+                  title: data.title ?? '',
+                  description: data.description ?? '',
+                  category: data.category ?? '',
+                  isFavorite: data.isFavorite ?? false,
+                  createdAt: DateTime.parse(data.createdAt),
+                  updatedAt: DateTime.parse(data.updatedAt),
+                  content: data.content ?? '',
+                  isPublic: data.isPublic ?? false,
+                  language: data.language ?? '',
+                  userId: data.userId ?? '',
+                  userName: data.userName ?? '',
+                ))
+            .toList();
 
         _categories = promptProvider.categories;
         _filterPrompts();
@@ -85,8 +88,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   void _filterPrompts() {
     setState(() {
       _filteredPrompts = _prompts.where((prompt) {
-        final matchesCategory =
-            _selectedCategory == 'All' || prompt.category.contains(_selectedCategory);
+        final matchesCategory = _selectedCategory == 'All' ||
+            prompt.category.contains(_selectedCategory);
         final matchesSearch =
             prompt.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
                 prompt.description
@@ -140,18 +143,18 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
                       hintText: 'Search...',
-                      prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+                      prefixIcon:
+                          Icon(Icons.search, color: Colors.grey.shade500),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.grey.shade300),
                       ),
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-              
               ],
             ),
           ),
@@ -166,14 +169,14 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
               itemBuilder: (context, index) {
                 final prompt = _filteredPrompts[index];
                 return PromptItem(
-                  id: prompt.id, 
+                  id: prompt.id,
                   createdAt: prompt.createdAt.toString(),
                   updatedAt: prompt.updatedAt.toString(),
-                  category: prompt.category, 
+                  category: prompt.category,
                   content: prompt.content,
-                  description: prompt.description, 
+                  description: prompt.description,
                   isPublic: prompt.isPublic,
-                  language: prompt.language, 
+                  language: prompt.language,
                   title: prompt.title,
                   userId: prompt.userId,
                   userName: prompt.userName,
@@ -213,7 +216,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             category.name,
             style: TextStyle(
               color: category.isSelected ? Colors.white : Colors.black87,
-              fontWeight: category.isSelected ? FontWeight.w600 : FontWeight.w500,
+              fontWeight:
+                  category.isSelected ? FontWeight.w600 : FontWeight.w500,
               fontSize: 16,
             ),
           ),

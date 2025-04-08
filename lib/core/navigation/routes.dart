@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../view_app/jarvis/screens/home/home_screen.dart';
+import '../../view_app/jarvis/screens/prompt_library/create_prompt/create_prompt_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -22,55 +23,61 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String profile = '/profile';
   static const String upgradePlans = '/upgrade-plans';
+  static const String createPrompt = '/create-prompt';
 }
 
 // Khởi tạo GoRouter
 final GoRouter router = GoRouter(
-  navigatorKey: DialogHelper.navigatorKey,
-  initialLocation: AppRoutes.splash,
-  routes: [
-    GoRoute(
-      path: AppRoutes.splash,
-      redirect: (context, state) {
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    navigatorKey: DialogHelper.navigatorKey,
+    initialLocation: AppRoutes.splash,
+    routes: [
+      GoRoute(
+        path: AppRoutes.splash,
+        redirect: (context, state) {
+          final authProvider =
+              Provider.of<AuthProvider>(context, listen: false);
 
-        // Nếu dữ liệu chưa load xong, chờ đợi
-        if (authProvider.hasSeenIntro == null) {
-          return null; // Không điều hướng ngay
-        }
+          // Nếu dữ liệu chưa load xong, chờ đợi
+          if (authProvider.hasSeenIntro == null) {
+            return null; // Không điều hướng ngay
+          }
 
-        return authProvider.hasSeenIntro ? AppRoutes.login : AppRoutes.intro;
-      },
-    ),
-    GoRoute(
-      path: AppRoutes.home,
-      builder: (context, state) => const HomeScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.login,
-      builder: (context, state) => const LoginScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.signup,
-      builder: (context, state) => const SignUpScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.intro,
-      builder: (context, state) => const IntroductionScreen(),
-    ),
-    GoRoute(
-        path: AppRoutes.profile,
-        builder: (context, state) => const ProfileScreen()),
-    GoRoute(
-        path: AppRoutes.upgradePlans,
-        builder: (context, state) => const UpgradePlansScreen()),
-    GoRoute(
-        path: AppRoutes.passwordChanged,
-        builder: (context, state) => const PasswordChanged()),
-    GoRoute(
-        path: AppRoutes.forgotPassword,
-        builder: (context, state) => const ForgotPassword()),
-  ],
+          return authProvider.hasSeenIntro ? AppRoutes.login : AppRoutes.intro;
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.home,
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.signup,
+        builder: (context, state) => const SignUpScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.intro,
+        builder: (context, state) => const IntroductionScreen(),
+      ),
+      GoRoute(
+          path: AppRoutes.profile,
+          builder: (context, state) => const ProfileScreen()),
+      GoRoute(
+          path: AppRoutes.upgradePlans,
+          builder: (context, state) => const UpgradePlansScreen()),
+      GoRoute(
+          path: AppRoutes.passwordChanged,
+          builder: (context, state) => const PasswordChanged()),
+      GoRoute(
+          path: AppRoutes.forgotPassword,
+          builder: (context, state) => const ForgotPassword()),
+      GoRoute(
+        path: AppRoutes.createPrompt,
+        builder: (context, state) => const CreatePromptScreen(),
+      )
+    ],
     redirect: (context, state) async {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final isAuthenticated = await authProvider.isAuthenticated();
@@ -88,7 +95,4 @@ final GoRouter router = GoRouter(
       }
 
       return AppRoutes.login;
-    }
-
-
-);
+    });

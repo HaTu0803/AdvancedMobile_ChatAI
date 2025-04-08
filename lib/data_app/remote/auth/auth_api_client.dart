@@ -51,13 +51,14 @@ class AuthApiClient {
   }
 
   // Khi token hết hạn, sử dụng refresh token để lấy token mới
-  Future<AuthResponse> fetchRefreshToken(String refreshToken) async {
+  Future<String> fetchRefreshToken(String refreshToken) async {
     final response = await http.post(
       Uri.parse(ApiAuthUrl.refreshToken),
       headers: ApiHeaders.getRefreshHeaders(refreshToken),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return AuthResponse.fromJson(jsonDecode(response.body));
+      return AuthResponse.fromJson(jsonDecode(response.body))
+          .accessToken; // Trả về access token mới
     } else {
       throw Exception('Failed to refresh token');
     }

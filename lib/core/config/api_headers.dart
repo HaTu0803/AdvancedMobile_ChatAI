@@ -23,4 +23,8 @@ class ApiHeaders {
         'X-Stack-Refresh-Token': refreshToken,
         'Authorization': 'Bearer $token',
       };
+  static Map<String, String> getAIChatHeaders(String? guid, String token) => {
+        'x-jarvis-guid': guid ?? '',
+        'Authorization': 'Bearer $token',
+      };
 }

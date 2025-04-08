@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../../data_app/model/jarvis/prompt_model.dart';
+import '../../../../../data_app/repository/prompt_repository.dart';
 
 class CreatePromptScreen extends StatefulWidget {
   const CreatePromptScreen({super.key});
@@ -9,13 +11,20 @@ class CreatePromptScreen extends StatefulWidget {
 
 class _CreatePromptScreenState extends State<CreatePromptScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _promptController = TextEditingController();
+  final _categoryController = TextEditingController();
+  final _contentController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _languageController = TextEditingController();
+  final _titleController = TextEditingController();
+  bool _isPublic = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _promptController.dispose();
+    _categoryController.dispose();
+    _contentController.dispose();
+    _descriptionController.dispose();
+    _languageController.dispose();
+    _titleController.dispose();
     super.dispose();
   }
 
@@ -39,116 +48,93 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Warning Banner
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.warning_amber_rounded, color: Colors.amber),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          style: TextStyle(
-                            color: Colors.amber.shade900,
-                            fontSize: 14,
-                          ),
-                          children: [
-                            const TextSpan(text: 'You should '),
-                            TextSpan(
-                              text: 'login to Jarvis',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const TextSpan(
-                              text: ' to save your prompt. Otherwise, it will be lost.',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
+              _buildWarningBanner(),
+
               const SizedBox(height: 24),
-              
-              // Name Field
+
               _buildFormField(
-                label: 'Name',
-                controller: _nameController,
-                hintText: 'Name of the prompt',
+                label: 'Title',
+                controller: _titleController,
+                hintText: 'Title of the prompt',
                 isRequired: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name for your prompt';
-                  }
-                  return null;
-                },
+                validator: (value) => (value == null || value.trim().isEmpty)
+                    ? 'Please enter a title'
+                    : null,
               ),
-              
+
               const SizedBox(height: 24),
-              
-              // Prompt Field
+
               _buildFormField(
-                label: 'Prompt',
-                controller: _promptController,
-                hintText: 'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
+                label: 'Category',
+                controller: _categoryController,
+                hintText: 'Category of the prompt',
+                isRequired: true,
+                validator: (value) => (value == null || value.trim().isEmpty)
+                    ? 'Please enter a category'
+                    : null,
+              ),
+
+              const SizedBox(height: 24),
+
+              _buildFormField(
+                label: 'Content',
+                controller: _contentController,
+                hintText: 'Content of the prompt',
                 isRequired: true,
                 maxLines: 5,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your prompt';
-                  }
-                  return null;
-                },
+                validator: (value) => (value == null || value.trim().isEmpty)
+                    ? 'Please enter content'
+                    : null,
               ),
-              
-              // Info Box
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: Colors.blue.shade700),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Use square brackets [ ] to specify user input.',
-                        style: TextStyle(
-                          color: Colors.blue.shade700,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+
+              const SizedBox(height: 24),
+
+              _buildFormField(
+                label: 'Description',
+                controller: _descriptionController,
+                hintText: 'Description of the prompt',
+                isRequired: true,
+                maxLines: 3,
+                validator: (value) => (value == null || value.trim().isEmpty)
+                    ? 'Please enter description'
+                    : null,
               ),
-              
+
+              const SizedBox(height: 24),
+
+              _buildFormField(
+                label: 'Language',
+                controller: _languageController,
+                hintText: 'Language of the prompt',
+                isRequired: true,
+                validator: (value) => (value == null || value.trim().isEmpty)
+                    ? 'Please enter language'
+                    : null,
+              ),
+
+              const SizedBox(height: 24),
+
+              Row(
+                children: [
+                  const Text('Is Public'),
+                  Switch(
+                    value: _isPublic,
+                    onChanged: (value) {
+                      setState(() {
+                        _isPublic = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+
               const SizedBox(height: 40),
-              
-              // Buttons
+
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
                       child: const Text('Cancel'),
                     ),
                   ),
@@ -156,12 +142,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                   Expanded(
                     child: FilledButton(
                       onPressed: _submitForm,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
                       child: const Text('Create'),
                     ),
                   ),
@@ -173,7 +153,46 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       ),
     );
   }
-  
+
+  Widget _buildWarningBanner() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade100,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.warning_amber_rounded, color: Colors.amber),
+          const SizedBox(width: 12),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: Colors.amber.shade900,
+                  fontSize: 14,
+                ),
+                children: [
+                  const TextSpan(text: 'You should '),
+                  TextSpan(
+                    text: 'login to Jarvis',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const TextSpan(
+                    text: ' to save your prompt. Otherwise, it will be lost.',
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFormField({
     required String label,
     required TextEditingController controller,
@@ -194,16 +213,14 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            if (isRequired) ...[
-              const SizedBox(width: 4),
+            if (isRequired)
               Text(
-                '*',
+                ' *',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.error,
                   fontSize: 16,
                 ),
               ),
-            ],
           ],
         ),
         const SizedBox(height: 8),
@@ -212,7 +229,8 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
           decoration: InputDecoration(
             hintText: hintText,
             filled: true,
-            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            fillColor:
+            Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
@@ -225,14 +243,38 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       ],
     );
   }
-  
-  void _submitForm() {
+
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Prompt created successfully')),
+      debugPrint('Title Test: "${_titleController.text}"');
+      debugPrint('Content: "${_contentController.text}"');
+      debugPrint('Description: "${_descriptionController.text}"');
+      debugPrint('Category: "${_categoryController.text}"');
+      debugPrint('Language: "${_languageController.text.trim()}"');
+      debugPrint('Is Public: $_isPublic');
+      debugPrint('Form submitted successfully');
+      final request = CreatePromptRequest(
+        category: _categoryController.text.trim(),
+        content: _contentController.text.trim(),
+        description: _descriptionController.text.trim(),
+        isPublic: _isPublic,
+        language: _languageController.text.trim(),
+        title: _titleController.text.trim(),
       );
-      Navigator.pop(context);
+
+      try {
+        await PromptRepository().createPrompt(request);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Prompt created successfully')),
+        );
+        Navigator.pop(context);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
     }
   }
 }
-

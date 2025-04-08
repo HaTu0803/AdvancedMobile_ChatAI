@@ -91,7 +91,6 @@ class PromptItem extends StatelessWidget {
   }
 }
 
-
 // Model cho Prompt
 class Prompt {
   final String id;
@@ -131,7 +130,8 @@ class Prompt {
       category: promptItem.category,
       isFavorite: promptItem.isFavorite,
       createdAt: _parseCreatedAt(promptItem.createdAt),
-      updatedAt: _parseCreatedAt(promptItem.updatedAt), // Assuming updatedAt is also a String
+      updatedAt: _parseCreatedAt(
+          promptItem.updatedAt), // Assuming updatedAt is also a String
       content: promptItem.content,
       isPublic: promptItem.isPublic,
       language: promptItem.language,
@@ -147,6 +147,103 @@ class Prompt {
     } catch (e) {
       return DateTime.now(); // Nếu không thể parse, trả về thời gian hiện tại
     }
+  }
+}
+
+class CreatePromptRequest {
+  final String title;
+  final String content;
+  final String category;
+  final String description;
+  final String language;
+  final bool isPublic;
+
+  CreatePromptRequest({
+    required this.title,
+    required this.content,
+    required this.category,
+    required this.description,
+    required this.language,
+    required this.isPublic,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'content': content,
+      'category': category,
+      'description': description,
+      'language': language,
+      'isPublic': isPublic,
+    };
+  }
+}
+
+class CreatePromptResponse {
+  final String category;
+  final String content;
+  final String description;
+  final bool isPublic;
+  final String language;
+  final String title;
+  final String userId;
+  final String userName;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final String id;
+  final String? createdBy;
+  final String? updatedBy;
+
+  CreatePromptResponse({
+    required this.category,
+    required this.content,
+    required this.description,
+    required this.isPublic,
+    required this.language,
+    required this.title,
+    required this.userId,
+    required this.userName,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.id,
+    this.createdBy,
+    this.updatedBy,
+  });
+
+  factory CreatePromptResponse.fromJson(Map<String, dynamic> json) {
+    return CreatePromptResponse(
+      category: json['category'] ?? '',
+      content: json['content'] ?? '',
+      description: json['description'] ?? '',
+      isPublic: json['isPublic'] ?? false,
+      language: json['language'] ?? '',
+      title: json['title'] ?? '',
+      userId: json['userId'] ?? '',
+      userName: json['userName'] ?? '',
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+      id: json['_id'] ?? '',
+      createdBy: json['createdBy'],
+      updatedBy: json['updatedBy'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'category': category,
+      'content': content,
+      'description': description,
+      'isPublic': isPublic,
+      'language': language,
+      'title': title,
+      'userId': userId,
+      'userName': userName,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      '_id': id,
+      'createdBy': createdBy,
+      'updatedBy': updatedBy,
+    };
   }
 }
 
