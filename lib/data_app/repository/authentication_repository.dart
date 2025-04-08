@@ -58,7 +58,7 @@ class AuthRepository {
           await basePreferences.getTokenPreferred('refresh_token');
       if (refreshToken.isNotEmpty) {
         final response = await authApiClient.fetchRefreshToken(refreshToken);
-        return response; // Trả về access token mới
+        return response.accessToken;
       }
       throw Exception('Refresh token is empty');
     } catch (e) {
