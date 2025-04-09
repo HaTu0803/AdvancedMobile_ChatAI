@@ -11,19 +11,13 @@ class CreatePromptScreen extends StatefulWidget {
 
 class _CreatePromptScreenState extends State<CreatePromptScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _categoryController = TextEditingController();
   final _contentController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _languageController = TextEditingController();
   final _titleController = TextEditingController();
   bool _isPublic = false;
 
   @override
   void dispose() {
-    _categoryController.dispose();
     _contentController.dispose();
-    _descriptionController.dispose();
-    _languageController.dispose();
     _titleController.dispose();
     super.dispose();
   }
@@ -48,9 +42,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildWarningBanner(),
-
-              const SizedBox(height: 24),
 
               _buildFormField(
                 label: 'Title',
@@ -65,19 +56,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
               const SizedBox(height: 24),
 
               _buildFormField(
-                label: 'Category',
-                controller: _categoryController,
-                hintText: 'Category of the prompt',
-                isRequired: true,
-                validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Please enter a category'
-                    : null,
-              ),
-
-              const SizedBox(height: 24),
-
-              _buildFormField(
-                label: 'Content',
+                label: 'Prompt',
                 controller: _contentController,
                 hintText: 'Content of the prompt',
                 isRequired: true,
@@ -88,47 +67,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
               ),
 
               const SizedBox(height: 24),
-
-              _buildFormField(
-                label: 'Description',
-                controller: _descriptionController,
-                hintText: 'Description of the prompt',
-                isRequired: true,
-                maxLines: 3,
-                validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Please enter description'
-                    : null,
-              ),
-
-              const SizedBox(height: 24),
-
-              _buildFormField(
-                label: 'Language',
-                controller: _languageController,
-                hintText: 'Language of the prompt',
-                isRequired: true,
-                validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Please enter language'
-                    : null,
-              ),
-
-              const SizedBox(height: 24),
-
-              Row(
-                children: [
-                  const Text('Is Public'),
-                  Switch(
-                    value: _isPublic,
-                    onChanged: (value) {
-                      setState(() {
-                        _isPublic = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 40),
 
               Row(
                 children: [
@@ -154,44 +92,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
     );
   }
 
-  Widget _buildWarningBanner() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.amber.shade100,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.amber),
-          const SizedBox(width: 12),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  color: Colors.amber.shade900,
-                  fontSize: 14,
-                ),
-                children: [
-                  const TextSpan(text: 'You should '),
-                  TextSpan(
-                    text: 'login to Jarvis',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const TextSpan(
-                    text: ' to save your prompt. Otherwise, it will be lost.',
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildFormField({
     required String label,
@@ -248,26 +148,25 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
     if (_formKey.currentState!.validate()) {
       debugPrint('Title Test: "${_titleController.text}"');
       debugPrint('Content: "${_contentController.text}"');
-      debugPrint('Description: "${_descriptionController.text}"');
-      debugPrint('Category: "${_categoryController.text}"');
-      debugPrint('Language: "${_languageController.text.trim()}"');
       debugPrint('Is Public: $_isPublic');
       debugPrint('Form submitted successfully');
       final request = CreatePromptRequest(
-        category: _categoryController.text.trim(),
         content: _contentController.text.trim(),
-        description: _descriptionController.text.trim(),
         isPublic: _isPublic,
-        language: _languageController.text.trim(),
         title: _titleController.text.trim(),
       );
-
+      debugPrint('Request: ${request.toJson()}');
       try {
         await PromptRepository().createPrompt(request);
+        debugPrint('Prompt created successfully: ${request.toJson()}');
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Prompt created successfully')),
+          SnackBar(
+            content: const Text('Prompt created successfully'),
+            backgroundColor: Colors.green,
+          ),
         );
+
         Navigator.pop(context);
       } catch (e) {
         if (!mounted) return;

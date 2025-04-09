@@ -153,17 +153,11 @@ class Prompt {
 class CreatePromptRequest {
   final String title;
   final String content;
-  final String category;
-  final String description;
-  final String language;
   final bool isPublic;
 
   CreatePromptRequest({
     required this.title,
     required this.content,
-    required this.category,
-    required this.description,
-    required this.language,
     required this.isPublic,
   });
 
@@ -171,9 +165,6 @@ class CreatePromptRequest {
     return {
       'title': title,
       'content': content,
-      'category': category,
-      'description': description,
-      'language': language,
       'isPublic': isPublic,
     };
   }
@@ -247,6 +238,149 @@ class CreatePromptResponse {
   }
 }
 
+class GetPromptRequest {
+  final String? query;
+  final int? offset;
+  final int? limit;
+  final String? category;
+  final bool? isFavorite;
+  final bool? isPublic;
+
+  GetPromptRequest({
+    this.query,
+    this.offset,
+    this.limit,
+    this.category,
+    this.isFavorite,
+    this.isPublic,
+  });
+
+  Map<String, String> toQueryParams() {
+    final Map<String, String> params = {};
+
+    if (query != null && query!.isNotEmpty) {
+      params['query'] = query!;
+    }
+
+    if (offset != null) {
+      params['offset'] = offset.toString();
+    }
+
+    if (limit != null) {
+      params['limit'] = limit.toString();
+    }
+
+    if (category != null && category!.isNotEmpty) {
+      params['category'] = category!;
+    }
+
+    if (isFavorite != null) {
+      params['isFavorite'] = isFavorite.toString();
+    }
+
+    if (isPublic != null) {
+      params['isPublic'] = isPublic.toString();
+    }
+
+    return params;
+  }
+}
+
+class GetPromptResponse {
+  final bool hasNext;
+  final int offset;
+  final int limit;
+  final int total;
+  final List<PromptItemV2> items;
+
+  GetPromptResponse({
+    required this.hasNext,
+    required this.offset,
+    required this.limit,
+    required this.total,
+    required this.items,
+  });
+
+  factory GetPromptResponse.fromJson(Map<String, dynamic> json) {
+    return GetPromptResponse(
+      hasNext: json["hasNext"],
+      offset: json["offset"],
+      limit: json["limit"],
+      total: json["total"],
+      items: (json["items"] as List<dynamic>)
+          .map((item) => PromptItemV2.fromJson(item))
+          .toList(),
+    );
+  }
+}
+
+class PromptItemV2 {
+  final String id;
+  final String createdAt;
+  final String updatedAt;
+  final String category;
+  final String content;
+  final String description;
+  final bool isPublic;
+  final String language;
+  final String title;
+  final String userId;
+  final String userName;
+  bool isFavorite;
+
+  PromptItemV2({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.category,
+    required this.content,
+    required this.description,
+    required this.isPublic,
+    required this.language,
+    required this.title,
+    required this.userId,
+    required this.userName,
+    this.isFavorite = false,
+  });
+
+  factory PromptItemV2.fromJson(Map<String, dynamic> json) {
+    return PromptItemV2(
+      id: json["_id"] ?? "",
+      createdAt: json["createdAt"] ?? "",
+      updatedAt: json["updatedAt"] ?? "",
+      category: json["category"] ?? "Unknown",
+      content: json["content"] ?? "",
+      description: json["description"] ?? "No description",
+      isPublic: json["isPublic"] ?? false,
+      language: json["language"] ?? "en",
+      title: json["title"] ?? "Untitled",
+      userId: json["userId"] ?? "Unknown",
+      userName: json["userName"] ?? "Anonymous",
+      isFavorite: json["isFavorite"] ?? false,
+    );
+  }
+}
+class DeletePromptResponse {
+  final bool acknowledged;
+  final int deletedCount;
+  final int affected;
+
+  DeletePromptResponse({
+    required this.acknowledged,
+    required this.deletedCount,
+    required this.affected,
+  });
+
+  factory DeletePromptResponse.fromJson(Map<String, dynamic> json) {
+    final raw = json['raw'] ?? {};
+    return DeletePromptResponse(
+      acknowledged: raw['acknowledged'] ?? false,
+      deletedCount: raw['deletedCount'] ?? 0,
+      affected: json['affected'] ?? 0,
+    );
+  }
+}
+
 // Model cho Category
 class PromptCategory {
   final String name;
@@ -259,7 +393,6 @@ class PromptCategory {
     required this.id,
   });
 }
-
 // Hàm để xây dựng các PromptItem vào một Widget
 Widget? buildPromptItem(PromptItem? promptItem) {
   if (promptItem == null) {

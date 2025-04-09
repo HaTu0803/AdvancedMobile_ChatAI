@@ -7,7 +7,9 @@ class PromptRepository {
 
   Future<PromptResponse> getPrompts() async {
     try {
-      return await promptApiClient.getPrompts();
+      final response = await promptApiClient.getPrompts();
+      debugPrint("Fetched prompts: ${response}");
+      return response;
     } catch (e) {
       debugPrint("Error fetching prompts: $e");
       rethrow;
@@ -16,14 +18,28 @@ class PromptRepository {
 
   Future<CreatePromptResponse> createPrompt(CreatePromptRequest request) async {
     try {
-      print("Request: ${request.toJson()}");
-      return await promptApiClient.createPrompt(request);
+      final response = await promptApiClient.createPrompt(request);
+      debugPrint("Create Prompt Response: ${response}");
+      return response;
 
     } catch (e) {
       debugPrint("Create Prompt Error: \${e.toString()}");
       rethrow;
     }
   }
+
+  Future<GetPromptResponse> getPrompt(GetPromptRequest params) async {
+    try {
+      final response = await promptApiClient.getPrompt(params);
+      debugPrint("Get Prompt Response: ${response}");
+      return response;
+
+    } catch (e) {
+      debugPrint("Get Prompt Error: \${e.toString()}");
+      rethrow;
+    }
+  }
+
 
   // Future<PromptModel> updatePrompt(String id, UpdatePromptRequest request) async {
   //   try {
@@ -34,14 +50,16 @@ class PromptRepository {
   //   }
   // }
 
-  // Future<void> deletePrompt(String id) async {
-  //   try {
-  //     await promptApiClient.deletePrompt(id);
-  //   } catch (e) {
-  //     debugPrint("Delete Prompt Error: \${e.toString()}");
-  //     rethrow;
-  //   }
-  // }
+  Future<DeletePromptResponse> deletePrompt(String id) async {
+    try {
+      final response = promptApiClient.deletePrompt(id);
+      debugPrint("Delete Prompt Response: ${response}");
+      return response;
+    } catch (e) {
+      debugPrint("Delete Prompt Error: \${e.toString()}");
+      rethrow;
+    }
+  }
 
   // Future<void> addPromptToFavorites(String id) async {
   //   try {
