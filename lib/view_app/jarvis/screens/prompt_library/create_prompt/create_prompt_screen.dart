@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../data_app/repository/prompt_repository.dart';
 
 class CreatePromptScreen extends StatefulWidget {
-  const CreatePromptScreen({super.key});
+  final PromptItemV2? promptToEdit;
+
+  const CreatePromptScreen({super.key, this.promptToEdit});
 
   @override
   State<CreatePromptScreen> createState() => _CreatePromptScreenState();
@@ -14,6 +17,20 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
   final _contentController = TextEditingController();
   final _titleController = TextEditingController();
   bool _isPublic = false;
+  bool get isEditMode => widget.promptToEdit != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isEditMode) {
+      final prompt = widget.promptToEdit!;
+      debugPrint("Editing prompt with id: ${prompt.id}");
+      debugPrint("Editing prompt with title: ${prompt.title}");
+      _titleController.text = prompt.title;
+      _contentController.text = prompt.content;
+      _isPublic = prompt.isPublic ?? false;
+    }
+  }
 
   @override
   void dispose() {
@@ -26,7 +43,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Prompt'),
+        title: Text(isEditMode ? 'Edit Prompt' : 'New Prompt'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -42,7 +59,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               _buildFormField(
                 label: 'Title',
                 controller: _titleController,
@@ -52,9 +68,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                     ? 'Please enter a title'
                     : null,
               ),
-
               const SizedBox(height: 24),
-
               _buildFormField(
                 label: 'Prompt',
                 controller: _contentController,
@@ -65,9 +79,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                     ? 'Please enter content'
                     : null,
               ),
-
               const SizedBox(height: 24),
-
               Row(
                 children: [
                   Expanded(
@@ -80,7 +92,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                   Expanded(
                     child: FilledButton(
                       onPressed: _submitForm,
-                      child: const Text('Create'),
+                      child: Text(isEditMode ? 'Update' : 'Create'),
                     ),
                   ),
                 ],
@@ -91,7 +103,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       ),
     );
   }
-
 
   Widget _buildFormField({
     required String label,
@@ -108,10 +119,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             if (isRequired)
               Text(
@@ -130,7 +138,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
             hintText: hintText,
             filled: true,
             fillColor:
-            Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
+                Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
@@ -146,28 +154,35 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      debugPrint('Title Test: "${_titleController.text}"');
-      debugPrint('Content: "${_contentController.text}"');
-      debugPrint('Is Public: $_isPublic');
-      debugPrint('Form submitted successfully');
       final request = CreatePromptRequest(
         content: _contentController.text.trim(),
         isPublic: _isPublic,
         title: _titleController.text.trim(),
       );
-      debugPrint('Request: ${request.toJson()}');
-      try {
-        await PromptRepository().createPrompt(request);
-        debugPrint('Prompt created successfully: ${request.toJson()}');
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Prompt created successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
 
-        Navigator.pop(context);
+      try {
+        if (isEditMode) {
+          await PromptRepository()
+              .updatePrompt(widget.promptToEdit!.id, request);
+          debugPrint("Updated prompt with id: ${widget.promptToEdit!.id}");
+          debugPrint("Updated prompt with title: ${_titleController.text.trim()}");
+          debugPrint("Updated prompt with content: ${_contentController.text.trim()}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Prompt updated successfully'),
+                backgroundColor: Colors.green),
+          );
+        } else {
+          await PromptRepository().createPrompt(request);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Prompt created successfully'),
+                backgroundColor: Colors.green),
+          );
+        }
+
+        if (!mounted) return;
+        Navigator.pop(context, true);
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

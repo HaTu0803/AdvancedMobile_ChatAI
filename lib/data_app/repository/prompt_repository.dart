@@ -21,7 +21,6 @@ class PromptRepository {
       final response = await promptApiClient.createPrompt(request);
       debugPrint("Create Prompt Response: ${response}");
       return response;
-
     } catch (e) {
       debugPrint("Create Prompt Error: \${e.toString()}");
       rethrow;
@@ -33,22 +32,21 @@ class PromptRepository {
       final response = await promptApiClient.getPrompt(params);
       debugPrint("Get Prompt Response: ${response}");
       return response;
-
     } catch (e) {
       debugPrint("Get Prompt Error: \${e.toString()}");
       rethrow;
     }
   }
 
-
-  // Future<PromptModel> updatePrompt(String id, UpdatePromptRequest request) async {
-  //   try {
-  //     return await promptApiClient.updatePrompt(id, request);
-  //   } catch (e) {
-  //     debugPrint("Update Prompt Error: \${e.toString()}");
-  //     rethrow;
-  //   }
-  // }
+  Future<CreatePromptResponse> updatePrompt(
+      String id, CreatePromptRequest request) async {
+    try {
+      return await promptApiClient.updatePrompt(id, request);
+    } catch (e) {
+      debugPrint("Update Prompt Error: \${e.toString()}");
+      rethrow;
+    }
+  }
 
   Future<DeletePromptResponse> deletePrompt(String id) async {
     try {

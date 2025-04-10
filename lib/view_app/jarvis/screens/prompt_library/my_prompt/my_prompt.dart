@@ -1,6 +1,9 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+
 import 'package:advancedmobile_chatai/data_app/repository/prompt_repository.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/create_prompt/create_prompt_screen.dart';
+import 'package:flutter/material.dart';
+
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../widgets/dialog.dart';
 
@@ -45,7 +48,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
     try {
       final response = await PromptRepository().getPrompt(params);
       setState(() => _prompts = response.items);
-      debugPrint("Fetched prompts: ${response.items}");
+      debugPrint("Fetched prompts: ${_prompts}");
     } catch (e) {
       debugPrint('Failed to fetch prompts: $e');
     } finally {
@@ -79,7 +82,8 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
                   hintText: 'Search...',
                   prefixIcon: Icon(Icons.search, color: Colors.grey),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 ),
               ),
             ),
@@ -90,22 +94,33 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _prompts.isEmpty
-                ? const Center(child: Text("No prompts found"))
-                : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
-              itemCount: _prompts.length,
-              itemBuilder: (context, index) {
-                // Cast the prompt to PromptItemV2
-                final prompt = _prompts[index] as PromptItemV2;
+                    ? const Center(child: Text("No prompts found"))
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4.0, vertical: 8.0),
+                        itemCount: _prompts.length,
+                        itemBuilder: (context, index) {
+                          // Cast the prompt to PromptItemV2
+                          final prompt = _prompts[index] as PromptItemV2;
 
-                return _buildPromptItem(
-                  prompt, // Pass the whole PromptItemV2 object
-                  onEdit: () {},
-                  onDelete: () => _handleDeletePrompt(prompt), // Pass the whole PromptItemV2 object
-                  onUse: () {},
-                );
-              },
-            ),
+                          return _buildPromptItem(
+                            prompt, // Pass the whole PromptItemV2 object
+                            onEdit: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      CreatePromptScreen(promptToEdit: prompt),
+                                ),
+                              );
+                              if (result == true) _fetchPrompts();
+                            },
+                            onDelete: () => _handleDeletePrompt(
+                                prompt), // Pass the whole PromptItemV2 object
+                            onUse: () {},
+                          );
+                        },
+                      ),
           ),
 
           // Footer
@@ -136,11 +151,13 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
       ),
     );
   }
+
   Future<void> _handleDeletePrompt(PromptItemV2 prompt) async {
     showCustomDialog(
       context: context,
       title: 'Delete Prompt',
-      message: 'Are you sure you want to delete the prompt titled "${prompt.title}"?',
+      message:
+          'Are you sure you want to delete the prompt titled "${prompt.title}"?',
       isConfirmation: true,
       confirmText: 'Yes, Delete',
       cancelText: 'Cancel',
@@ -180,11 +197,11 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
   }
 
   Widget _buildPromptItem(
-      PromptItemV2 prompt, {
-        required VoidCallback onEdit,
-        required VoidCallback onDelete,
-        required VoidCallback onUse,
-      }) {
+    PromptItemV2 prompt, {
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
+    required VoidCallback onUse,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
@@ -213,19 +230,22 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.grey),
+                icon: const Icon(Icons.edit_outlined,
+                    size: 20, color: Colors.grey),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 onPressed: onEdit,
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline, size: 20, color: Colors.grey),
+                icon: const Icon(Icons.delete_outline,
+                    size: 20, color: Colors.grey),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 onPressed: onDelete,
               ),
               IconButton(
-                icon: const Icon(Icons.arrow_forward, size: 20, color: Colors.grey),
+                icon: const Icon(Icons.arrow_forward,
+                    size: 20, color: Colors.grey),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 onPressed: onUse,

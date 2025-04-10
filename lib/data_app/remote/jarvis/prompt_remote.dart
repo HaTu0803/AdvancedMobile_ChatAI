@@ -4,7 +4,6 @@ import 'package:advancedmobile_chatai/core/config/api_headers.dart';
 import 'package:advancedmobile_chatai/core/local_storage/base_preferences.dart';
 import 'package:advancedmobile_chatai/core/util/exception.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/prompt_model.dart';
-import 'package:advancedmobile_chatai/data_app/remote/auth/auth_api_client.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/jarvis/prompt_url.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,6 +28,7 @@ class JarvisPromptApiClient {
       throw Exception('Failed to fetch prompts');
     }
   }
+
   Future<GetPromptResponse> getPrompt(GetPromptRequest params) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
@@ -57,7 +57,7 @@ class JarvisPromptApiClient {
     final response = await http.post(
       Uri.parse(ApiJarvisPromptUrl.createPrompt),
       headers: ApiHeaders.getAIChatHeaders("", token),
-      body:  jsonEncode(request.toJson()),
+      body: jsonEncode(request.toJson()),
     );
 
     print("📩 response.statusCode: ${response.statusCode}");
@@ -90,54 +90,60 @@ class JarvisPromptApiClient {
     }
   }
 
-// Future<PromptModel> updatePrompt(String id, UpdatePromptRequest request) async {
-//   final response = await http.put(
-//     Uri.parse(ApiJarvisPromptUrl.updatePrompt(id)),
-//     headers: ApiHeaders.defaultHeaders,
-//     body: jsonEncode(request.toJson()),
-//   );
-//   if (response.statusCode == 200) {
-//     return PromptModel.fromJson(jsonDecode(response.body));
-//   } else {
-//     throw Exception('Failed to update prompt');
-//   }
-// }
+  Future<CreatePromptResponse> updatePrompt(
+      String id, CreatePromptRequest request) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    print("🔑 AccessToken: $token");
+    final response = await http.patch(
+      Uri.parse(ApiJarvisPromptUrl.updatePrompt(id)),
+      headers: ApiHeaders.getAIChatHeaders("", token),
+      body: jsonEncode(request.toJson()),
+    );
+    print("📩 response.statusCode: ${response.statusCode}");
+    print("📩 response.body update: ${response.body}");
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return CreatePromptResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to update prompt');
+    }
+  }
 
-Future<DeletePromptResponse> deletePrompt(String id) async {
-  await BasePreferences.init();
-  String token = await BasePreferences().getTokenPreferred('access_token');
-  print("🔑 AccessToken: $token");
-  final response = await http.delete(
-    Uri.parse(ApiJarvisPromptUrl.deletePrompt(id)),
-    headers: ApiHeaders.getAIChatHeaders("", token),
-  );
-  print("📩 response.statusCode: ${response.statusCode}");
-  print("📩 response.body: ${response.body}");
-  if (response.statusCode == 201 || response.statusCode == 200) {
-    return DeletePromptResponse.fromJson(jsonDecode(response.body));
-  } else if (response.statusCode == 401) {
-    print("🔄 Token expired. Refreshing...");
-    final newToken = await AuthRepository().fetchRefreshToken();
-    if (newToken != null) {
-      // Gọi lại request sau khi refresh
-      final retryResponse = await http.delete(
-        Uri.parse(ApiJarvisPromptUrl.deletePrompt(id)),
-        headers: ApiHeaders.getAIChatHeaders("", newToken),
-      );
+  Future<DeletePromptResponse> deletePrompt(String id) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    print("🔑 AccessToken: $token");
+    final response = await http.delete(
+      Uri.parse(ApiJarvisPromptUrl.deletePrompt(id)),
+      headers: ApiHeaders.getAIChatHeaders("", token),
+    );
+    print("📩 response.statusCode: ${response.statusCode}");
+    print("📩 response.body: ${response.body}");
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return DeletePromptResponse.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      print("🔄 Token expired. Refreshing...");
+      final newToken = await AuthRepository().fetchRefreshToken();
+      if (newToken != null) {
+        // Gọi lại request sau khi refresh
+        final retryResponse = await http.delete(
+          Uri.parse(ApiJarvisPromptUrl.deletePrompt(id)),
+          headers: ApiHeaders.getAIChatHeaders("", newToken),
+        );
 
-      if (retryResponse.statusCode == 201 ||
-          retryResponse.statusCode == 200) {
-        return DeletePromptResponse.fromJson(jsonDecode(retryResponse.body));
+        if (retryResponse.statusCode == 201 ||
+            retryResponse.statusCode == 200) {
+          return DeletePromptResponse.fromJson(jsonDecode(retryResponse.body));
+        } else {
+          throw Exception('❌ Retry failed: ${retryResponse.statusCode}');
+        }
       } else {
-        throw Exception('❌ Retry failed: ${retryResponse.statusCode}');
+        throw UnauthorizedException("Token expired and refresh failed");
       }
     } else {
-      throw UnauthorizedException("Token expired and refresh failed");
+      throw Exception('❌ Failed to delete prompt: ${response.statusCode}');
     }
-  } else {
-    throw Exception('❌ Failed to delete prompt: ${response.statusCode}');
   }
-}
 
 // Future<void> addPromptToFavorites(String id) async {
 //   final response = await http.post(
