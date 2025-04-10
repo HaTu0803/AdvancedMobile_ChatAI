@@ -53,7 +53,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Form(
           key: _formKey,
           child: Column(
@@ -85,6 +85,10 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        minimumSize: const Size.fromHeight(42), // Đảm bảo chiều cao giống nhau
+                      ),
                       child: const Text('Cancel'),
                     ),
                   ),
@@ -92,11 +96,16 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                   Expanded(
                     child: FilledButton(
                       onPressed: _submitForm,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        minimumSize: const Size.fromHeight(42), // Đảm bảo chiều cao giống nhau
+                      ),
                       child: Text(isEditMode ? 'Update' : 'Create'),
                     ),
                   ),
                 ],
-              ),
+              )
+
             ],
           ),
         ),
