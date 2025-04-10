@@ -188,15 +188,18 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Container(
-                    height: 120,
-                    padding: const EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: SingleChildScrollView(
-                      child: Text(prompt.content),
+                  SizedBox(
+                    width: double.infinity, // Ensures consistent width
+                    child: Container(
+                      height: 120,
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: SingleChildScrollView(
+                        child: Text(prompt.content),
+                      ),
                     ),
                   ),
                 ],
@@ -362,78 +365,6 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         children: _categories
             .map((category) => _buildCategoryItem(category))
             .toList(),
-      ),
-    );
-  }
-}
-
-class PromptItem extends StatelessWidget {
-  final String id;
-  final String createdAt;
-  final String updatedAt;
-  final String category;
-  final String content;
-  final String description;
-  final bool isPublic;
-  final String language;
-  final String title;
-  final String userId;
-  final String userName;
-  final bool isFavorite;
-  final Function onToggleFavorite;
-  final Function(BuildContext, Prompt, Function) showDetails;
-
-  const PromptItem({
-    Key? key,
-    required this.id,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.category,
-    required this.content,
-    required this.description,
-    required this.isPublic,
-    required this.language,
-    required this.title,
-    required this.userId,
-    required this.userName,
-    required this.isFavorite,
-    required this.onToggleFavorite,
-    required this.showDetails,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(description),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(
-              Icons.star,
-              color: isFavorite ? Colors.yellow : Colors.grey,
-            ),
-            onPressed: () => onToggleFavorite(),
-          ),
-          IconButton(
-            icon: Icon(Icons.info_outline),
-            onPressed: () => showDetails(context, Prompt(
-              id: id,
-              createdAt: DateTime.parse(createdAt),
-              updatedAt: DateTime.parse(updatedAt),
-              category: category,
-              content: content,
-              description: description,
-              isPublic: isPublic,
-              language: language,
-              title: title,
-              userId: userId,
-              userName: userName,
-              isFavorite: isFavorite,
-            ), onToggleFavorite),
-          ),
-        ],
       ),
     );
   }
