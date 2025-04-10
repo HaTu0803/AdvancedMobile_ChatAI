@@ -65,11 +65,6 @@ class PromptItem extends StatelessWidget {
       title: Text(title),
       subtitle: Text(description),
       leading: Icon(isFavorite ? Icons.star : Icons.star_border),
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Tapped on $title')),
-        );
-      },
     );
   }
 

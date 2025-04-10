@@ -25,12 +25,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       appBar: AppBar(
         title: const Text('New Prompt'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),

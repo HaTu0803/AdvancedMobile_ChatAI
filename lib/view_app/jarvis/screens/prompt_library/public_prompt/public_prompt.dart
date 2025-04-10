@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart'; // Import for Clipboard
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../providers/prompt_provider.dart';
@@ -16,6 +17,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   String _selectedCategory = 'All';
   List<Prompt> _filteredPrompts = [];
   String _searchQuery = '';
+  bool _isStarred = false;
 
   late List<PromptCategory> _categories = [];
   late List<Prompt> _prompts = [];
@@ -49,7 +51,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
       print(promptProvider.prompts);
       
       setState(() {
-         _prompts = prompts.map((data) => Prompt(
+        _prompts = prompts.map((data) => Prompt(
             id: data.id,
             title: data.title ?? '',
             description: data.description ?? '',
@@ -67,12 +69,6 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         _categories = promptProvider.categories;
         _filterPrompts();
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Prompts fetched successfully')),
-        );
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -92,7 +88,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                 prompt.description
                     .toLowerCase()
                     .contains(_searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
+        final matchesFavorite = !_isStarred || prompt.isFavorite;
+        return matchesCategory && matchesSearch && matchesFavorite;
       }).toList();
     });
   }
@@ -124,6 +121,121 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
     });
   }
 
+  void _showPromptDetails(BuildContext context, Prompt prompt, Function onToggleFavorite) {
+    final buttonColor = const Color(0xFF7B68EE); // Use the same color as Public Prompts
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Text(prompt.title),
+                  const Spacer(),
+                  IconButton(
+                    icon: Icon(
+                      Icons.star,
+                      color: prompt.isFavorite ? Colors.yellow : Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        prompt.isFavorite = !prompt.isFavorite;
+                      });
+                      onToggleFavorite();
+                    },
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${prompt.category} · ${prompt.userName}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    prompt.description,
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Prompt',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.copy),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: prompt.content));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Content copied to clipboard')),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    height: 120,
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: SingleChildScrollView(
+                      child: Text(prompt.content),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: TextButton.styleFrom(
+                    side: BorderSide(color: buttonColor),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: buttonColor),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Handle "Use this prompt" action
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: buttonColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                  child: const Text('Use this prompt'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,7 +263,24 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-              
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.star,
+                      color: _isStarred ? Colors.yellow : Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isStarred = !_isStarred;
+                        _filterPrompts();
+                      });
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -166,18 +295,20 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
               itemBuilder: (context, index) {
                 final prompt = _filteredPrompts[index];
                 return PromptItem(
-                  id: prompt.id, 
+                  id: prompt.id,
                   createdAt: prompt.createdAt.toString(),
                   updatedAt: prompt.updatedAt.toString(),
-                  category: prompt.category, 
+                  category: prompt.category,
                   content: prompt.content,
-                  description: prompt.description, 
+                  description: prompt.description,
                   isPublic: prompt.isPublic,
-                  language: prompt.language, 
+                  language: prompt.language,
                   title: prompt.title,
                   userId: prompt.userId,
                   userName: prompt.userName,
                   isFavorite: prompt.isFavorite,
+                  onToggleFavorite: () => _toggleFavorite(index),
+                  showDetails: _showPromptDetails,
                 );
               },
             ),
@@ -231,6 +362,78 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         children: _categories
             .map((category) => _buildCategoryItem(category))
             .toList(),
+      ),
+    );
+  }
+}
+
+class PromptItem extends StatelessWidget {
+  final String id;
+  final String createdAt;
+  final String updatedAt;
+  final String category;
+  final String content;
+  final String description;
+  final bool isPublic;
+  final String language;
+  final String title;
+  final String userId;
+  final String userName;
+  final bool isFavorite;
+  final Function onToggleFavorite;
+  final Function(BuildContext, Prompt, Function) showDetails;
+
+  const PromptItem({
+    Key? key,
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.category,
+    required this.content,
+    required this.description,
+    required this.isPublic,
+    required this.language,
+    required this.title,
+    required this.userId,
+    required this.userName,
+    required this.isFavorite,
+    required this.onToggleFavorite,
+    required this.showDetails,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(description),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(
+              Icons.star,
+              color: isFavorite ? Colors.yellow : Colors.grey,
+            ),
+            onPressed: () => onToggleFavorite(),
+          ),
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () => showDetails(context, Prompt(
+              id: id,
+              createdAt: DateTime.parse(createdAt),
+              updatedAt: DateTime.parse(updatedAt),
+              category: category,
+              content: content,
+              description: description,
+              isPublic: isPublic,
+              language: language,
+              title: title,
+              userId: userId,
+              userName: userName,
+              isFavorite: isFavorite,
+            ), onToggleFavorite),
+          ),
+        ],
       ),
     );
   }
