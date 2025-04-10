@@ -134,7 +134,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Row(
               children: [
                 Expanded(
