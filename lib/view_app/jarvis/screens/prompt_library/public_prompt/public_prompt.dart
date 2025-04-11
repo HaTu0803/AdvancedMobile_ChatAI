@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/services.dart'; // Import for Clipboard
+import 'package:provider/provider.dart';
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../providers/prompt_provider.dart';
@@ -40,7 +40,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
 
   Future<void> _fetchPromptsFromApi() async {
     try {
-      final promptProvider = Provider.of<PromptProvider>(context, listen: false);
+      final promptProvider =
+          Provider.of<PromptProvider>(context, listen: false);
       await Future.wait([
         promptProvider.fetchPrompts(),
         promptProvider.fetchCategories(),
@@ -49,22 +50,24 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
       // Lấy danh sách prompts và categories từ provider
       final prompts = promptProvider.prompts?.items ?? [];
       print(promptProvider.prompts);
-      
+
       setState(() {
-        _prompts = prompts.map((data) => Prompt(
-            id: data.id,
-            title: data.title ?? '',
-            description: data.description ?? '',
-            category: data.category ?? '', 
-            isFavorite: data.isFavorite ?? false,
-            createdAt: DateTime.parse(data.createdAt),
-            updatedAt: DateTime.parse(data.updatedAt),
-            content: data.content ?? '', 
-            isPublic: data.isPublic ?? false, 
-            language: data.language ?? '',
-            userId: data.userId ?? '', 
-            userName: data.userName ?? '', 
-          )).toList();
+        _prompts = prompts
+            .map((data) => Prompt(
+                  id: data.id,
+                  title: data.title ?? '',
+                  description: data.description ?? '',
+                  category: data.category ?? '',
+                  isFavorite: data.isFavorite ?? false,
+                  createdAt: DateTime.parse(data.createdAt),
+                  updatedAt: DateTime.parse(data.updatedAt),
+                  content: data.content ?? '',
+                  isPublic: data.isPublic ?? false,
+                  language: data.language ?? '',
+                  userId: data.userId ?? '',
+                  userName: data.userName ?? '',
+                ))
+            .toList();
 
         _categories = promptProvider.categories;
         _filterPrompts();
@@ -81,8 +84,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   void _filterPrompts() {
     setState(() {
       _filteredPrompts = _prompts.where((prompt) {
-        final matchesCategory =
-            _selectedCategory == 'All' || prompt.category.contains(_selectedCategory);
+        final matchesCategory = _selectedCategory == 'All' ||
+            prompt.category.contains(_selectedCategory);
         final matchesSearch =
             prompt.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
                 prompt.description
@@ -121,8 +124,10 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
     });
   }
 
-  void _showPromptDetails(BuildContext context, Prompt prompt, Function onToggleFavorite) {
-    final buttonColor = const Color(0xFF7B68EE); // Use the same color as Public Prompts
+  void _showPromptDetails(
+      BuildContext context, Prompt prompt, Function onToggleFavorite) {
+    final buttonColor =
+        const Color(0xFF7B68EE); // Use the same color as Public Prompts
 
     showDialog(
       context: context,
@@ -179,9 +184,11 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                       IconButton(
                         icon: Icon(Icons.copy),
                         onPressed: () {
-                          Clipboard.setData(ClipboardData(text: prompt.content));
+                          Clipboard.setData(
+                              ClipboardData(text: prompt.content));
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Content copied to clipboard')),
+                            SnackBar(
+                                content: Text('Content copied to clipboard')),
                           );
                         },
                       ),
@@ -227,7 +234,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                   ),
                   child: const Text('Use this prompt'),
                 ),
@@ -246,7 +254,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Row(
               children: [
                 Expanded(
@@ -255,13 +263,14 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
                       hintText: 'Search...',
-                      prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+                      prefixIcon:
+                          Icon(Icons.search, color: Colors.grey.shade500),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.grey.shade300),
                       ),
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                     ),
                   ),
                 ),
@@ -347,7 +356,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             category.name,
             style: TextStyle(
               color: category.isSelected ? Colors.white : Colors.black87,
-              fontWeight: category.isSelected ? FontWeight.w600 : FontWeight.w500,
+              fontWeight:
+                  category.isSelected ? FontWeight.w600 : FontWeight.w500,
               fontSize: 16,
             ),
           ),

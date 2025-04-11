@@ -1,3 +1,4 @@
+import 'package:advancedmobile_chatai/core/util/exception.dart';
 import 'package:advancedmobile_chatai/data_app/model/auth/auth_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/authentication_repository.dart';
 import 'package:flutter/material.dart';
@@ -51,13 +52,14 @@ class AuthProvider with ChangeNotifier {
     setLoading(true);
     try {
       debugPrint("🔍 Sending SignIn Request: email=$email, password=$password");
-      print("email: $email");
-      print("password: $password");
       await authRepository.signIn(SignInRequest(
         email: email,
         password: password,
       ));
       return true;
+    } on UnauthorizedException catch (e) {
+      debugPrint("🔒 Unauthorized: ${e.message}");
+      return false;
     } catch (e) {
       debugPrint("SignIn Error: $e");
       return false;
