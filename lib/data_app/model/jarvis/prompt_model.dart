@@ -43,6 +43,8 @@ class PromptItem extends StatelessWidget {
   final String userId;
   final String userName;
   bool isFavorite;
+  final Function? onToggleFavorite;
+  final Function(BuildContext, Prompt, Function)? showDetails;
 
   PromptItem({
     required this.id,
@@ -57,19 +59,46 @@ class PromptItem extends StatelessWidget {
     required this.userId,
     required this.userName,
     this.isFavorite = false,
+    this.onToggleFavorite,
+    this.showDetails,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(title),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text(description),
-      leading: Icon(isFavorite ? Icons.star : Icons.star_border),
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Tapped on $title')),
-        );
-      },
+      trailing: onToggleFavorite != null && showDetails != null
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.star,
+                    color: isFavorite ? Colors.yellow : Colors.grey,
+                  ),
+                  onPressed: () => onToggleFavorite!(),
+                ),
+                IconButton(
+                  icon: Icon(Icons.info_outline),
+                  onPressed: () => showDetails!(context, Prompt(
+                    id: id,
+                    createdAt: DateTime.parse(createdAt),
+                    updatedAt: DateTime.parse(updatedAt),
+                    category: category,
+                    content: content,
+                    description: description,
+                    isPublic: isPublic,
+                    language: language,
+                    title: title,
+                    userId: userId,
+                    userName: userName,
+                    isFavorite: isFavorite,
+                  ), onToggleFavorite!),
+                ),
+              ],
+            )
+          : null,
     );
   }
 
