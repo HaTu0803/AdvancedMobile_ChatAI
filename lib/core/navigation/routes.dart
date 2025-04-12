@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../view_app/jarvis/screens/home/home_screen.dart';
+import '../../view_app/jarvis/screens/prompt_library/create_prompt/create_prompt_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String upgradePlans = '/upgrade-plans';
   static const String history = '/conversation-history';
+  static const String createPrompt = '/create-prompt';
 }
 
 // Khởi tạo GoRouter
@@ -73,6 +75,10 @@ final GoRouter router = GoRouter(
       GoRoute(
           path: AppRoutes.forgotPassword,
           builder: (context, state) => const ForgotPassword()),
+      GoRoute(
+        path: AppRoutes.createPrompt,
+        builder: (context, state) => const CreatePromptScreen(),
+      ),
       GoRoute(
           path: AppRoutes.history,
           builder: (context, state) => const ChatHistoryScreen()),

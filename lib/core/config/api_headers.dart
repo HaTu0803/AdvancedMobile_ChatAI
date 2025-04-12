@@ -24,6 +24,7 @@ class ApiHeaders {
         'Authorization': 'Bearer $token',
       };
   static Map<String, String> getAIChatHeaders(String? guid, String token) => {
+        "Content-Type": "application/json",
         'x-jarvis-guid': guid ?? '',
         'Authorization': 'Bearer $token',
       };

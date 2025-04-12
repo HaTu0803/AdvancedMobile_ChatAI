@@ -52,6 +52,21 @@ class AuthRepository {
     }
   }
 
+  Future<String> fetchRefreshToken() async {
+    try {
+      final refreshToken =
+          await basePreferences.getTokenPreferred('refresh_token');
+      if (refreshToken.isNotEmpty) {
+        final response = await authApiClient.fetchRefreshToken(refreshToken);
+        return response;
+      }
+      throw Exception('Refresh token is empty');
+    } catch (e) {
+      debugPrint("Fetch Refresh Token Error: $e");
+      rethrow;
+    }
+  }
+
   Future<bool> isAuthenticated() async {
     final accessToken = await basePreferences.getTokenPreferred('access_token');
     debugPrint("🔍 Access Token: $accessToken");

@@ -1,4 +1,4 @@
-import 'package:advancedmobile_chatai/data_app/model/jarvis/prompt.dart';
+import 'package:advancedmobile_chatai/data_app/model/jarvis/prompt_model.dart';
 import 'package:flutter/material.dart';
 
 final List<Map<String, dynamic>> knowledgeSources = [
@@ -21,57 +21,102 @@ final List<Map<String, dynamic>> knowledgeSources = [
 class MockData {
   static final List<String> tabs = ['Public Prompts', 'My Prompts'];
 
-  static final List<Category> categories = [
-    Category(name: 'All', isSelected: true),
-    Category(name: 'Marketing', isSelected: false),
-    Category(name: 'Business', isSelected: false),
-    Category(name: 'SEO', isSelected: false),
-    Category(name: 'Writing', isSelected: false),
-    Category(name: 'Coding', isSelected: false),
-    Category(name: 'Career', isSelected: false),
-    Category(name: 'Chatbot', isSelected: false),
-    Category(name: 'Education', isSelected: false),
+  static final List<PromptCategory> categories = [
+    PromptCategory(id : '1', name: 'All', isSelected: true),
+    PromptCategory(id : '1', name: 'Marketing', isSelected: false),
+    PromptCategory(id : '1', name: 'Business', isSelected: false),
+    PromptCategory(id : '1', name: 'SEO', isSelected: false),
+    PromptCategory(id : '1', name: 'Writing', isSelected: false),
+    PromptCategory(id : '1', name: 'Coding', isSelected: false),
+    PromptCategory(id : '1', name: 'Career', isSelected: false),
+    PromptCategory(id : '1', name: 'Chatbot', isSelected: false),
+    PromptCategory(id : '1', name: 'Education', isSelected: false),
+    PromptCategory(id : '1', name: 'Fun', isSelected: false),
+    PromptCategory(id : '1', name: 'Productivity', isSelected: false),
+    PromptCategory(id : '1', name: 'Other', isSelected: false),
   ];
 
   static final List<Prompt> prompts = [
-    Prompt(
+    Prompt(id : '1', 
       title: 'Grammar corrector',
       description:
           'Improve your spelling and grammar by correcting errors in your writing.',
       category: 'Writing',
       isFavorite: false,
+      updatedAt: DateTime.now(), // Thêm trường updatedAt
+      content: 'Improve your writing with the help of grammar correction.',
+      isPublic: true, // Thêm trường isPublic
+      language: 'English', // Thêm trường language
+      userId: 'user_001', // Thêm trường userId
+      userName: 'John Doe', // Thêm trường userName
+      createdAt: DateTime.parse('2023-01-01T12:00:00Z'),
     ),
-    Prompt(
+    Prompt(id : '1', 
       title: 'Learn Code FAST!',
       description: 'Teach you the code with the most understandable knowledge.',
       category: 'Coding',
       isFavorite: false,
+      updatedAt: DateTime.now(), // Thêm trường updatedAt
+      content: 'Learn coding quickly with expert guidance.',
+      isPublic: true, // Thêm trường isPublic
+      language: 'English', // Thêm trường language
+      userId: 'user_002', // Thêm trường userId
+      userName: 'Jane Smith', // Thêm trường userName
+      createdAt: DateTime.parse('2023-02-01T12:00:00Z'),
     ),
-    Prompt(
+    Prompt(id : '1', 
       title: 'Story generator',
       description: 'Write your own beautiful story.',
       category: 'Writing',
       isFavorite: false,
+      updatedAt: DateTime.now(), // Thêm trường updatedAt
+      content: 'Generate creative stories with unique plots.',
+      isPublic: true, // Thêm trường isPublic
+      language: 'English', // Thêm trường language
+      userId: 'user_003', // Thêm trường userId
+      userName: 'Alice Brown', // Thêm trường userName
+      createdAt: DateTime.parse('2023-03-01T12:00:00Z'),
     ),
-    Prompt(
+    Prompt(id : '1', 
       title: 'Essay improver',
       description: 'Improve your content\'s effectiveness with ease.',
       category: 'Writing',
       isFavorite: false,
+      updatedAt: DateTime.now(), // Thêm trường updatedAt
+      content: 'Enhance your essays with better structure and clarity.',
+      isPublic: true, // Thêm trường isPublic
+      language: 'English', // Thêm trường language
+      userId: 'user_004', // Thêm trường userId
+      userName: 'Bob Johnson', // Thêm trường userName
+      createdAt: DateTime.parse('2023-04-01T12:00:00Z'),
     ),
-    Prompt(
+    Prompt(id : '1', 
       title: 'Pro tips generator',
       description:
           'Get perfect tips and advice tailored to your field with this prompt!',
       category: 'Career',
       isFavorite: false,
+      updatedAt: DateTime.now(), // Thêm trường updatedAt
+      content: 'Receive expert career tips that match your profession.',
+      isPublic: true, // Thêm trường isPublic
+      language: 'English', // Thêm trường language
+      userId: 'user_005', // Thêm trường userId
+      userName: 'Emma Wilson', // Thêm trường userName
+      createdAt: DateTime.parse('2023-05-01T12:00:00Z'),
     ),
-    Prompt(
+    Prompt(id : '1', 
       title: 'Resume Editing',
       description:
           'Provide suggestions on how to improve your resume to make it stand out.',
       category: 'Career',
       isFavorite: false,
+      updatedAt: DateTime.now(), // Thêm trường updatedAt
+      content: 'Get feedback and improve your resume to land the job.',
+      isPublic: true, // Thêm trường isPublic
+      language: 'English', // Thêm trường language
+      userId: 'user_006', // Thêm trường userId
+      userName: 'Chris Lee', // Thêm trường userName
+      createdAt: DateTime.parse('2023-06-01T12:00:00Z'),
     ),
   ];
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../../data_app/model/jarvis/prompt.dart';
+import '../../../../../data_app/model/jarvis/prompt_model.dart';
 
 class PromptItem extends StatelessWidget {
   final Prompt prompt;

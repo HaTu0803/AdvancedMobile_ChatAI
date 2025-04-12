@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import '../../../../../data_app/model/jarvis/prompt_model.dart';
+import '../../../../../data_app/repository/prompt_repository.dart';
 
 class CreatePromptScreen extends StatefulWidget {
-  const CreatePromptScreen({super.key});
+  final PromptItemV2? promptToEdit;
+  final void Function()? onSubmitSuccess;
+
+  const CreatePromptScreen({
+    super.key,
+    this.promptToEdit,
+    this.onSubmitSuccess,
+  });
 
   @override
   State<CreatePromptScreen> createState() => _CreatePromptScreenState();
@@ -9,171 +18,101 @@ class CreatePromptScreen extends StatefulWidget {
 
 class _CreatePromptScreenState extends State<CreatePromptScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _promptController = TextEditingController();
+  final _contentController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  bool _isPublic = false;
+
+  bool get isEditMode => widget.promptToEdit != null;
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _promptController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    if (isEditMode) {
+      final prompt = widget.promptToEdit!;
+      _titleController.text = prompt.title;
+      _contentController.text = prompt.content;
+      _descriptionController.text = prompt.description ?? '';
+      _isPublic = prompt.isPublic ?? false;
+    }
   }
 
   @override
+  void dispose() {
+    _contentController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+  final ButtonStyle buttonStyle = ButtonStyle(
+    padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16)),
+  );
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Prompt'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Warning Banner
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.warning_amber_rounded, color: Colors.amber),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          style: TextStyle(
-                            color: Colors.amber.shade900,
-                            fontSize: 14,
-                          ),
-                          children: [
-                            const TextSpan(text: 'You should '),
-                            TextSpan(
-                              text: 'login to Jarvis',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const TextSpan(
-                              text: ' to save your prompt. Otherwise, it will be lost.',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Name Field
-              _buildFormField(
-                label: 'Name',
-                controller: _nameController,
-                hintText: 'Name of the prompt',
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name for your prompt';
-                  }
-                  return null;
-                },
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Prompt Field
-              _buildFormField(
-                label: 'Prompt',
-                controller: _promptController,
-                hintText: 'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
-                isRequired: true,
-                maxLines: 5,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your prompt';
-                  }
-                  return null;
-                },
-              ),
-              
-              // Info Box
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: Colors.blue.shade700),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Use square brackets [ ] to specify user input.',
-                        style: TextStyle(
-                          color: Colors.blue.shade700,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 40),
-              
-              // Buttons
-              Row(
+    return Material(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  _buildFormField(
+                    label: 'Title',
+                    controller: _titleController,
+                    hintText: 'Title of the prompt',
+                    isRequired: true,
+                    validator: (value) =>
+                    value == null || value.trim().isEmpty ? 'Please enter a title' : null,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildFormField(
+                    label: 'Prompt',
+                    controller: _contentController,
+                    hintText: 'Content of the prompt',
+                    isRequired: true,
+                    maxLines: 5,
+                    validator: (value) =>
+                    value == null || value.trim().isEmpty ? 'Please enter content' : null,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildFormField(
+                    label: 'Description',
+                    controller: _descriptionController,
+                    hintText: 'Description of the prompt',
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: buttonStyle,
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancel'),
                         ),
                       ),
-                      child: const Text('Cancel'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _submitForm,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: FilledButton(
+                          style: buttonStyle,
+                          onPressed: _submitForm,
+                          child: Text(isEditMode ? 'Update' : 'Create'),
                         ),
                       ),
-                      child: const Text('Create'),
-                    ),
-                  ),
+                    ],
+                  )
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-  
+
   Widget _buildFormField({
     required String label,
     required TextEditingController controller,
@@ -187,52 +126,61 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       children: [
         Row(
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            if (isRequired) ...[
-              const SizedBox(width: 4),
-              Text(
-                '*',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 16,
-                ),
-              ),
-            ],
+            Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+            if (isRequired)
+              Text(' *', style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ],
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
+          maxLines: maxLines,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
             filled: true,
-            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.all(16),
           ),
-          maxLines: maxLines,
-          validator: validator,
         ),
       ],
     );
   }
-  
-  void _submitForm() {
+
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Prompt created successfully')),
+      final request = CreatePromptRequest(
+        title: _titleController.text.trim(),
+        content: _contentController.text.trim(),
+        isPublic: _isPublic,
       );
-      Navigator.pop(context);
+
+      try {
+        if (isEditMode) {
+          await PromptRepository().updatePrompt(widget.promptToEdit!.id, request);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Prompt updated successfully'), backgroundColor: Colors.green),
+          );
+        } else {
+          await PromptRepository().createPrompt(request);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Prompt created successfully'), backgroundColor: Colors.green),
+          );
+        }
+
+        widget.onSubmitSuccess?.call(); // ← gọi callback
+
+        if (mounted) Navigator.pop(context, true);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
     }
   }
 }
-
