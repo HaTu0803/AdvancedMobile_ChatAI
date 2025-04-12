@@ -63,6 +63,63 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
     super.dispose();
   }
 
+  void _openPromptDialog({PromptItemV2? promptToEdit}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Dialog(
+            insetPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Modal Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Edit Prompt',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headlineMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    CreatePromptScreen(
+                        promptToEdit: promptToEdit,
+                        onSubmitSuccess: _fetchPrompts,
+                      // Pass the prompt to edit here
+                      // promptToEdit: promptToEdit,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,16 +162,9 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
 
                           return _buildPromptItem(
                             prompt, // Pass the whole PromptItemV2 object
-                            onEdit: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      CreatePromptScreen(promptToEdit: prompt),
-                                ),
-                              );
-                              if (result == true) _fetchPrompts();
-                            },
+                            onEdit:   () => _openPromptDialog(
+                              promptToEdit: prompt,
+                            ),
                             onDelete: () => _handleDeletePrompt(
                                 prompt), // Pass the whole PromptItemV2 object
                             onUse: () {},

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../data_app/repository/prompt_repository.dart';
 
 class CreatePromptScreen extends StatefulWidget {
   final PromptItemV2? promptToEdit;
+  final void Function()? onSubmitSuccess;
 
-  const CreatePromptScreen({super.key, this.promptToEdit});
+  const CreatePromptScreen({
+    super.key,
+    this.promptToEdit,
+    this.onSubmitSuccess,
+  });
 
   @override
   State<CreatePromptScreen> createState() => _CreatePromptScreenState();
@@ -18,6 +22,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   bool _isPublic = false;
+
   bool get isEditMode => widget.promptToEdit != null;
 
   @override
@@ -25,8 +30,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
     super.initState();
     if (isEditMode) {
       final prompt = widget.promptToEdit!;
-      debugPrint("Editing prompt with id: ${prompt.id}");
-      debugPrint("Editing prompt with title: ${prompt.title}");
       _titleController.text = prompt.title;
       _contentController.text = prompt.content;
       _descriptionController.text = prompt.description ?? '';
@@ -38,80 +41,73 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
   void dispose() {
     _contentController.dispose();
     _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
-
+  final ButtonStyle buttonStyle = ButtonStyle(
+    padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16)),
+  );
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditMode ? 'Edit Prompt' : 'New Prompt'),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildFormField(
-                label: 'Title',
-                controller: _titleController,
-                hintText: 'Title of the prompt',
-                isRequired: true,
-                validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Please enter a title'
-                    : null,
-              ),
-              const SizedBox(height: 24),
-              _buildFormField(
-                label: 'Prompt',
-                controller: _contentController,
-                hintText: 'Content of the prompt',
-                isRequired: true,
-                maxLines: 5,
-                validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Please enter content'
-                    : null,
-              ),
-              const SizedBox(height: 24),
-              _buildFormField(
-                label: 'Description',
-                controller: _descriptionController,
-                hintText: 'Description of the prompt',
-                maxLines: 3,
-              ),
-              const SizedBox(height: 24),
-              Row(
+    return Material(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        minimumSize: const Size.fromHeight(
-                            42), // Đảm bảo chiều cao giống nhau
-                      ),
-                      child: const Text('Cancel'),
-                    ),
+                  _buildFormField(
+                    label: 'Title',
+                    controller: _titleController,
+                    hintText: 'Title of the prompt',
+                    isRequired: true,
+                    validator: (value) =>
+                    value == null || value.trim().isEmpty ? 'Please enter a title' : null,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _submitForm,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        minimumSize: const Size.fromHeight(
-                            42), // Đảm bảo chiều cao giống nhau
-                      ),
-                      child: Text(isEditMode ? 'Update' : 'Create'),
-                    ),
+                  const SizedBox(height: 24),
+                  _buildFormField(
+                    label: 'Prompt',
+                    controller: _contentController,
+                    hintText: 'Content of the prompt',
+                    isRequired: true,
+                    maxLines: 5,
+                    validator: (value) =>
+                    value == null || value.trim().isEmpty ? 'Please enter content' : null,
                   ),
+                  const SizedBox(height: 24),
+                  _buildFormField(
+                    label: 'Description',
+                    controller: _descriptionController,
+                    hintText: 'Description of the prompt',
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: buttonStyle,
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancel'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: FilledButton(
+                          style: buttonStyle,
+                          onPressed: _submitForm,
+                          child: Text(isEditMode ? 'Update' : 'Create'),
+                        ),
+                      ),
+                    ],
+                  )
                 ],
-              )
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -130,36 +126,26 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       children: [
         Row(
           children: [
-            Text(
-              label,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
+            Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
             if (isRequired)
-              Text(
-                ' *',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 16,
-                ),
-              ),
+              Text(' *', style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ],
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
+          maxLines: maxLines,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
             filled: true,
-            fillColor:
-                Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
+            fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.all(16),
           ),
-          maxLines: maxLines,
-          validator: validator,
         ),
       ],
     );
@@ -168,36 +154,27 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final request = CreatePromptRequest(
+        title: _titleController.text.trim(),
         content: _contentController.text.trim(),
         isPublic: _isPublic,
-        title: _titleController.text.trim(),
       );
 
       try {
         if (isEditMode) {
-          await PromptRepository()
-              .updatePrompt(widget.promptToEdit!.id, request);
-          debugPrint("Updated prompt with id: ${widget.promptToEdit!.id}");
-          debugPrint(
-              "Updated prompt with title: ${_titleController.text.trim()}");
-          debugPrint(
-              "Updated prompt with content: ${_contentController.text.trim()}");
+          await PromptRepository().updatePrompt(widget.promptToEdit!.id, request);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Prompt updated successfully'),
-                backgroundColor: Colors.green),
+            const SnackBar(content: Text('Prompt updated successfully'), backgroundColor: Colors.green),
           );
         } else {
           await PromptRepository().createPrompt(request);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Prompt created successfully'),
-                backgroundColor: Colors.green),
+            const SnackBar(content: Text('Prompt created successfully'), backgroundColor: Colors.green),
           );
         }
 
-        if (!mounted) return;
-        Navigator.pop(context, true);
+        widget.onSubmitSuccess?.call(); // ← gọi callback
+
+        if (mounted) Navigator.pop(context, true);
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

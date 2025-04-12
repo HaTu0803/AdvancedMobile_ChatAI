@@ -199,6 +199,7 @@ class CreatePromptRequest {
     return {
       'title': title,
       'content': content,
+      'description': description,
       'isPublic': isPublic,
     };
   }

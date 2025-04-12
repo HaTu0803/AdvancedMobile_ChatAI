@@ -14,25 +14,62 @@ class PromptLibraryScreen extends StatefulWidget {
 class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
   final List<String> _tabs = ['Public Prompts', 'My Prompts'];
   String _selectedTab = 'Public Prompts';
-
+  void _reloadCurrentTab() {
+    setState(() {
+      // Cập nhật lại tab hiện tại để reload lại nội dung
+    });
+  }
   void _selectTab(String tab) {
     setState(() {
       _selectedTab = tab;
     });
   }
 
-  void _showAddPromptModal(BuildContext context) {
-    showModalBottomSheet(
+  void _openCreatePromptModal(BuildContext context) {
+    showDialog(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
       builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 1,
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        return Center(
+          child: Dialog(
+            insetPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Modal Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Create Prompt',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    CreatePromptScreen(
+                      // onSubmitSuccess: () {
+                      //   Navigator.pop(context);  // Đóng modal
+                      //   _reloadCurrentTab();     // Reload lại tab hiện tại
+                      // },
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-          child: const CreatePromptScreen(),
         );
       },
     );
@@ -62,6 +99,8 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                 ),
               ],
             ),
+
+            // Tab Selector + Add Button
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Row(
@@ -97,15 +136,15 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                   IconButton(
                     icon: Icon(Icons.add_box,
                         size: 30, color: Theme.of(context).primaryColor),
-                    onPressed: () {
-                      _showAddPromptModal(context);
+                    onPressed : () {
+                      _openCreatePromptModal(context);
                     },
                   ),
                 ],
               ),
             ),
 
-            // Tab View
+            // Tab Content
             Expanded(
               child: _selectedTab == 'Public Prompts'
                   ? const PublicPromptsScreen()
