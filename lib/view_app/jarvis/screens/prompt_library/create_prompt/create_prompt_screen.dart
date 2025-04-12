@@ -16,6 +16,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
   final _formKey = GlobalKey<FormState>();
   final _contentController = TextEditingController();
   final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
   bool _isPublic = false;
   bool get isEditMode => widget.promptToEdit != null;
 
@@ -28,6 +29,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       debugPrint("Editing prompt with title: ${prompt.title}");
       _titleController.text = prompt.title;
       _contentController.text = prompt.content;
+      _descriptionController.text = prompt.description ?? '';
       _isPublic = prompt.isPublic ?? false;
     }
   }
@@ -74,6 +76,13 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                     : null,
               ),
               const SizedBox(height: 24),
+              _buildFormField(
+                label: 'Description',
+                controller: _descriptionController,
+                hintText: 'Description of the prompt',
+                maxLines: 3,
+              ),
+              const SizedBox(height: 24),
               Row(
                 children: [
                   Expanded(
@@ -81,7 +90,8 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        minimumSize: const Size.fromHeight(42), // Đảm bảo chiều cao giống nhau
+                        minimumSize: const Size.fromHeight(
+                            42), // Đảm bảo chiều cao giống nhau
                       ),
                       child: const Text('Cancel'),
                     ),
@@ -92,14 +102,14 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                       onPressed: _submitForm,
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        minimumSize: const Size.fromHeight(42), // Đảm bảo chiều cao giống nhau
+                        minimumSize: const Size.fromHeight(
+                            42), // Đảm bảo chiều cao giống nhau
                       ),
                       child: Text(isEditMode ? 'Update' : 'Create'),
                     ),
                   ),
                 ],
               )
-
             ],
           ),
         ),
@@ -168,8 +178,10 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
           await PromptRepository()
               .updatePrompt(widget.promptToEdit!.id, request);
           debugPrint("Updated prompt with id: ${widget.promptToEdit!.id}");
-          debugPrint("Updated prompt with title: ${_titleController.text.trim()}");
-          debugPrint("Updated prompt with content: ${_contentController.text.trim()}");
+          debugPrint(
+              "Updated prompt with title: ${_titleController.text.trim()}");
+          debugPrint(
+              "Updated prompt with content: ${_contentController.text.trim()}");
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text('Prompt updated successfully'),

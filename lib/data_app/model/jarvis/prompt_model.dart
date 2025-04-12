@@ -81,20 +81,23 @@ class PromptItem extends StatelessWidget {
                 ),
                 IconButton(
                   icon: Icon(Icons.info_outline),
-                  onPressed: () => showDetails!(context, Prompt(
-                    id: id,
-                    createdAt: DateTime.parse(createdAt),
-                    updatedAt: DateTime.parse(updatedAt),
-                    category: category,
-                    content: content,
-                    description: description,
-                    isPublic: isPublic,
-                    language: language,
-                    title: title,
-                    userId: userId,
-                    userName: userName,
-                    isFavorite: isFavorite,
-                  ), onToggleFavorite!),
+                  onPressed: () => showDetails!(
+                      context,
+                      Prompt(
+                        id: id,
+                        createdAt: DateTime.parse(createdAt),
+                        updatedAt: DateTime.parse(updatedAt),
+                        category: category,
+                        content: content,
+                        description: description,
+                        isPublic: isPublic,
+                        language: language,
+                        title: title,
+                        userId: userId,
+                        userName: userName,
+                        isFavorite: isFavorite,
+                      ),
+                      onToggleFavorite!),
                 ),
               ],
             )
@@ -182,11 +185,13 @@ class Prompt {
 class CreatePromptRequest {
   final String title;
   final String content;
+  final String? description;
   final bool isPublic;
 
   CreatePromptRequest({
     required this.title,
     required this.content,
+    this.description,
     required this.isPublic,
   });
 
@@ -389,6 +394,7 @@ class PromptItemV2 {
     );
   }
 }
+
 class DeletePromptResponse {
   final bool acknowledged;
   final int deletedCount;
@@ -422,6 +428,7 @@ class PromptCategory {
     required this.id,
   });
 }
+
 // Hàm để xây dựng các PromptItem vào một Widget
 Widget? buildPromptItem(PromptItem? promptItem) {
   if (promptItem == null) {
