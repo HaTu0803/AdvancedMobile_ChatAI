@@ -21,9 +21,9 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   Future<ConversationResponse> _fetchConversations() async {
     final repository = AiChatRepository();
     final request = ConversationRequest(
-      cursor: "0",
+      cursor: "",
       limit: "100",
-      assistantId: "gpt-4o-mini",
+      assistantId: "",
       assistantModel: "dify",
     );
     return await repository.getConversations(request);
