@@ -5,6 +5,7 @@ import 'package:advancedmobile_chatai/view_app/auth/screens/forgot_password/pass
 import 'package:advancedmobile_chatai/view_app/auth/screens/introduction/introduction_screen.dart';
 import 'package:advancedmobile_chatai/view_app/auth/screens/login/login_screen.dart';
 import 'package:advancedmobile_chatai/view_app/auth/screens/signup/signup_screen.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/screens/chat_history/chat_history_screen.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/profile/profile_screen.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +24,7 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String profile = '/profile';
   static const String upgradePlans = '/upgrade-plans';
+  static const String history = '/conversation-history';
   static const String createPrompt = '/create-prompt';
 }
 
@@ -76,7 +78,10 @@ final GoRouter router = GoRouter(
       GoRoute(
         path: AppRoutes.createPrompt,
         builder: (context, state) => const CreatePromptScreen(),
-      )
+      ),
+      GoRoute(
+          path: AppRoutes.history,
+          builder: (context, state) => const ChatHistoryScreen()),
     ],
     redirect: (context, state) async {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
