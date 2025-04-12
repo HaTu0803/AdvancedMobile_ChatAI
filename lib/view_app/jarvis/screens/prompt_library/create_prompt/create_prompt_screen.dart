@@ -71,7 +71,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                   _buildFormField(
                     label: 'Prompt',
                     controller: _contentController,
-                    hintText: 'Content of the prompt',
+                    hintText: 'Content of the prompt. For example: "Write about the benefits of [topic] in [number] words"',
                     isRequired: true,
                     maxLines: 5,
                     validator: (value) =>
@@ -79,9 +79,9 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                   ),
                   const SizedBox(height: 24),
                   _buildFormField(
-                    label: 'Description',
+                    label: 'Description (optional)',
                     controller: _descriptionController,
-                    hintText: 'Description of the prompt',
+                    hintText: 'Description of the prompt. For example: "This prompt is used to write about the benefits of [topic]"',
                     maxLines: 3,
                   ),
                   const SizedBox(height: 24),
@@ -157,6 +157,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
         isPublic: _isPublic,
+        description: _descriptionController.text.trim(),
       );
 
       try {
