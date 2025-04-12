@@ -1,6 +1,7 @@
+import 'package:advancedmobile_chatai/core/util/themes/custom_themes/text_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:advancedmobile_chatai/util/themes/custom_themes/text_theme.dart';
-import '../util/themes/colors.dart';
+
+import '../core/util/themes/colors.dart';
 
 enum ButtonType { filled, outlined, textOnly, iconOnly }
 
@@ -36,28 +37,30 @@ class TCustomButton extends StatelessWidget {
 
     return ElevatedButton(
       onPressed: onPressed,
-      style: customStyle ?? ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(
-          type == ButtonType.outlined || type == ButtonType.textOnly
-              ? Colors.transparent
-              : defaultBackgroundColor,
-        ),
-        shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: type == ButtonType.outlined
-                ? BorderSide(color: defaultBorderColor, width: 2)
-                : BorderSide.none,
+      style: customStyle ??
+          ButtonStyle(
+            backgroundColor: WidgetStateProperty.all(
+              type == ButtonType.outlined || type == ButtonType.textOnly
+                  ? Colors.transparent
+                  : defaultBackgroundColor,
+            ),
+            shape: WidgetStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: type == ButtonType.outlined
+                    ? BorderSide(color: defaultBorderColor, width: 2)
+                    : BorderSide.none,
+              ),
+            ),
+            elevation:
+                WidgetStateProperty.all(type == ButtonType.textOnly ? 0 : 2),
+            padding: WidgetStateProperty.all(
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 20)),
           ),
-        ),
-        elevation: WidgetStateProperty.all(type == ButtonType.textOnly ? 0 : 2),
-        padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16, horizontal: 20)),
-      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null)
-            Icon(icon, size: 24, color: defaultTextColor),
+          if (icon != null) Icon(icon, size: 24, color: defaultTextColor),
           if (icon != null && text != null) const SizedBox(width: 8),
           if (text != null)
             Text(

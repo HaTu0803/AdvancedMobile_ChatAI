@@ -1,14 +1,35 @@
+import 'dart:async';
+
+import 'package:advancedmobile_chatai/core/helpers/dialog_helper.dart';
+import 'package:advancedmobile_chatai/core/navigation/routes.dart';
+import 'package:advancedmobile_chatai/core/util/themes/theme.dart';
+import 'package:advancedmobile_chatai/providers/auth_provider.dart';
+import 'package:advancedmobile_chatai/providers/prompt_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:advancedmobile_chatai/util/themes/theme.dart';
-import 'package:advancedmobile_chatai/screens/introduction/introduction_screen.dart';
-
-import 'auth/auth.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+
+  runZonedGuarded(
+    () {
+      runApp(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => PromptProvider()),
+            ChangeNotifierProvider(create: (context) => AuthProvider()),
+          ],
+          child: const MyApp(),
+        ),
+      );
+    },
+    (error, stackTrace) {
+      debugPrint("🔥 Global Error: $error");
+      DialogHelper.showError("Lỗi hệ thống: $error");
+    },
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,52 +40,53 @@ class MyApp extends StatelessWidget {
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       builder: (context, child) {
-        return MaterialApp(
+        return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           theme: TAppTheme.lightTheme,
           darkTheme: TAppTheme.darkTheme,
           themeMode: ThemeMode.system,
-          home: const SplashScreen(),
+          routerConfig: router,
         );
       },
     );
   }
 }
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
-  @override
-  _SplashScreenState createState() => _SplashScreenState();
-}
+  Future<String> _determineStartScreen(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.loadHasSeenIntro();
+    final isAuthenticated = await authProvider.isAuthenticated();
 
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _navigateToNextScreen();
-  }
-
-  Future<void> _navigateToNextScreen() async {
-    final prefs = await SharedPreferences.getInstance();
-    final seenIntro = prefs.getBool('seenIntroduction') ?? false;
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => seenIntro ? const AuthPage() : const IntroductionScreen(),
-        ),
-      );
+    if (isAuthenticated) {
+      return AppRoutes.home; // Nếu đã đăng nhập, vào HomeScreen
+    } else {
+      return authProvider.hasSeenIntro ? AppRoutes.login : AppRoutes.intro;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()), // Loading screen
+    return FutureBuilder<String>(
+      future: _determineStartScreen(context),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasData) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.go(snapshot.data!);
+          });
+          return const SizedBox.shrink();
+        } else {
+          return const Scaffold(
+            body: Center(child: Text("Lỗi tải ứng dụng!")),
+          );
+        }
+      },
     );
   }
 }

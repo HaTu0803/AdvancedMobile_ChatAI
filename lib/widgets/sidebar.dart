@@ -1,21 +1,34 @@
+import 'package:advancedmobile_chatai/core/navigation/routes.dart';
 import 'package:flutter/material.dart';
-import '../screens/profile/profile_screen.dart';
-import '../screens/upgrade_plans/upgrade_plans_screen.dart';
-import '../screens/auth/login/login_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../core/util/themes/colors.dart';
+import '../providers/auth_provider.dart';
+import 'button.dart';
+import 'dialog.dart';
+
 class AppSidebar extends StatelessWidget {
   const AppSidebar({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.75,
       child: SafeArea(
         child: Column(
           children: [
+            // User Info
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primaryContainer
+                    .withOpacity(0.5),
               ),
               child: Row(
                 children: [
@@ -55,7 +68,7 @@ class AppSidebar extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Menu Items
             Expanded(
               child: ListView(
@@ -66,13 +79,7 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.person_outline,
                     title: "My Profile",
                     onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfileScreen(),
-                        ),
-                      );
+                      context.go(AppRoutes.profile);
                     },
                   ),
                   _buildMenuItem(
@@ -80,13 +87,7 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.workspace_premium,
                     title: "Upgrade Plans",
                     onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UpgradePlansScreen(),
-                        ),
-                      );
+                      context.go(AppRoutes.upgradePlans);
                     },
                   ),
                   const Divider(),
@@ -111,66 +112,50 @@ class AppSidebar extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Logout Button
             Container(
               padding: const EdgeInsets.all(16),
-              child: InkWell(
-                onTap: () {
+              child: logOutButton(
+                onPressed: () {
                   // Show logout confirmation
-                  showDialog(
+                  // showDialog(
+                  //   context: context,
+                  //   builder: (context) => AlertDialog(
+                  //     title: const Text("Log Out"),
+                  //     content: const Text("Are you sure you want to log out?"),
+                  //     actions: [
+                  //       TextButton(
+                  //         onPressed: () => Navigator.pop(context),
+                  //         child: const Text("Cancel"),
+                  //       ),
+                  //       TextButton(
+                  //         onPressed: () {
+                  //           context.go(AppRoutes.login);
+                  //         },
+                  //         child: const Text("Log Out"),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // );
+                  showCustomDialog(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text("Log Out"),
-                      content: const Text("Are you sure you want to log out?"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text("Cancel"),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                builder: (context) => LoginScreen(show: () {}),
-                              ),
-                              (route) => false, // Removes all previous routes from the stack
-                            );
-                          },
-
-                          child: const Text("Log Out"),
-                        ),
-                      ],
-                    ),
+                    title: "Log Out",
+                    message: "Are you sure you want to log out?",
+                    onConfirm: () async {
+                      try {
+                        await authProvider.logOut(); // Gọi hàm đăng xuất
+                        if (!context.mounted) return;
+                        context.go(AppRoutes.login); // Điều hướng về trang đăng nhập
+                      } catch (e) {
+                        debugPrint("Logout failed: $e");
+                      }
+                    },
+                    isConfirmation: true,
+                    confirmText: "Log Out",
+                    cancelText: "Cancel",
                   );
                 },
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.logout,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Log Out",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
           ],
@@ -178,7 +163,7 @@ class AppSidebar extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildMenuItem(
     BuildContext context, {
     required IconData icon,
@@ -193,3 +178,22 @@ class AppSidebar extends StatelessWidget {
   }
 }
 
+Widget logOutButton({required VoidCallback onPressed}) {
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: 15.w),
+    child: TCustomButton(
+      text: 'Log Out',
+      onPressed: onPressed,
+      type: ButtonType.filled,
+      customStyle: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all(AppColors.primary),
+        padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 16.h)),
+        shape: WidgetStateProperty.all(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        )),
+        minimumSize: WidgetStateProperty.all(Size(double.infinity, 50.h)),
+        alignment: Alignment.center,
+      ),
+    ),
+  );
+}
