@@ -1,6 +1,8 @@
+import 'package:advancedmobile_chatai/data_app/repository/ai_chat_repository.dart';
 import 'package:flutter/material.dart';
 
 import '../core/util/themes/colors.dart';
+import '../data_app/model/jarvis/chat_model.dart';
 import '../data_app/model/jarvis/prompt_model.dart';
 import '../data_app/repository/prompt_repository.dart';
 import '../view_app/jarvis/screens/prompt_library/prompt_library.dart';
@@ -8,7 +10,7 @@ import '../view_app/jarvis/screens/prompt_library/prompt_library.dart';
 class MessageInputField extends StatefulWidget {
   final Function(String) onSend;
 
-  const MessageInputField({super.key, required this.onSend});
+  const MessageInputField({Key? key, required this.onSend}) : super(key: key);
 
   @override
   State<MessageInputField> createState() => _MessageInputFieldState();
@@ -124,7 +126,8 @@ class _MessageInputFieldState extends State<MessageInputField> {
             elevation: 4,
             borderRadius: BorderRadius.circular(8),
             child: Container(
-              constraints: const BoxConstraints(maxHeight: 200), // Show ~4 items
+              constraints:
+                  const BoxConstraints(maxHeight: 200), // Show ~4 items
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -196,7 +199,8 @@ class _MessageInputFieldState extends State<MessageInputField> {
                       focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.transparent),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 12.0),
                     ),
                     onChanged: (text) {
                       setState(() {
@@ -264,12 +268,36 @@ class _MessageInputFieldState extends State<MessageInputField> {
     );
   }
 
-  void _handleSubmitted(String text) {
+  void _handleSubmitted(String text) async {
     widget.onSend(text);
     _controller.clear();
     setState(() {
       _isComposing = false;
     });
     _hideOverlay();
+
+    // Create the request body for the API
+    final chatRequest = ChatRequest(
+      content: text,
+      files: [],
+      metadata: ChatMetadata(
+        conversation: Conversation(messages: []),
+      ),
+      assistant: AssistantInfo(
+        model: "knowledge-base",
+        name: "votutrinh2002's Default Team Assistant",
+        id: "29178123-34d4-4e52-94fb-8e580face2d5",
+      ),
+    );
+
+    try {
+      // Send the message to the bot using the chat API
+      final response = await AiChatRepository().chatWithBot(chatRequest);
+      debugPrint("Bot response: ${response.message}");
+
+      // Handle bot response (you can display it in your UI)
+    } catch (e) {
+      debugPrint("Error sending message to bot: $e");
+    }
   }
 }

@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 
 class AiChatApiClient {
   Future<ConversationResponse> conversation(ConversationRequest params) async {
+    await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
     final uri = Uri.parse(ApiJarvisAiChatUrl.getConversations).replace(
       queryParameters: params.toJson(),
@@ -29,6 +30,8 @@ class AiChatApiClient {
 
   Future<ConversationHistoryResponse> getConversationsHistory(
       ConversationRequest params, String conversationId) async {
+    await BasePreferences.init();
+
     String token = await BasePreferences().getTokenPreferred('access_token');
     final uri =
         Uri.parse(ApiJarvisAiChatUrl.getConversationHistory(conversationId))
@@ -48,15 +51,18 @@ class AiChatApiClient {
   }
 
   Future<ChatWithBotResponse> chatWithBot(ChatRequest request) async {
-    String token = await BasePreferences().getTokenPreferred('access_token');
+    await BasePreferences.init();
 
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    print("🔑 AccessToken bot: $token");
+    print("🔑 request bost: ${request.toJson()}");
     final response = await http.post(
       Uri.parse(ApiJarvisAiChatUrl.chatWithBot),
       headers: ApiHeaders.getAIChatHeaders("", token),
       body: jsonEncode(request.toJson()),
     );
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body params: ${response.body}");
+    print("📩 response.statusCode bost: ${response.statusCode}");
+    print("📩 response.body bost params: ${response.body}");
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ChatWithBotResponse.fromJson(jsonDecode(response.body));
     } else {
@@ -65,6 +71,8 @@ class AiChatApiClient {
   }
 
   Future<ChatResponse> sendMessage(ChatRequest request) async {
+    await BasePreferences.init();
+
     String token = await BasePreferences().getTokenPreferred('access_token');
 
     final response = await http.post(
