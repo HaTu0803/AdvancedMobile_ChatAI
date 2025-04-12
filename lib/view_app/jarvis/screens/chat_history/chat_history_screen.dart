@@ -1,7 +1,6 @@
+import 'package:advancedmobile_chatai/data_app/model/jarvis/conversations_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/ai_chat_repository.dart';
 import 'package:flutter/material.dart';
-
-import '../../../../../data_app/model/jarvis/history.dart';
 
 class ChatHistoryScreen extends StatefulWidget {
   const ChatHistoryScreen({super.key});
@@ -22,9 +21,10 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   Future<ConversationResponse> _fetchConversations() async {
     final repository = AiChatRepository();
     final request = ConversationRequest(
-      cursor: null, // Hoặc giá trị phù hợp
-      limit: "20",
+      cursor: "0",
+      limit: "100",
       assistantId: "gpt-4o-mini",
+      assistantModel: "dify",
     );
     return await repository.getConversations(request);
   }
