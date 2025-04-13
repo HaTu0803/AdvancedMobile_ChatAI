@@ -1,1 +1,383 @@
+import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 
+class Assistant {
+  String assistantName;
+  String? instructions;
+  String? description;
+
+  Assistant({
+    required this.assistantName,
+    this.instructions,
+    this.description,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'assistantName': assistantName,
+      'instructions': instructions,
+      'description': description,
+    };
+  }
+
+  factory Assistant.fromJson(Map<String, dynamic> json) {
+    return Assistant(
+      assistantName: json['assistantName'],
+      instructions: json['instructions'],
+      description: json['description'],
+    );
+  }
+}
+
+class GetAssistants extends BaseQueryParams {
+  bool? is_favorite;
+  bool? is_published;
+
+  GetAssistants({
+    String? q,
+    String? order,
+    String? order_field,
+    int? offset,
+    int? limit,
+    this.is_favorite,
+    this.is_published,
+  }) : super(
+          q: q,
+          order: order,
+          orderField: order_field,
+          offset: offset,
+          limit: limit,
+        );
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      ...super.toJson(),
+      'is_favorite': is_favorite,
+      'is_published': is_published,
+    };
+  }
+
+  factory GetAssistants.fromJson(Map<String, dynamic> json) {
+    return GetAssistants(
+      q: json['q'],
+      order: json['order'],
+      order_field: json['order_field'],
+      offset: json['offset'],
+      limit: json['limit'],
+      is_favorite: json['is_favorite'],
+      is_published: json['is_published'],
+    );
+  }
+}
+
+class KnowledgeToAssistant {
+  String assistantId;
+  String knowledgeId;
+
+  KnowledgeToAssistant({
+    required this.assistantId,
+    required this.knowledgeId,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'assistantId': assistantId,
+      'knowledgeId': knowledgeId,
+    };
+  }
+
+  factory KnowledgeToAssistant.fromJson(Map<String, dynamic> json) {
+    return KnowledgeToAssistant(
+      assistantId: json['assistantId'],
+      knowledgeId: json['knowledgeId'],
+    );
+  }
+}
+
+class ThreadAssistant {
+  String assistantId;
+  String? firstMessage;
+
+  ThreadAssistant({
+    required this.assistantId,
+    this.firstMessage,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'assistantId': assistantId,
+      'firstMessage': firstMessage,
+    };
+  }
+
+  factory ThreadAssistant.fromJson(Map<String, dynamic> json) {
+    return ThreadAssistant(
+      assistantId: json['assistantId'],
+      firstMessage: json['firstMessage'],
+    );
+  }
+}
+
+class AskAssistant {
+  String message;
+  String openAiThreadId;
+  String additionalInstruction;
+
+  AskAssistant({
+    required this.message,
+    required this.openAiThreadId,
+    required this.additionalInstruction,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'message': message,
+      'openAiThreadId': openAiThreadId,
+      'additionalInstruction': additionalInstruction,
+    };
+  }
+
+  factory AskAssistant.fromJson(Map<String, dynamic> json) {
+    return AskAssistant(
+      message: json['message'],
+      openAiThreadId: json['openAiThreadId'],
+      additionalInstruction: json['additionalInstruction'],
+    );
+  }
+}
+
+class AssistantResponse extends BaseModel {
+  final String id;
+  final String assistantName;
+  final String openAiAssistantId;
+  final String? instructions;
+  final String? description;
+  final String? openAiThreadIdPlay;
+
+  AssistantResponse({
+    required String createdAt,
+    String? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+    required this.id,
+    required this.assistantName,
+    required this.openAiAssistantId,
+    this.instructions,
+    this.description,
+    this.openAiThreadIdPlay,
+  }) : super(
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+          createdBy: createdBy,
+          updatedBy: updatedBy,
+        );
+
+  factory AssistantResponse.fromJson(Map<String, dynamic> json) {
+    return AssistantResponse(
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
+      createdBy: json['createdBy'],
+      updatedBy: json['updatedBy'],
+      id: json['id'],
+      assistantName: json['assistantName'],
+      openAiAssistantId: json['openAiAssistantId'],
+      instructions: json['instructions'],
+      description: json['description'],
+      openAiThreadIdPlay: json['openAiThreadIdPlay'],
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      ...super.toJson(),
+      'id': id,
+      'assistantName': assistantName,
+      'openAiAssistantId': openAiAssistantId,
+      'instructions': instructions,
+      'description': description,
+      'openAiThreadIdPlay': openAiThreadIdPlay,
+    };
+  }
+}
+
+class AssistantListResponse {
+  final List<AssistantResponse> data;
+  final Meta meta;
+
+  AssistantListResponse({
+    required this.data,
+    required this.meta,
+  });
+
+  factory AssistantListResponse.fromJson(Map<String, dynamic> json) {
+    return AssistantListResponse(
+      data: (json['data'] as List)
+          .map((item) => AssistantResponse.fromJson(item))
+          .toList(),
+      meta: Meta.fromJson(json['meta']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'data': data.map((e) => e.toJson()).toList(),
+      'meta': meta.toJson(),
+    };
+  }
+}
+
+class Meta {
+  final int limit;
+  final int total;
+  final int offset;
+  final bool hasNext;
+
+  Meta({
+    required this.limit,
+    required this.total,
+    required this.offset,
+    required this.hasNext,
+  });
+
+  factory Meta.fromJson(Map<String, dynamic> json) {
+    return Meta(
+      limit: json['limit'],
+      total: json['total'],
+      offset: json['offset'],
+      hasNext: json['hasNext'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'limit': limit,
+      'total': total,
+      'offset': offset,
+      'hasNext': hasNext,
+    };
+  }
+}
+
+class KnowledgeAssistantResponse extends BaseModel {
+  String userId;
+  String knowledgeName;
+  String description;
+
+  KnowledgeAssistantResponse({
+    required String createdAt,
+    String? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+    required this.userId,
+    required this.knowledgeName,
+    required this.description,
+  }) : super(
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+          createdBy: createdBy,
+          updatedBy: updatedBy,
+        );
+  factory KnowledgeAssistantResponse.fromJson(Map<String, dynamic> json) {
+    return KnowledgeAssistantResponse(
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
+      createdBy: json['createdBy'],
+      updatedBy: json['updatedBy'],
+      userId: json['userId'],
+      knowledgeName: json['knowledgeName'],
+      description: json['description'],
+    );
+  }
+}
+
+class KnowledgeAssistantListResponse {
+  List<KnowledgeAssistantResponse> data;
+  Meta meta;
+
+  KnowledgeAssistantListResponse({
+    required this.data,
+    required this.meta,
+  });
+
+  factory KnowledgeAssistantListResponse.fromJson(Map<String, dynamic> json) {
+    return KnowledgeAssistantListResponse(
+      data: (json['data'] as List)
+          .map((item) => KnowledgeAssistantResponse.fromJson(item))
+          .toList(),
+      meta: Meta.fromJson(json['meta']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'data': data.map((e) => e.toJson()).toList(),
+      'meta': meta.toJson(),
+    };
+  }
+}
+
+class ThreadAssistantResponse extends BaseModel {
+  final String id;
+  final String assistantId;
+  final String openAiThreadId;
+  final String threadName;
+
+  ThreadAssistantResponse({
+    required String createdAt,
+    String? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+    required this.id,
+    required this.assistantId,
+    required this.openAiThreadId,
+    required this.threadName,
+  }) : super(
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+          createdBy: createdBy,
+          updatedBy: updatedBy,
+        );
+
+  factory ThreadAssistantResponse.fromJson(Map<String, dynamic> json) {
+    return ThreadAssistantResponse(
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
+      createdBy: json['createdBy'],
+      updatedBy: json['updatedBy'],
+      id: json['id'],
+      assistantId: json['assistantId'],
+      openAiThreadId: json['openAiThreadId'],
+      threadName: json['threadName'],
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      ...super.toJson(),
+      'id': id,
+      'assistantId': assistantId,
+      'openAiThreadId': openAiThreadId,
+      'threadName': threadName,
+    };
+  }
+}
+
+class RetrieveMessageOfThreadResponse {
+  final String content;
+  final String role;
+  final String createdAt;
+  RetrieveMessageOfThreadResponse({
+    required this.content,
+    required this.role,
+    required this.createdAt,
+  });
+
+  factory RetrieveMessageOfThreadResponse.fromJson(Map<String, dynamic> json) {
+    return RetrieveMessageOfThreadResponse(
+      content: json['content'],
+      role: json['role'],
+      createdAt: json['createdAt'],
+    );
+  }
+}
