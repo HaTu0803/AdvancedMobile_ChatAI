@@ -226,38 +226,6 @@ class AssistantListResponse {
   }
 }
 
-class Meta {
-  final int limit;
-  final int total;
-  final int offset;
-  final bool hasNext;
-
-  Meta({
-    required this.limit,
-    required this.total,
-    required this.offset,
-    required this.hasNext,
-  });
-
-  factory Meta.fromJson(Map<String, dynamic> json) {
-    return Meta(
-      limit: json['limit'],
-      total: json['total'],
-      offset: json['offset'],
-      hasNext: json['hasNext'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'limit': limit,
-      'total': total,
-      'offset': offset,
-      'hasNext': hasNext,
-    };
-  }
-}
-
 class KnowledgeAssistantResponse extends BaseModel {
   String userId;
   String knowledgeName;
