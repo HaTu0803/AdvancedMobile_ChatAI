@@ -98,7 +98,7 @@ class KnowledgeListResponse {
 class UnitsOfKnowledgeResponse extends BaseModel {
   String id;
   String name;
-  String status;
+  bool status;
   String userId;
   String knowledgeId;
 
