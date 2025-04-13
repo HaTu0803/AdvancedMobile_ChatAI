@@ -1,8 +1,8 @@
 class UsageResponse {
   String name;
-  String dailyTokens;
-  String monthlyTokens;
-  String annuallyTokens;
+  int dailyTokens;
+  int monthlyTokens;
+  int annuallyTokens;
 
   UsageResponse({
     required this.name,
