@@ -156,7 +156,7 @@ class SuggestReplyIdeas {
       'action': action,
       'email': email,
       'metadata': metadata.toJson(),
-      'assistant': assistant?.toJson(), // Use null-aware operator
+      'assistant': assistant?.toJson(),
     };
   }
 }
