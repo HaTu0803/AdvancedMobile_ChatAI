@@ -331,6 +331,32 @@ class ThreadAssistantResponse extends BaseModel {
   }
 }
 
+class ThreadAssistantListResponse {
+  final List<ThreadAssistantResponse> data;
+  final Meta meta;
+
+  ThreadAssistantListResponse({
+    required this.data,
+    required this.meta,
+  });
+
+  factory ThreadAssistantListResponse.fromJson(Map<String, dynamic> json) {
+    return ThreadAssistantListResponse(
+      data: (json['data'] as List)
+          .map((item) => ThreadAssistantResponse.fromJson(item))
+          .toList(),
+      meta: Meta.fromJson(json['meta']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'data': data.map((e) => e.toJson()).toList(),
+      'meta': meta.toJson(),
+    };
+  }
+}
+
 class RetrieveMessageOfThreadResponse {
   final String content;
   final String role;

@@ -4,6 +4,7 @@ import 'package:advancedmobile_chatai/core/config/api_headers.dart';
 import 'package:advancedmobile_chatai/core/helpers/dialog_helper.dart';
 import 'package:advancedmobile_chatai/core/helpers/refresh_token_helper.dart';
 import 'package:advancedmobile_chatai/core/local_storage/base_preferences.dart';
+import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/assistant_model.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/knowledge_base/ai_assistant_url.dart';
 import 'package:http/http.dart' as http;
@@ -44,10 +45,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError(
-          'Thao tác yêu thích thất bại. Mã lỗi: ${response.statusCode}');
-      throw Exception(
-          'Thao tác yêu thích thất bại. Mã lỗi: ${response.statusCode}');
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
     }
   }
 
@@ -95,12 +94,13 @@ class AssistantApiClient {
     }
   }
 
-  Future<AssistantListResponse> getAssistantList() async {
+  Future<AssistantListResponse> getAssistantList(BaseQueryParams params) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
     print("🔑 AccessToken: $token");
 
-    final url = Uri.parse(ApiKnowledgeAiAssistantUrl.getAssistants);
+    final url = Uri.parse(
+        ApiKnowledgeAiAssistantUrl.getAssistants(params.toQueryString()));
     final headers = ApiHeaders.getAIChatHeaders("", token);
 
     final response = await http.get(url, headers: headers);
@@ -125,10 +125,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError(
-          'Lấy danh sách trợ lý thất bại. Mã lỗi: ${response.statusCode}');
-      throw Exception(
-          'Lấy danh sách trợ lý thất bại. Mã lỗi: ${response.statusCode}');
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
     }
   }
 
@@ -166,10 +164,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError(
-          'Cập nhật trợ lý thất bại. Mã lỗi: ${response.statusCode}');
-      throw Exception(
-          'Cập nhật trợ lý thất bại. Mã lỗi: ${response.statusCode}');
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
     }
   }
 
@@ -204,9 +200,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError(
-          'Xóa trợ lý thất bại. Mã lỗi: ${response.statusCode}');
-      throw Exception('Xóa trợ lý thất bại. Mã lỗi: ${response.statusCode}');
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
     }
   }
 
@@ -241,9 +236,306 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError(
-          'Lấy trợ lý thất bại. Mã lỗi: ${response.statusCode}');
-      throw Exception('Lấy trợ lý thất bại. Mã lỗi: ${response.statusCode}');
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> importKnowledge(KnowledgeToAssistant params) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    print("🔑 AccessToken: $token");
+
+    final url = Uri.parse(ApiKnowledgeAiAssistantUrl.importKnowledgeToAssistant(
+        params.knowledgeId, params.assistantId));
+    final headers = ApiHeaders.getAIChatHeaders("", token);
+
+    final response = await http.post(url, headers: headers);
+
+    print("📩 response.statusCode: ${response.statusCode}");
+    print("📩 response.body: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: url,
+        headers: headers,
+        body: null,
+      );
+
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        return true;
+      } else {
+        DialogHelper.showError(
+            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      }
+    } else {
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> removeKnowledge(KnowledgeToAssistant params) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    print("🔑 AccessToken: $token");
+
+    final url = Uri.parse(
+        ApiKnowledgeAiAssistantUrl.removeKnowledgeFromAssistant(
+            params.knowledgeId, params.assistantId));
+    final headers = ApiHeaders.getAIChatHeaders("", token);
+
+    final response = await http.post(url, headers: headers);
+
+    print("📩 response.statusCode: ${response.statusCode}");
+    print("📩 response.body: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: url,
+        headers: headers,
+        body: null,
+      );
+
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        return true;
+      } else {
+        DialogHelper.showError(
+            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      }
+    } else {
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
+    }
+  }
+
+  Future<KnowledgeAssistantListResponse> getImportKnowledgeList(
+    String assistantId,
+    BaseQueryParams params,
+  ) async {
+    await BasePreferences.init();
+    final token = await BasePreferences().getTokenPreferred('access_token');
+    print("🔑 AccessToken: $token");
+
+    final url = Uri.parse(
+      ApiKnowledgeAiAssistantUrl.getImportedKnowledgeInAssistant(
+        assistantId,
+        params.toQueryString(),
+      ),
+    );
+
+    final headers = ApiHeaders.getAIChatHeaders("", token);
+    final response = await http.get(url, headers: headers);
+
+    print("📩 response.statusCode: ${response.statusCode}");
+    print("📩 response.body: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return KnowledgeAssistantListResponse.fromJson(
+        jsonDecode(response.body),
+      );
+    }
+
+    if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: url,
+        headers: headers,
+        body: null,
+      );
+
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        return KnowledgeAssistantListResponse.fromJson(
+          jsonDecode(retryResponse.body),
+        );
+      } else {
+        DialogHelper.showError(
+            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      }
+    } else {
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
+    }
+  }
+
+  Future<ThreadAssistantResponse> createThread(ThreadAssistant request) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    final url = Uri.parse(ApiKnowledgeAiAssistantUrl.createThreadForAssistant);
+    final headers = ApiHeaders.getAIChatHeaders("", token);
+    final body = jsonEncode(request.toJson());
+    final response = await http.post(url, headers: headers, body: body);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return ThreadAssistantResponse.fromJson(
+          jsonDecode(response.body)['data']);
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: url,
+        headers: headers,
+        body: body,
+      );
+
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        return ThreadAssistantResponse.fromJson(
+            jsonDecode(retryResponse.body)['data']);
+      } else {
+        DialogHelper.showError(
+            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      }
+    } else {
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> updateThreadBackground(ThreadAssistant request) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    final url = Uri.parse(ApiKnowledgeAiAssistantUrl.updateThreadBackground);
+    final headers = ApiHeaders.getAIChatHeaders("", token);
+    final body = jsonEncode(request.toJson());
+    final response = await http.post(url, headers: headers, body: body);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: url,
+        headers: headers,
+        body: body,
+      );
+
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        return true;
+      } else {
+        DialogHelper.showError(
+            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      }
+    } else {
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> askAssistant(String assistantId, AskAssistant request) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    print("🔑 AccessToken: $token");
+
+    final url = Uri.parse(ApiKnowledgeAiAssistantUrl.askAssistant(assistantId));
+    final headers = ApiHeaders.getAIChatHeaders("", token);
+    final body = jsonEncode(request.toJson());
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    print("📩 response.statusCode: ${response.statusCode}");
+    print("📩 response.body: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: url,
+        headers: headers,
+        body: body,
+      );
+
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        return true;
+      } else {
+        DialogHelper.showError(
+            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      }
+    } else {
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
+    }
+  }
+
+  Future<List<RetrieveMessageOfThreadResponse>> retrieveMessageOfThread(
+      String openAiThreadId) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    print("🔑 AccessToken: $token");
+
+    final url = Uri.parse(
+        ApiKnowledgeAiAssistantUrl.retrieveMessageOfThread(openAiThreadId));
+    final headers = ApiHeaders.getAIChatHeaders("", token);
+
+    final response = await http.get(url, headers: headers);
+
+    print("📩 response.statusCode: ${response.statusCode}");
+    print("📩 response.body: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data
+          .map((e) => RetrieveMessageOfThreadResponse.fromJson(e))
+          .toList();
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: url,
+        headers: headers,
+        body: null,
+      );
+
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        final List<dynamic> data = jsonDecode(retryResponse.body);
+        return data
+            .map((e) => RetrieveMessageOfThreadResponse.fromJson(e))
+            .toList();
+      } else {
+        DialogHelper.showError(
+            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      }
+    } else {
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
+    }
+  }
+
+  Future<ThreadAssistantListResponse> getThreads(
+      String assistantId, BaseQueryParams params) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+    print("🔑 AccessToken: $token");
+
+    final url = Uri.parse(ApiKnowledgeAiAssistantUrl.getAssistantThreads(
+        assistantId, params.toQueryString()));
+    final headers = ApiHeaders.getAIChatHeaders("", token);
+
+    final response = await http.get(url, headers: headers);
+
+    print("📩 response.statusCode: ${response.statusCode}");
+    print("📩 response.body: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return ThreadAssistantListResponse.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: url,
+        headers: headers,
+        body: null,
+      );
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        return ThreadAssistantListResponse.fromJson(
+            jsonDecode(retryResponse.body));
+      } else {
+        DialogHelper.showError(
+            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      }
+    } else {
+      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      throw Exception('Lỗi: ${response.statusCode}');
     }
   }
 }

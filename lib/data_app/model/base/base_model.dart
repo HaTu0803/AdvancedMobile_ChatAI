@@ -54,6 +54,17 @@ class BaseQueryParams {
       'limit': limit,
     };
   }
+
+  String toQueryString() {
+    final Map<String, dynamic> json = toJson();
+
+    final filtered = json.entries.where((e) => e.value != null);
+
+    return filtered
+        .map((e) =>
+            '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value.toString())}')
+        .join('&');
+  }
 }
 
 class Meta {

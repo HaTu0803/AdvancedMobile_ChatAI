@@ -7,7 +7,9 @@ class ApiKnowledgeAiAssistantUrl {
       '$baseUrl/$assistantId/favorite';
 
   static const String createAssistant = baseUrl;
-  static const String getAssistants = baseUrl;
+  static String getAssistants(String query) =>
+      '$baseUrl/${query.isNotEmpty ? '?$query' : ''}';
+
   static String updateAssistant(String assistantId) => '$baseUrl/$assistantId';
   static String deleteAssistant(String assistantId) => '$baseUrl/$assistantId';
 
@@ -20,14 +22,15 @@ class ApiKnowledgeAiAssistantUrl {
           String knowledgeId, String assistantId) =>
       '$baseUrl/$assistantId/knowledge/$knowledgeId';
 
-  static String getImportedKnowledgeInAssistant(String assistantId) =>
-      '$baseUrl/$assistantId/knowledge';
+  static String getImportedKnowledgeInAssistant(
+          String assistantId, String query) =>
+      '$baseUrl/$assistantId/knowledge${query.isNotEmpty ? '?$query' : ''}';
 
   static const String createThreadForAssistant = '$baseUrl/thread';
   static const String updateThreadBackground = '$baseUrl/thread/background';
   static String askAssistant(String assistantId) => '$baseUrl/$assistantId/ask';
   static String retrieveMessageOfThread(String openAiThreadId) =>
       '$baseUrl/thread/$openAiThreadId/messages';
-  static String getAssistantThreads(String assistantId) =>
-      '$baseUrl/$assistantId/threads';
+  static String getAssistantThreads(String assistantId, String query) =>
+      '$baseUrl/$assistantId/threads${query.isNotEmpty ? '?$query' : ''}';
 }
