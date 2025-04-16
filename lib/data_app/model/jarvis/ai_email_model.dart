@@ -220,3 +220,20 @@ class EmailResponse {
     };
   }
 }
+
+class IdeaResponse {
+  final List<String> ideas;
+
+  IdeaResponse({required this.ideas});
+
+  factory IdeaResponse.fromJson(Map<String, dynamic> json) {
+    return IdeaResponse(
+      ideas: List<String>.from(json['ideas']),
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'ideas': ideas,
+    };
+  }
+}
