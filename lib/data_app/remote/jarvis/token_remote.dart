@@ -12,18 +12,18 @@ class TokenApiClient {
   Future<UsageTokenResponse> getUsage() async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
-    print("🔑 AccessToken: $token");
+    print("AccessToken: $token");
 
     final url = Uri.parse(ApiJarvisTokenUrl.getUsage);
     final headers = ApiHeaders.getAIChatHeaders("", token);
 
     final response = await http.get(url, headers: headers);
 
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
+    print("response.statusCode: ${response.statusCode}");
+    print("response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return UsageTokenResponse.fromJson(jsonDecode(response.body)['data']);
+      return UsageTokenResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -32,8 +32,7 @@ class TokenApiClient {
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
-        return UsageTokenResponse.fromJson(
-            jsonDecode(retryResponse.body)['data']);
+        return UsageTokenResponse.fromJson(jsonDecode(retryResponse.body));
       } else {
         DialogHelper.showError(
             'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
