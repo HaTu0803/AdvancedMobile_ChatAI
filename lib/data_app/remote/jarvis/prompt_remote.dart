@@ -7,7 +7,7 @@ import 'package:advancedmobile_chatai/data_app/model/jarvis/prompt_model.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/jarvis/prompt_url.dart';
 import 'package:http/http.dart' as http;
 
-import '../../repository/authentication_repository.dart';
+import '../../repository/auth/authentication_repository.dart';
 
 class JarvisPromptApiClient {
   Future<PromptResponse> getPrompts() async {

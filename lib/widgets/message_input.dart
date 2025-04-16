@@ -1,10 +1,10 @@
-import 'package:advancedmobile_chatai/data_app/repository/ai_chat_repository.dart';
+import 'package:advancedmobile_chatai/data_app/repository/jarvis/ai_chat_repository.dart';
 import 'package:flutter/material.dart';
 
 import '../core/util/themes/colors.dart';
 import '../data_app/model/jarvis/chat_model.dart';
 import '../data_app/model/jarvis/prompt_model.dart';
-import '../data_app/repository/prompt_repository.dart';
+import '../data_app/repository/jarvis/prompt_repository.dart';
 import '../view_app/jarvis/screens/prompt_library/prompt_library.dart';
 
 class MessageInputField extends StatefulWidget {

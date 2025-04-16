@@ -1,5 +1,5 @@
 import 'package:advancedmobile_chatai/data_app/model/jarvis/prompt_model.dart';
-import 'package:advancedmobile_chatai/data_app/repository/prompt_repository.dart';
+import 'package:advancedmobile_chatai/data_app/repository/jarvis/prompt_repository.dart';
 import 'package:flutter/material.dart';
 
 class PromptProvider with ChangeNotifier {
@@ -64,8 +64,9 @@ class PromptProvider with ChangeNotifier {
       _categories.sort((a, b) => a.name.compareTo(b.name));
 
       // Add 'All' category at the beginning
-      _categories.insert(0, PromptCategory(name: 'All', isSelected: true, id: 'all'));
-      
+      _categories.insert(
+          0, PromptCategory(name: 'All', isSelected: true, id: 'all'));
+
       notifyListeners();
     } catch (e) {
       debugPrint("Error fetching categories: $e");

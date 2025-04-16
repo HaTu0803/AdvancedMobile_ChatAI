@@ -7,7 +7,7 @@ import '../../../../../widgets/message_input.dart';
 import '../../../../../widgets/sidebar.dart';
 import '../../../../../widgets/typewriter_animated_text.dart';
 import '../../../../data_app/model/jarvis/chat_model.dart';
-import '../../../../data_app/repository/ai_chat_repository.dart';
+import '../../../../data_app/repository/jarvis/ai_chat_repository.dart';
 import '../chat_history/chat_history_screen.dart';
 import '../create_bot/create_bot_screens.dart';
 import '../prompt_library/prompt_library.dart';

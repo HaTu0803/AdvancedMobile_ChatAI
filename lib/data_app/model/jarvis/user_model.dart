@@ -1,11 +1,11 @@
-class CurrentUser {
+class CurrentUserReponse {
   final String id;
   final String email;
   final String username;
   final List<String> roles;
   final Map<String, dynamic>? geo;
 
-  CurrentUser({
+  CurrentUserReponse({
     required this.id,
     required this.email,
     required this.username,
@@ -13,8 +13,8 @@ class CurrentUser {
     this.geo,
   });
 
-  factory CurrentUser.fromJson(Map<String, dynamic> json) {
-    return CurrentUser(
+  factory CurrentUserReponse.fromJson(Map<String, dynamic> json) {
+    return CurrentUserReponse(
       id: json['id'],
       email: json['email'],
       username: json['username'],
