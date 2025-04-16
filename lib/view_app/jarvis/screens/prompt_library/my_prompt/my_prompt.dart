@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:advancedmobile_chatai/data_app/repository/prompt_repository.dart';
+import 'package:advancedmobile_chatai/data_app/repository/jarvis/prompt_repository.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/create_prompt/create_prompt_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -74,10 +74,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Container(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
+              width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(
@@ -89,10 +86,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
                       children: [
                         Text(
                           'Edit Prompt',
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .headlineMedium,
+                          style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         IconButton(
                           icon: const Icon(Icons.close),
@@ -104,8 +98,8 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
                     ),
                     const SizedBox(height: 16),
                     CreatePromptScreen(
-                        promptToEdit: promptToEdit,
-                        onSubmitSuccess: _fetchPrompts,
+                      promptToEdit: promptToEdit,
+                      onSubmitSuccess: _fetchPrompts,
                       // Pass the prompt to edit here
                       // promptToEdit: promptToEdit,
                     ),
@@ -118,7 +112,6 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +155,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
 
                           return _buildPromptItem(
                             prompt, // Pass the whole PromptItemV2 object
-                            onEdit:   () => _openPromptDialog(
+                            onEdit: () => _openPromptDialog(
                               promptToEdit: prompt,
                             ),
                             onDelete: () => _handleDeletePrompt(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
-import '../../../../../data_app/repository/prompt_repository.dart';
+import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
 
 class CreatePromptScreen extends StatefulWidget {
   final PromptItemV2? promptToEdit;
@@ -44,6 +45,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
     _descriptionController.dispose();
     super.dispose();
   }
+
   final ButtonStyle buttonStyle = ButtonStyle(
     padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16)),
   );
@@ -64,24 +66,28 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                     controller: _titleController,
                     hintText: 'Title of the prompt',
                     isRequired: true,
-                    validator: (value) =>
-                    value == null || value.trim().isEmpty ? 'Please enter a title' : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Please enter a title'
+                        : null,
                   ),
                   const SizedBox(height: 24),
                   _buildFormField(
                     label: 'Prompt',
                     controller: _contentController,
-                    hintText: 'Content of the prompt. For example: "Write about the benefits of [topic] in [number] words"',
+                    hintText:
+                        'Content of the prompt. For example: "Write about the benefits of [topic] in [number] words"',
                     isRequired: true,
                     maxLines: 5,
-                    validator: (value) =>
-                    value == null || value.trim().isEmpty ? 'Please enter content' : null,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Please enter content'
+                        : null,
                   ),
                   const SizedBox(height: 24),
                   _buildFormField(
                     label: 'Description (optional)',
                     controller: _descriptionController,
-                    hintText: 'Description of the prompt. For example: "This prompt is used to write about the benefits of [topic]"',
+                    hintText:
+                        'Description of the prompt. For example: "This prompt is used to write about the benefits of [topic]"',
                     maxLines: 3,
                   ),
                   const SizedBox(height: 24),
@@ -126,9 +132,12 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       children: [
         Row(
           children: [
-            Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+            Text(label,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
             if (isRequired)
-              Text(' *', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              Text(' *',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ],
         ),
         const SizedBox(height: 8),
@@ -139,7 +148,8 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
           decoration: InputDecoration(
             hintText: hintText,
             filled: true,
-            fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
+            fillColor:
+                Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
@@ -162,14 +172,19 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
 
       try {
         if (isEditMode) {
-          await PromptRepository().updatePrompt(widget.promptToEdit!.id, request);
+          await PromptRepository()
+              .updatePrompt(widget.promptToEdit!.id, request);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Prompt updated successfully'), backgroundColor: Colors.green),
+            const SnackBar(
+                content: Text('Prompt updated successfully'),
+                backgroundColor: Colors.green),
           );
         } else {
           await PromptRepository().createPrompt(request);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Prompt created successfully'), backgroundColor: Colors.green),
+            const SnackBar(
+                content: Text('Prompt created successfully'),
+                backgroundColor: Colors.green),
           );
         }
 

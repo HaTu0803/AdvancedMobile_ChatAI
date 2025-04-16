@@ -1,6 +1,6 @@
 import 'package:advancedmobile_chatai/core/util/exception.dart';
 import 'package:advancedmobile_chatai/data_app/model/auth/auth_model.dart';
-import 'package:advancedmobile_chatai/data_app/repository/authentication_repository.dart';
+import 'package:advancedmobile_chatai/data_app/repository/auth/authentication_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
