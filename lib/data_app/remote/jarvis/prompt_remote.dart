@@ -145,23 +145,31 @@ class JarvisPromptApiClient {
     }
   }
 
-// Future<void> addPromptToFavorites(String id) async {
-//   final response = await http.post(
-//     Uri.parse(ApiJarvisPromptUrl.addPromptToFavorites(id)),
-//     headers: ApiHeaders.defaultHeaders,
-//   );
-//   if (response.statusCode != 200) {
-//     throw Exception('Failed to add prompt to favorites');
-//   }
-// }
+  Future<void> addPromptToFavorites(String id) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
 
-// Future<void> removePromptFromFavorites(String id) async {
-//   final response = await http.delete(
-//     Uri.parse(ApiJarvisPromptUrl.removePromptFromFavorites(id)),
-//     headers: ApiHeaders.defaultHeaders,
-//   );
-//   if (response.statusCode != 200) {
-//     throw Exception('Failed to remove prompt from favorites');
-//   }
-// }
+    final response = await http.post(
+      Uri.parse(ApiJarvisPromptUrl.addPromptToFavorites(id)),
+      headers: ApiHeaders.getAIChatHeaders("", token),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to add prompt to favorites');
+    }
+  }
+
+  Future<void> removePromptFromFavorites(String id) async {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
+
+    final response = await http.delete(
+      Uri.parse(ApiJarvisPromptUrl.removePromptFromFavorites(id)),
+      headers: ApiHeaders.getAIChatHeaders("", token),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to remove prompt from favorites');
+    }
+  }
 }
