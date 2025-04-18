@@ -15,12 +15,14 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
   final _nameController = TextEditingController();
   final _instructionsController = TextEditingController();
   final _knowledgebaseController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
     _instructionsController.dispose();
     _knowledgebaseController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -105,7 +107,40 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+// Advanced Options Section
+
+              Theme(
+                data: Theme.of(context).copyWith(
+                  dividerColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                ),
+                child: ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  title: Row(
+                    children: [
+                      Text(
+                        'Advanced Options',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // childrenPadding: const EdgeInsets.only(top: 4),
+                  children: [
+                    _buildFormField(
+                      label: 'Description (Optional)',
+                      controller: _descriptionController,
+                      hintText: 'Enter a short description...',
+                      isRequired: false,
+                      maxLines: 5,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
 
               // Action Buttons
               Padding(
