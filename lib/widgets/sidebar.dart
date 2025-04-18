@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 
 import '../core/util/themes/colors.dart';
 import '../providers/auth_provider.dart';
+import '../view_app/jarvis/screens/profile/profile_screen.dart';
+import '../view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
 import 'button.dart';
 import 'dialog.dart';
 
@@ -15,7 +17,7 @@ class AppSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
+    final userName = "JARVIS User";
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.75,
       child: SafeArea(
@@ -79,7 +81,8 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.person_outline,
                     title: "My Profile",
                     onTap: () {
-                      context.go(AppRoutes.profile);
+                      Navigator.pop(context);  // Close the sidebar
+                      _showProfileScreen(context);  // Show Profile Screen in bottom sheet
                     },
                   ),
                   _buildMenuItem(
@@ -87,7 +90,24 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.workspace_premium,
                     title: "Upgrade Plans",
                     onTap: () {
-                      context.go(AppRoutes.upgradePlans);
+                      _showUpgradePlansScreen(context);  // Show Upgrade Plans Screen in bottom sheet
+                    },
+                  ),
+                  const Divider(),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.smart_toy_outlined,
+                    title: "Bot",
+                    onTap: () {
+                      _showBotScreen(context);  // Show Bot Screen in bottom sheet
+                    },
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.storage,
+                    title: "Data",
+                    onTap: () {
+                      _showDataScreen(context);  // Show Data Screen in bottom sheet
                     },
                   ),
                   const Divider(),
@@ -95,19 +115,25 @@ class AppSidebar extends StatelessWidget {
                     context,
                     icon: Icons.settings_outlined,
                     title: "Settings",
-                    onTap: () {},
+                    onTap: () {
+                      _showSettingsScreen(context);  // Show Settings Screen in bottom sheet
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.help_outline,
                     title: "Help & Support",
-                    onTap: () {},
+                    onTap: () {
+                      _showHelpSupportScreen(context);  // Show Help & Support Screen in bottom sheet
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.info_outline,
                     title: "About",
-                    onTap: () {},
+                    onTap: () {
+                      _showAboutScreen(context);  // Show About Screen in bottom sheet
+                    },
                   ),
                 ],
               ),
@@ -119,25 +145,6 @@ class AppSidebar extends StatelessWidget {
               child: logOutButton(
                 onPressed: () {
                   // Show logout confirmation
-                  // showDialog(
-                  //   context: context,
-                  //   builder: (context) => AlertDialog(
-                  //     title: const Text("Log Out"),
-                  //     content: const Text("Are you sure you want to log out?"),
-                  //     actions: [
-                  //       TextButton(
-                  //         onPressed: () => Navigator.pop(context),
-                  //         child: const Text("Cancel"),
-                  //       ),
-                  //       TextButton(
-                  //         onPressed: () {
-                  //           context.go(AppRoutes.login);
-                  //         },
-                  //         child: const Text("Log Out"),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // );
                   showCustomDialog(
                     context: context,
                     title: "Log Out",
@@ -164,12 +171,97 @@ class AppSidebar extends StatelessWidget {
     );
   }
 
+  void _showProfileScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const ProfileScreen();
+      },
+    );
+  }
+
+  void _showUpgradePlansScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const UpgradePlansScreen();
+        },
+      ),
+    );
+  }
+
+
+  // This function shows the Bot screen as a modal bottom sheet
+  void _showBotScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: Text("Bot"),  // Replace with your Bot widget
+        );
+
+      },
+    );
+  }
+
+  // This function shows the Data screen as a modal bottom sheet
+  void _showDataScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: Text("Data"),  // Replace with your Data widget
+        );
+
+      },
+    );
+  }
+
+  // This function shows the Settings screen as a modal bottom sheet
+  void _showSettingsScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: Text("Settings"),  // Replace with your Settings widget
+        );
+
+      },
+    );
+  }
+
+  // This function shows the Help & Support screen as a modal bottom sheet
+  void _showHelpSupportScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: Text("Help & Support"),  // Replace with your Help & Support widget
+        );
+      },
+    );
+  }
+
+  // This function shows the About screen as a modal bottom sheet
+  void _showAboutScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: Text("About"),  // Replace with your About widget
+        );
+
+      },
+    );
+  }
+
   Widget _buildMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
+      BuildContext context, {
+        required IconData icon,
+        required String title,
+        required VoidCallback onTap,
+      }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
