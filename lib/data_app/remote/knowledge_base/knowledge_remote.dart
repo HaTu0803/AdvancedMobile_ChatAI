@@ -7,9 +7,15 @@ import 'package:advancedmobile_chatai/core/local_storage/base_preferences.dart';
 import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_model.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/knowledge_base/knowledge_url.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../core/navigation/routes.dart';
+import '../../repository/auth/authentication_repository.dart';
+
 class KnowledgeApiClient {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   Future<KnowledgeResponse> createKnowledge(Knowledge request) async {
     try {
       await BasePreferences.init();
@@ -39,8 +45,11 @@ class KnowledgeApiClient {
           return KnowledgeResponse.fromJson(
               jsonDecode(retryResponse.body)['data']);
         } else {
-          DialogHelper.showError(
-              'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+                (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
@@ -81,8 +90,11 @@ class KnowledgeApiClient {
             retryResponse.statusCode == 201) {
           return KnowledgeListResponse.fromJson(jsonDecode(retryResponse.body));
         } else {
-          DialogHelper.showError(
-              'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+                (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
@@ -123,8 +135,11 @@ class KnowledgeApiClient {
             retryResponse.statusCode == 201) {
           return KnowledgeListResponse.fromJson(jsonDecode(retryResponse.body));
         } else {
-          DialogHelper.showError(
-              'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+                (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
@@ -163,8 +178,11 @@ class KnowledgeApiClient {
             retryResponse.statusCode == 201) {
           return true;
         } else {
-          DialogHelper.showError(
-              'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+                (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
@@ -207,8 +225,11 @@ class KnowledgeApiClient {
           return UnitsOfKnowledgeListResponse.fromJson(
               jsonDecode(retryResponse.body));
         } else {
-          DialogHelper.showError(
-              'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+                (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {

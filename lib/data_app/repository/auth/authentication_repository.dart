@@ -60,6 +60,7 @@ class AuthRepository {
         final response = await authApiClient.fetchRefreshToken(refreshToken);
         return response;
       }
+      debugPrint("Refresh token is empty: $refreshToken");
       throw Exception('Refresh token is empty');
     } catch (e) {
       debugPrint("Fetch Refresh Token Error: $e");

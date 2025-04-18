@@ -47,13 +47,15 @@ class BaseQueryParams {
 
   Map<String, dynamic> toJson() {
     return {
-      'q': q,
-      'order': order,
-      'order_field': orderField,
-      'offset': offset,
-      'limit': limit,
+      if (q != null) 'q': q,
+      if (order != null) 'order': order,
+      if (orderField != null) 'order_field': orderField,
+      if (offset != null) 'offset': offset,
+      if (limit != null) 'limit': limit,
     };
-  }
+
+
+}
 
   String toQueryString() {
     final Map<String, dynamic> json = toJson();

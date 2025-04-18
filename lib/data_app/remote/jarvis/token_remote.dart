@@ -6,9 +6,15 @@ import 'package:advancedmobile_chatai/core/helpers/refresh_token_helper.dart';
 import 'package:advancedmobile_chatai/core/local_storage/base_preferences.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/token_model.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/jarvis/token_url.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../core/navigation/routes.dart';
+import '../../repository/auth/authentication_repository.dart';
+
 class TokenApiClient {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   Future<UsageTokenResponse> getUsage() async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
@@ -35,8 +41,11 @@ class TokenApiClient {
         return UsageTokenResponse.fromJson(
             jsonDecode(retryResponse.body)['data']);
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
