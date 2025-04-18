@@ -8,6 +8,7 @@ import '../core/util/themes/colors.dart';
 import '../providers/auth_provider.dart';
 import '../view_app/jarvis/screens/profile/profile_screen.dart';
 import '../view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
+import '../view_app/knowledge_base/screens/knowledge/bot.dart';
 import 'button.dart';
 import 'dialog.dart';
 
@@ -194,14 +195,13 @@ class AppSidebar extends StatelessWidget {
 
   // This function shows the Bot screen as a modal bottom sheet
   void _showBotScreen(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: Text("Bot"),  // Replace with your Bot widget
-        );
-
-      },
+   Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const BotsScreen();
+        },
+      ),
     );
   }
 

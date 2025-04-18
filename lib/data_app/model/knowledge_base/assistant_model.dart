@@ -41,19 +41,30 @@ class GetAssistants extends BaseQueryParams {
     this.is_favorite,
     this.is_published,
   }) : super(
-          q: q,
-          order: order,
-          orderField: order_field,
-          offset: offset,
-          limit: limit,
-        );
+    q: q,
+    order: order,
+    orderField: order_field,
+    offset: offset,
+    limit: limit,
+  );
+
   @override
   Map<String, dynamic> toJson() {
-    return {
-      ...super.toJson(),
-      'is_favorite': is_favorite,
-      'is_published': is_published,
-    };
+    final map = <String, dynamic>{};
+
+    // Only add non-null values from base class
+    final baseMap = super.toJson();
+    baseMap.forEach((key, value) {
+      if (value != null) {
+        map[key] = value;
+      }
+    });
+
+    // Only add non-null values of GetAssistants
+    if (is_favorite != null) map['is_favorite'] = is_favorite;
+    if (is_published != null) map['is_published'] = is_published;
+
+    return map;
   }
 
   factory GetAssistants.fromJson(Map<String, dynamic> json) {
