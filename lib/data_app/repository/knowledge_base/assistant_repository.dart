@@ -26,7 +26,7 @@ class AssistantRepository {
     }
   }
 
-  Future<AssistantListResponse> getAssistants(BaseQueryParams params) async {
+  Future<AssistantListResponse> getAssistants(BaseQueryParams? params) async {
     try {
       final response = await AssistantApi.getAssistantList(params);
       return response;

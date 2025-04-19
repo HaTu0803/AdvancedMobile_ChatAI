@@ -1,5 +1,8 @@
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/assistant_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../../../data_app/repository/knowledge_base/assistant_repository.dart';
 
 class AiModelDropdown extends StatefulWidget {
   const AiModelDropdown({super.key});
@@ -10,6 +13,8 @@ class AiModelDropdown extends StatefulWidget {
 
 class _AiModelDropdownState extends State<AiModelDropdown> {
   AiModel? selectedModel;
+  List<AiModel> bots = [];
+  bool isLoadingBots = false;
 
   final List<AiModel> baseAiModels = [
     AiModel(
@@ -20,7 +25,7 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
     AiModel(
       id: 'gpt-4o',
       name: 'GPT-4o',
-      iconPath: 'images/icons/gpt4o.png',
+      iconPath: 'images/icons/gpt4o.svg',
       isDefault: true,
     ),
     AiModel(
@@ -50,30 +55,41 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
     ),
   ];
 
-  final List<AiModel> bots = [
-    AiModel(
-      id: 'tu-test',
-      name: 'Tú test',
-      iconPath: 'images/icons/your_bots.svg',
-    ),
-    AiModel(
-      id: 'default-bot',
-      name: 'Default Bot',
-      iconPath: 'images/icons/your_bots.svg',
-    ),
-  ];
+  Future<void> _fetchBots() async {
+    try {
+      final response = await AssistantRepository().getAssistants(null);
+      debugPrint("Response: ${response.data}");
+      setState(() {
+        bots.clear();
+        bots.addAll(response.data.map((assistant) {
+          return AiModel(
+            id: assistant.id,
+            name: assistant.assistantName,
+            iconPath: 'images/icons/your_bots.svg',
+            isDefault: assistant.isDefault ?? false,
+            model: (assistant.isDefault ?? false) ? 'dify' : 'knowledge-base',
+          );
+        }).toList());
+      });
+    } catch (e) {
+      debugPrint('Failed to load bots: $e');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    selectedModel = baseAiModels.firstWhere((model) => model.isDefault == true,
-        orElse: () => baseAiModels.first);
+    selectedModel = baseAiModels.firstWhere(
+          (model) => model.isDefault == true,
+      orElse: () => baseAiModels.first,
+    );
+    _fetchBots();
   }
 
   void _showModelBottomSheet() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Prevent overflow
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -90,7 +106,18 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
                   ...baseAiModels.map(_buildModelItem).toList(),
                   const Divider(),
                   _buildHeader("Your Bots"),
-                  ...bots.map(_buildModelItem).toList(),
+                  if (isLoadingBots)
+                    const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (bots.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text("No AI Bots."),
+                    )
+                  else
+                    ...bots.map(_buildModelItem).toList(),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -122,20 +149,36 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
     return ListTile(
       onTap: () {
         setState(() => selectedModel = model);
-        Navigator.of(context).pop(); // đóng bottom sheet
+        Navigator.of(context).pop();
       },
-      leading: Image.asset(
-        model.iconPath ?? 'images/icons/your_bots.svg',
-        width: 24,
-        height: 24,
-        errorBuilder: (context, error, stackTrace) =>
-            const Icon(Icons.error, size: 24),
-      ),
+      leading: _buildIcon(model.iconPath),
       title: Text(model.name),
       trailing: model.id == selectedModel?.id
           ? const Icon(Icons.check, color: Colors.blue)
           : null,
     );
+  }
+
+  Widget _buildIcon(String? path, {double size = 24}) {
+    if (path == null) {
+      return const Icon(Icons.image, size: 24);
+    } else if (path.endsWith('.svg')) {
+      return SvgPicture.asset(
+        path,
+        width: size,
+        height: size,
+
+        placeholderBuilder: (context) => const Icon(Icons.image, size: 24),
+      );
+    } else {
+      return Image.asset(
+        path,
+        width: size,
+        height: size,
+        errorBuilder: (context, error, stackTrace) =>
+        const Icon(Icons.error, size: 24),
+      );
+    }
   }
 
   @override
@@ -147,20 +190,12 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(32),
-          color: Theme.of(context)
-              .colorScheme
-              .primaryContainer,
+          color: Theme.of(context).colorScheme.primaryContainer,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              selectedModel?.iconPath ?? 'images/icons/your_bots.svg',
-              width: 20,
-              height: 20,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.smart_toy, color: Colors.purple),
-            ),
+            _buildIcon(selectedModel?.iconPath, size: 20),
             const SizedBox(width: 8),
             Text(selectedModel?.name ?? 'Select Model'),
             const Icon(Icons.arrow_drop_down),
