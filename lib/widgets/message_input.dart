@@ -222,11 +222,9 @@ class _MessageInputFieldState extends State<MessageInputField> {
                       child: TextField(
                         controller: _controller,
                         style: Theme.of(context).textTheme.bodyMedium,
-                        maxLines: null,
-                        minLines: 1,
                         decoration: InputDecoration(
                           hintText: isOutOfTokens 
-                            ? 'You have run out of tokens, please wait until tomorrow or upgrade your plans to get more tokens.'
+                            ? 'You have run out of tokens, please wait until tomorrow or upgrade your account to get more tokens.'
                             : 'Type a message... (Type / for prompts)',
                           hintStyle: TextStyle(
                             color: isOutOfTokens 
@@ -234,11 +232,10 @@ class _MessageInputFieldState extends State<MessageInputField> {
                               : Colors.grey.shade500,
                             fontSize: 14,
                           ),
-                          hintMaxLines: 2,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
                         ),
                         enabled: !isOutOfTokens,
                         onChanged: (text) {
