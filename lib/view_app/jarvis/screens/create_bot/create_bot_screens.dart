@@ -27,6 +27,8 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
   final _instructionsController = TextEditingController();
   final _knowledgebaseController = TextEditingController();
   final _descriptionController = TextEditingController();
+  bool _isLoading = false;
+
 
   @override
   void initState() {
@@ -193,16 +195,25 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
                       ),
                       const SizedBox(width: 12),
                       FilledButton(
-                        onPressed: _submitForm,
+                        onPressed: _isLoading ? null : _submitForm,
                         style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: Text(widget.isUpdate ? 'Update Bot' : 'Create Bot'),
+                        child: _isLoading
+                            ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                            : Text(widget.isUpdate ? 'Update Bot' : 'Create Bot'),
                       ),
+
                     ],
                   ),
                 ),
@@ -266,27 +277,42 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
       final request = Assistant(
         assistantName: _nameController.text,
         instructions: _instructionsController.text,
         description: _descriptionController.text,
       );
-      if (widget.isUpdate) {
-        await AssistantRepository().updateAssistant(
-          widget.assistantId!,
-          request,
-        );
+
+      try {
+        if (widget.isUpdate) {
+          await AssistantRepository().updateAssistant(widget.assistantId!, request);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Bot updated successfully')),
+          );
+        } else {
+          await AssistantRepository().createAssistant(request);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Bot created successfully')),
+          );
+        }
+
+        widget.onSuccess?.call();
+        Navigator.pop(context);
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bot updated successfully')),
+          const SnackBar(content: Text('Failed to process the request')),
         );
-      } else {
-        await AssistantRepository().createAssistant(request);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bot created successfully')),
-        );
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
-      widget.onSuccess?.call(); // Gọi callback thành công nếu có
-      Navigator.pop(context);
     }
   }
 
