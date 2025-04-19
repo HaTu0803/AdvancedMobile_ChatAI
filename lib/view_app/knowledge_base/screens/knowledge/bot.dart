@@ -2,6 +2,7 @@ import 'package:advancedmobile_chatai/data_app/model/knowledge_base/assistant_mo
 import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/assistant_repository.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../widgets/dialog.dart';
 import '../../../jarvis/screens/create_bot/create_bot_screens.dart';
 
 class BotsScreen extends StatefulWidget {
@@ -259,10 +260,17 @@ class _BotsScreenState extends State<BotsScreen> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.star_border, size: 18),
+                              icon: Icon(
+                                assistant.isFavorite == true ? Icons.star : Icons.star_border,
+                                color: assistant.isFavorite == true ? Colors.amber : Colors.grey,
+                                size: 20,
+                              ),
                               tooltip: 'Favorite',
-                              onPressed: () {},
+                              onPressed: () {
+                                _handleFavoriteBot(assistant.id);
+                              },
                             ),
+
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -294,7 +302,7 @@ class _BotsScreenState extends State<BotsScreen> {
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                   onPressed: () {
-                                    // TODO: handleDelete(assistant);
+                                    _handleDeleteBot(assistant.id, assistant.assistantName);
                                   },
                                 ),
                                 IconButton(
@@ -302,7 +310,7 @@ class _BotsScreenState extends State<BotsScreen> {
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                   onPressed: () {
-                                    // TODO: handleUse(assistant);
+
                                   },
                                 ),
                               ],
@@ -420,6 +428,48 @@ class _BotsScreenState extends State<BotsScreen> {
         );
       },
     );
+  }
+  void _handleDeleteBot(String assistantId, String assistantName) {
+    showCustomDialog(
+      context: context,
+      title: 'Delete Assistant',
+      message: 'Are you sure you want to delete the assistant titled "$assistantName"?',
+      isConfirmation: true,
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      onConfirm: () async {
+        try {
+          await AssistantRepository().deleteAssistant(assistantId);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Assistant deleted successfully')),
+          );
+          _fetchAssistants(); // Chỉ gọi nếu thành công
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to delete assistant: $e')),
+          );
+        }
+      },
+    );
+  }
+  void _handleFavoriteBot(String assistantId) async {
+    try {
+      await AssistantRepository().favoriteAssistant(assistantId);
+      setState(() {
+        final index = assistants.indexWhere((a) => a.id == assistantId);
+        if (index != -1) {
+          // Toggle isFavorite state
+          assistants[index] = assistants[index].copyWith(
+            isFavorite: !(assistants[index].isFavorite ?? false),
+          );
+        }
+      });
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to favorite assistant: $e')),
+      );
+    }
   }
 
 }
