@@ -26,6 +26,7 @@ class AppRoutes {
   static const String upgradePlans = '/upgrade-plans';
   static const String history = '/conversation-history';
   static const String createPrompt = '/create-prompt';
+  static const String bot = '/bot';
 }
 
 // Khởi tạo GoRouter
@@ -80,6 +81,9 @@ final GoRouter router = GoRouter(
       ),
       GoRoute(
           path: AppRoutes.history,
+          builder: (context, state) => const ChatHistoryScreen()),
+      GoRoute(
+          path: AppRoutes.bot,
           builder: (context, state) => const ChatHistoryScreen()),
     ],
     redirect: (context, state) async {

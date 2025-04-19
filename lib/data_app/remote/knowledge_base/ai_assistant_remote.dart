@@ -7,13 +7,21 @@ import 'package:advancedmobile_chatai/core/local_storage/base_preferences.dart';
 import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/assistant_model.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/knowledge_base/ai_assistant_url.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
+import '../../../core/navigation/routes.dart';
+import '../../../providers/auth_provider.dart';
+import '../../repository/auth/authentication_repository.dart';
 
 class AssistantApiClient {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   Future<AssistantResponse> favoriteAssistant(assistantId) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
-    print("🔑 AccessToken: $token");
+    print("AccessToken: $token");
 
     final url =
         Uri.parse(ApiKnowledgeAiAssistantUrl.favoriteAssistant(assistantId));
@@ -24,11 +32,11 @@ class AssistantApiClient {
 
     final response = await http.post(url, headers: headers, body: body);
 
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
+    print("response.statusCode: ${response.statusCode}");
+    print("response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return AssistantResponse.fromJson(jsonDecode(response.body)['data']);
+      return AssistantResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -38,10 +46,13 @@ class AssistantApiClient {
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return AssistantResponse.fromJson(
-            jsonDecode(retryResponse.body)['data']);
+            jsonDecode(retryResponse.body));
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -66,7 +77,7 @@ class AssistantApiClient {
       print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return AssistantResponse.fromJson(jsonDecode(response.body)['data']);
+        return AssistantResponse.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
@@ -77,15 +88,22 @@ class AssistantApiClient {
         if (retryResponse.statusCode == 200 ||
             retryResponse.statusCode == 201) {
           return AssistantResponse.fromJson(
-              jsonDecode(retryResponse.body)['data']);
+              jsonDecode(retryResponse.body));
         } else {
-          DialogHelper.showError(
-              'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+                (route) => false,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        DialogHelper.showError(
-            'Tạo trợ lý thất bại. Mã lỗi: ${response.statusCode}');
+        await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => false,
+        );
+
         throw Exception('Tạo trợ lý thất bại. Mã lỗi: ${response.statusCode}');
       }
     } catch (e) {
@@ -120,12 +138,15 @@ class AssistantApiClient {
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return AssistantListResponse.fromJson(jsonDecode(retryResponse.body));
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      DialogHelper.showError('Lỗi: ${response.body}');
       throw Exception('Lỗi: ${response.statusCode}');
     }
   }
@@ -147,7 +168,7 @@ class AssistantApiClient {
     print("📩 response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return AssistantResponse.fromJson(jsonDecode(response.body)['data']);
+      return AssistantResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -157,10 +178,13 @@ class AssistantApiClient {
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return AssistantResponse.fromJson(
-            jsonDecode(retryResponse.body)['data']);
+            jsonDecode(retryResponse.body));
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -195,8 +219,11 @@ class AssistantApiClient {
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return true;
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -216,10 +243,10 @@ class AssistantApiClient {
     final response = await http.get(url, headers: headers);
 
     print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
+    print("📩 response.b:ody: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return AssistantResponse.fromJson(jsonDecode(response.body)['data']);
+      return AssistantResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -229,10 +256,13 @@ class AssistantApiClient {
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return AssistantResponse.fromJson(
-            jsonDecode(retryResponse.body)['data']);
+            jsonDecode(retryResponse.body));
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -267,8 +297,11 @@ class AssistantApiClient {
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return true;
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -304,8 +337,11 @@ class AssistantApiClient {
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return true;
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -353,8 +389,11 @@ class AssistantApiClient {
           jsonDecode(retryResponse.body),
         );
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -372,7 +411,7 @@ class AssistantApiClient {
     final response = await http.post(url, headers: headers, body: body);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ThreadAssistantResponse.fromJson(
-          jsonDecode(response.body)['data']);
+          jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -382,10 +421,13 @@ class AssistantApiClient {
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return ThreadAssistantResponse.fromJson(
-            jsonDecode(retryResponse.body)['data']);
+            jsonDecode(retryResponse.body));
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -413,8 +455,11 @@ class AssistantApiClient {
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return true;
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -449,8 +494,11 @@ class AssistantApiClient {
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return true;
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -492,8 +540,11 @@ class AssistantApiClient {
             .map((e) => RetrieveMessageOfThreadResponse.fromJson(e))
             .toList();
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
@@ -529,8 +580,11 @@ class AssistantApiClient {
         return ThreadAssistantListResponse.fromJson(
             jsonDecode(retryResponse.body));
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+         await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+              (route) => true,
+        );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {

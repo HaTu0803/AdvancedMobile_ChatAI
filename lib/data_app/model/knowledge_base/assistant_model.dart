@@ -41,19 +41,30 @@ class GetAssistants extends BaseQueryParams {
     this.is_favorite,
     this.is_published,
   }) : super(
-          q: q,
-          order: order,
-          orderField: order_field,
-          offset: offset,
-          limit: limit,
-        );
+    q: q,
+    order: order,
+    orderField: order_field,
+    offset: offset,
+    limit: limit,
+  );
+
   @override
   Map<String, dynamic> toJson() {
-    return {
-      ...super.toJson(),
-      'is_favorite': is_favorite,
-      'is_published': is_published,
-    };
+    final map = <String, dynamic>{};
+
+    // Only add non-null values from base class
+    final baseMap = super.toJson();
+    baseMap.forEach((key, value) {
+      if (value != null) {
+        map[key] = value;
+      }
+    });
+
+    // Only add non-null values of GetAssistants
+    if (is_favorite != null) map['is_favorite'] = is_favorite;
+    if (is_published != null) map['is_published'] = is_published;
+
+    return map;
   }
 
   factory GetAssistants.fromJson(Map<String, dynamic> json) {
@@ -152,6 +163,8 @@ class AssistantResponse extends BaseModel {
   final String? instructions;
   final String? description;
   final String? openAiThreadIdPlay;
+  final bool? isDefault;
+  final bool? isFavorite;
 
   AssistantResponse({
     required String createdAt,
@@ -164,12 +177,43 @@ class AssistantResponse extends BaseModel {
     this.instructions,
     this.description,
     this.openAiThreadIdPlay,
+    this.isDefault,
+    this.isFavorite,
   }) : super(
           createdAt: createdAt,
           updatedAt: updatedAt,
           createdBy: createdBy,
           updatedBy: updatedBy,
         );
+  AssistantResponse copyWith({
+    String? id,
+    String? assistantName,
+    String? openAiAssistantId,
+    String? instructions,
+    String? description,
+    String? openAiThreadIdPlay,
+    bool? isDefault,
+    bool? isFavorite,
+    String? createdAt,
+    String? updatedAt,
+    String? createdBy,
+    String? updatedBy,
+  }) {
+    return AssistantResponse(
+      id: id ?? this.id,
+      assistantName: assistantName ?? this.assistantName,
+      openAiAssistantId: openAiAssistantId ?? this.openAiAssistantId,
+      instructions: instructions ?? this.instructions,
+      description: description ?? this.description,
+      openAiThreadIdPlay: openAiThreadIdPlay ?? this.openAiThreadIdPlay,
+      isDefault: isDefault ?? this.isDefault,
+      isFavorite: isFavorite ?? this.isFavorite,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdBy: createdBy ?? this.createdBy,
+      updatedBy: updatedBy ?? this.updatedBy,
+    );
+  }
 
   factory AssistantResponse.fromJson(Map<String, dynamic> json) {
     return AssistantResponse(
@@ -183,6 +227,8 @@ class AssistantResponse extends BaseModel {
       instructions: json['instructions'],
       description: json['description'],
       openAiThreadIdPlay: json['openAiThreadIdPlay'],
+      isDefault: json['isDefault'],
+      isFavorite: json['isFavorite'],
     );
   }
 
@@ -196,6 +242,8 @@ class AssistantResponse extends BaseModel {
       'instructions': instructions,
       'description': description,
       'openAiThreadIdPlay': openAiThreadIdPlay,
+      'isDefault': isDefault,
+      'isFavorite': isFavorite,
     };
   }
 }

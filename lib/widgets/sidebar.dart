@@ -5,17 +5,76 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../core/util/themes/colors.dart';
+import '../data_app/model/jarvis/subscription_model.dart';
+import '../data_app/model/jarvis/user_model.dart';
+import '../data_app/repository/jarvis/subscription_repository.dart';
+import '../data_app/repository/jarvis/user_repository.dart';
 import '../providers/auth_provider.dart';
+import '../view_app/jarvis/screens/profile/profile_screen.dart';
+import '../view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
+import '../view_app/knowledge_base/screens/knowledge/bot.dart';
 import 'button.dart';
 import 'dialog.dart';
 
-class AppSidebar extends StatelessWidget {
+class AppSidebar extends StatefulWidget {
   const AppSidebar({super.key});
+
+  @override
+  State<AppSidebar> createState() => _AppSidebarState();
+}
+
+class _AppSidebarState extends State<AppSidebar> {
+  final TokenRepository _userRepository = TokenRepository();
+  final SubscriptionRepository _subscriptionRepository = SubscriptionRepository();
+  CurrentUserReponse? _currentUser;
+  UsageResponse? _subscription;
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+
+      debugPrint("🔄 Loading user data...");
+      
+      // Get user data
+      final userData = await _userRepository.getCurrentUser();
+      debugPrint("✅ User data loaded: ${userData.toJson()}");
+      
+      // Get subscription data
+      final subscriptionData = await _subscriptionRepository.getUsage();
+      debugPrint("✅ Subscription data loaded: ${subscriptionData.toJson()}");
+      
+      if (mounted) {
+        setState(() {
+          _currentUser = userData;
+          _subscription = subscriptionData;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("❌ Error loading user data: $e");
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _error = e.toString();
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.75,
       child: SafeArea(
@@ -30,43 +89,63 @@ class AppSidebar extends StatelessWidget {
                     .primaryContainer
                     .withOpacity(0.5),
               ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: const Text(
-                      "J",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "JARVIS User",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.error_outline, color: Colors.red),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Error loading data',
+                                style: TextStyle(color: Colors.red[700]),
+                              ),
+                              TextButton(
+                                onPressed: _loadUserData,
+                                child: const Text('Retry'),
+                              ),
+                            ],
                           ),
+                        )
+                      : Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              child: Text(
+                                _currentUser?.username.substring(0, 1).toUpperCase() ?? "U",
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _currentUser?.username ?? "Unknown User",
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    _subscription?.name ?? "Free Plan",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          "Free Plan",
-                          style: TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
             ),
 
             // Menu Items
@@ -79,7 +158,8 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.person_outline,
                     title: "My Profile",
                     onTap: () {
-                      context.go(AppRoutes.profile);
+                      Navigator.pop(context);  // Close the sidebar
+                      _showProfileScreen(context);  // Show Profile Screen in bottom sheet
                     },
                   ),
                   _buildMenuItem(
@@ -87,7 +167,24 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.workspace_premium,
                     title: "Upgrade Plans",
                     onTap: () {
-                      context.go(AppRoutes.upgradePlans);
+                      _showUpgradePlansScreen(context);  // Show Upgrade Plans Screen in bottom sheet
+                    },
+                  ),
+                  const Divider(),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.smart_toy_outlined,
+                    title: "Bot",
+                    onTap: () {
+                      _showBotScreen(context);  // Show Bot Screen in bottom sheet
+                    },
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.storage,
+                    title: "Data",
+                    onTap: () {
+                      _showDataScreen(context);  // Show Data Screen in bottom sheet
                     },
                   ),
                   const Divider(),
@@ -95,19 +192,25 @@ class AppSidebar extends StatelessWidget {
                     context,
                     icon: Icons.settings_outlined,
                     title: "Settings",
-                    onTap: () {},
+                    onTap: () {
+                      _showSettingsScreen(context);  // Show Settings Screen in bottom sheet
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.help_outline,
                     title: "Help & Support",
-                    onTap: () {},
+                    onTap: () {
+                      _showHelpSupportScreen(context);  // Show Help & Support Screen in bottom sheet
+                    },
                   ),
                   _buildMenuItem(
                     context,
                     icon: Icons.info_outline,
                     title: "About",
-                    onTap: () {},
+                    onTap: () {
+                      _showAboutScreen(context);  // Show About Screen in bottom sheet
+                    },
                   ),
                 ],
               ),
@@ -144,12 +247,96 @@ class AppSidebar extends StatelessWidget {
     );
   }
 
+  void _showProfileScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const ProfileScreen();
+      },
+    );
+  }
+
+  void _showUpgradePlansScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const UpgradePlansScreen();
+        },
+      ),
+    );
+  }
+
+
+  // This function shows the Bot screen as a modal bottom sheet
+  void _showBotScreen(BuildContext context) {
+   Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const BotsScreen();
+        },
+      ),
+    );
+  }
+
+  // This function shows the Data screen as a modal bottom sheet
+  void _showDataScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: Text("Data"),  // Replace with your Data widget
+        );
+
+      },
+    );
+  }
+
+  // This function shows the Settings screen as a modal bottom sheet
+  void _showSettingsScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: Text("Settings"),  // Replace with your Settings widget
+        );
+
+      },
+    );
+  }
+
+  // This function shows the Help & Support screen as a modal bottom sheet
+  void _showHelpSupportScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: Text("Help & Support"),  // Replace with your Help & Support widget
+        );
+      },
+    );
+  }
+
+  // This function shows the About screen as a modal bottom sheet
+  void _showAboutScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: Text("About"),  // Replace with your About widget
+        );
+
+      },
+    );
+  }
+
   Widget _buildMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
+      BuildContext context, {
+        required IconData icon,
+        required String title,
+        required VoidCallback onTap,
+      }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
