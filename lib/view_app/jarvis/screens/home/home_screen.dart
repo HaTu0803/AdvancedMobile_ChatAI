@@ -1,6 +1,6 @@
+import 'package:advancedmobile_chatai/view_app/jarvis/screens/home/ai_agent.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../../data_app/datasource/mock_data.dart';
 import '../../../../../widgets/action_button.dart';
 import '../../../../../widgets/chat_message.dart';
 import '../../../../../widgets/message_input.dart';
@@ -286,15 +286,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Row(
                       children: [
-                        ActionButton(
-                          icon: const Icon(
-                            Icons.smart_toy_outlined,
-                          ),
-                          label: "AI Agents",
-                          onTap: () {
-                            _showAIModelsBottomSheet(context);
-                          },
-                        ),
+                        // ActionButton(
+                        //   icon: const Icon(
+                        //     Icons.smart_toy_outlined,
+                        //   ),
+                        //   // label: "AI Agents",
+                        //   onTap: () {
+                        //     AiModelDropdown();
+                        //   },
+                        // ),
+                        const AiModelDropdown(),
                         const SizedBox(width: 8),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -488,63 +489,63 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showAIModelsBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.8,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Column(
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "AI Models",
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: aiModels.map((model) {
-                      return _buildModelOption(
-                        model["name"],
-                        model["description"],
-                        model["isSelected"],
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // void _showAIModelsBottomSheet(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     backgroundColor: Colors.transparent,
+  //     isScrollControlled: true,
+  //     useSafeArea: true,
+  //     builder: (context) {
+  //       return Padding(
+  //         padding: EdgeInsets.only(
+  //           bottom: MediaQuery.of(context).viewInsets.bottom,
+  //         ),
+  //         child: Container(
+  //           height: MediaQuery.of(context).size.height * 0.8,
+  //           decoration: const BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //           ),
+  //           child: Column(
+  //             children: [
+  //               Padding(
+  //                 padding:
+  //                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     Text(
+  //                       "AI Models",
+  //                       style: Theme.of(context).textTheme.headlineMedium,
+  //                     ),
+  //                     IconButton(
+  //                       icon: const Icon(Icons.close),
+  //                       onPressed: () {
+  //                         Navigator.pop(context);
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               Expanded(
+  //                 child: ListView(
+  //                   padding: const EdgeInsets.symmetric(horizontal: 16),
+  //                   children: aiModels.map((model) {
+  //                     return _buildModelOption(
+  //                       model["name"],
+  //                       model["description"],
+  //                       model["isSelected"],
+  //                     );
+  //                   }).toList(),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildModelOption(String name, String description, bool isSelected) {
     return Container(

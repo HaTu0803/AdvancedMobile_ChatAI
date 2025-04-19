@@ -440,10 +440,14 @@ class _BotsScreenState extends State<BotsScreen> {
       onConfirm: () async {
         try {
           await AssistantRepository().deleteAssistant(assistantId);
+
+          setState(() {
+            assistants.removeWhere((a) => a.id == assistantId);
+          });
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Assistant deleted successfully')),
           );
-          _fetchAssistants(); // Chỉ gọi nếu thành công
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to delete assistant: $e')),
@@ -452,6 +456,7 @@ class _BotsScreenState extends State<BotsScreen> {
       },
     );
   }
+
   void _handleFavoriteBot(String assistantId) async {
     try {
       await AssistantRepository().favoriteAssistant(assistantId);

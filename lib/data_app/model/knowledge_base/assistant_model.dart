@@ -1,5 +1,37 @@
 import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 
+class AiModel {
+  final String id;
+  final String name;
+  final String? iconPath;
+  final bool? isDefault;
+
+  AiModel({
+    required this.id,
+    required this.name,
+    this.iconPath,
+    this.isDefault = false,
+  });
+
+  factory AiModel.fromJson(Map<String, dynamic> json) {
+    return AiModel(
+      id: json['id'],
+      name: json['name'],
+      iconPath: json['iconPath'] ?? 'images/icons/your_bots.svg',
+      isDefault: json['isDefault'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'iconPath': iconPath ?? 'images/icons/your_bots.svg',
+      'isDefault': isDefault ?? false,
+    };
+  }
+}
+
 class Assistant {
   String assistantName;
   String? instructions;
@@ -41,12 +73,12 @@ class GetAssistants extends BaseQueryParams {
     this.is_favorite,
     this.is_published,
   }) : super(
-    q: q,
-    order: order,
-    orderField: order_field,
-    offset: offset,
-    limit: limit,
-  );
+          q: q,
+          order: order,
+          orderField: order_field,
+          offset: offset,
+          limit: limit,
+        );
 
   @override
   Map<String, dynamic> toJson() {
