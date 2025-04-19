@@ -286,7 +286,7 @@ class _BotsScreenState extends State<BotsScreen> {
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                   onPressed: () {
-                                    // TODO: handleEdit(assistant);
+                                    _openEditBotModal(context, assistant);
                                   },
                                 ),
                                 IconButton(
@@ -358,7 +358,60 @@ class _BotsScreenState extends State<BotsScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CreateYourOwnBotScreen(),
+                    CreateYourOwnBotScreen(
+                      onSuccess: () {
+                        _fetchAssistants();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+  void _openEditBotModal(BuildContext context, AssistantResponse assistant) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Dialog(
+            insetPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Edit Your Bot',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    CreateYourOwnBotScreen(
+                      isUpdate: true,
+                      assistantId: assistant.id,
+                        onSuccess: () {
+                          _fetchAssistants();
+                        },
+                    ),
                   ],
                 ),
               ),
