@@ -49,7 +49,7 @@ class SubscriptionApiClient {
     String token = await BasePreferences().getTokenPreferred('access_token');
     print("🔑 AccessToken: $token");
 
-    final url = Uri.parse(ApiJarvisSubscriptionUrl.getUsage);
+    final url = Uri.parse(ApiJarvisSubscriptionUrl.subscribe);
     final headers = ApiHeaders.getAIChatHeaders("", token);
 
     final response = await http.get(url, headers: headers);

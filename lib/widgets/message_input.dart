@@ -37,7 +37,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
   void initState() {
     super.initState();
     _controller.addListener(_handleTextChange);
-    _fetchTokenData(); // Add this line to fetch token data when widget initializes
+    _fetchTokenData();
   }
 
   @override
@@ -193,18 +193,6 @@ class _MessageInputFieldState extends State<MessageInputField> {
     );
   }
 
-  // Add this method to handle token reset
-  void _resetTokens() {
-    setState(() {
-      _tokenData = UsageTokenResponse(
-        totalTokens: 30,
-        availableTokens: 30,
-        unlimited: false,
-        date: DateTime.now().toIso8601String(),
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final bool isOutOfTokens = _tokenData != null && _tokenData!.availableTokens <= 0;
@@ -234,9 +222,11 @@ class _MessageInputFieldState extends State<MessageInputField> {
                       child: TextField(
                         controller: _controller,
                         style: Theme.of(context).textTheme.bodyMedium,
+                        maxLines: null,
+                        minLines: 1,
                         decoration: InputDecoration(
                           hintText: isOutOfTokens 
-                            ? 'You have run out of tokens'
+                            ? 'You have run out of tokens, please wait until tomorrow or upgrade your plans to get more tokens.'
                             : 'Type a message... (Type / for prompts)',
                           hintStyle: TextStyle(
                             color: isOutOfTokens 
@@ -244,16 +234,11 @@ class _MessageInputFieldState extends State<MessageInputField> {
                               : Colors.grey.shade500,
                             fontSize: 14,
                           ),
-                          border: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.transparent),
-                          ),
-                          enabledBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.transparent),
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.transparent),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
+                          hintMaxLines: 2,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 4.0),
                         ),
                         enabled: !isOutOfTokens,
                         onChanged: (text) {
@@ -299,7 +284,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
             ],
           ),
         ),
-        // Token display with real data and reset button
+        // Token display with real data
         Padding(
           padding: const EdgeInsets.only(left: 16.0),
           child: Row(
@@ -341,24 +326,6 @@ class _MessageInputFieldState extends State<MessageInputField> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              // Add reset button
-              // const SizedBox(width: 8),
-              // Container(
-              //   height: 24,
-              //   width: 24,
-              //   child: IconButton(
-              //     padding: EdgeInsets.zero,
-              //     iconSize: 16,
-              //     icon: Icon(
-              //       Icons.refresh,
-              //       color: Theme.of(context).colorScheme.primary,
-              //     ),
-              //     style: IconButton.styleFrom(
-              //       backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-              //     ),
-              //     onPressed: _resetTokens,
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -410,14 +377,14 @@ class _MessageInputFieldState extends State<MessageInputField> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Hết token rồi!',
+                  'Out of tokens!',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Bạn đã sử dụng hết token. Vui lòng chờ đến ngày mai hoặc nâng cấp tài khoản để có thêm token.',
+                  'You have used all your tokens. Please wait until tomorrow or upgrade your account to get more tokens.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -432,7 +399,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Đã hiểu'),
+                  child: const Text('Got it'),
                 ),
                 const SizedBox(height: 8),
               ],

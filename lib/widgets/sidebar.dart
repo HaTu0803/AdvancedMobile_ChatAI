@@ -118,26 +118,6 @@ class AppSidebar extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: logOutButton(
                 onPressed: () {
-                  // Show logout confirmation
-                  // showDialog(
-                  //   context: context,
-                  //   builder: (context) => AlertDialog(
-                  //     title: const Text("Log Out"),
-                  //     content: const Text("Are you sure you want to log out?"),
-                  //     actions: [
-                  //       TextButton(
-                  //         onPressed: () => Navigator.pop(context),
-                  //         child: const Text("Cancel"),
-                  //       ),
-                  //       TextButton(
-                  //         onPressed: () {
-                  //           context.go(AppRoutes.login);
-                  //         },
-                  //         child: const Text("Log Out"),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // );
                   showCustomDialog(
                     context: context,
                     title: "Log Out",

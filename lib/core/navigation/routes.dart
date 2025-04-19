@@ -39,9 +39,8 @@ final GoRouter router = GoRouter(
           final authProvider =
               Provider.of<AuthProvider>(context, listen: false);
 
-          // Nếu dữ liệu chưa load xong, chờ đợi
           if (authProvider.hasSeenIntro == null) {
-            return null; // Không điều hướng ngay
+            return null;
           }
 
           return authProvider.hasSeenIntro ? AppRoutes.login : AppRoutes.intro;
