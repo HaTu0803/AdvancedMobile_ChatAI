@@ -36,7 +36,7 @@ class AssistantApiClient {
     print("📩 response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return AssistantResponse.fromJson(jsonDecode(response.body)['data']);
+      return AssistantResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -46,7 +46,7 @@ class AssistantApiClient {
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return AssistantResponse.fromJson(
-            jsonDecode(retryResponse.body)['data']);
+            jsonDecode(retryResponse.body));
       } else {
          await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
@@ -77,7 +77,7 @@ class AssistantApiClient {
       print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return AssistantResponse.fromJson(jsonDecode(response.body)['data']);
+        return AssistantResponse.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
@@ -88,7 +88,7 @@ class AssistantApiClient {
         if (retryResponse.statusCode == 200 ||
             retryResponse.statusCode == 201) {
           return AssistantResponse.fromJson(
-              jsonDecode(retryResponse.body)['data']);
+              jsonDecode(retryResponse.body));
         } else {
           await AuthRepository().logOut();
           navigatorKey.currentState?.pushNamedAndRemoveUntil(
@@ -168,7 +168,7 @@ class AssistantApiClient {
     print("📩 response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return AssistantResponse.fromJson(jsonDecode(response.body)['data']);
+      return AssistantResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -178,7 +178,7 @@ class AssistantApiClient {
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return AssistantResponse.fromJson(
-            jsonDecode(retryResponse.body)['data']);
+            jsonDecode(retryResponse.body));
       } else {
          await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
@@ -243,10 +243,10 @@ class AssistantApiClient {
     final response = await http.get(url, headers: headers);
 
     print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
+    print("📩 response.b:ody: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return AssistantResponse.fromJson(jsonDecode(response.body)['data']);
+      return AssistantResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -256,7 +256,7 @@ class AssistantApiClient {
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return AssistantResponse.fromJson(
-            jsonDecode(retryResponse.body)['data']);
+            jsonDecode(retryResponse.body));
       } else {
          await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
@@ -411,7 +411,7 @@ class AssistantApiClient {
     final response = await http.post(url, headers: headers, body: body);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ThreadAssistantResponse.fromJson(
-          jsonDecode(response.body)['data']);
+          jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -421,7 +421,7 @@ class AssistantApiClient {
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return ThreadAssistantResponse.fromJson(
-            jsonDecode(retryResponse.body)['data']);
+            jsonDecode(retryResponse.body));
       } else {
          await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
