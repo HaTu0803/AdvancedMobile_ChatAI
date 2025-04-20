@@ -395,3 +395,29 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
     );
   }
 }
+
+// Hàm để xây dựng các PromptItem vào một Widget
+Widget? buildPromptItem(PromptItem? promptItem) {
+  if (promptItem == null) {
+    return null;
+  }
+
+  return promptItem;
+}
+
+// Widget để hiển thị danh sách PromptItem
+class PromptList extends StatelessWidget {
+  final List<PromptItem> promptItems;
+
+  PromptList({required this.promptItems});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: promptItems.length,
+      itemBuilder: (context, index) {
+        return buildPromptItem(promptItems[index]) ?? Container();
+      },
+    );
+  }
+}
