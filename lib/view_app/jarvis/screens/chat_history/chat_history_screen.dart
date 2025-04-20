@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/conversations_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/jarvis/ai_chat_repository.dart';
-import 'package:flutter/material.dart';
 
 class ChatHistoryScreen extends StatefulWidget {
   const ChatHistoryScreen({super.key});
@@ -21,17 +21,17 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   Future<ConversationResponse> _fetchConversations() async {
     final repository = AiChatRepository();
     final request = ConversationRequest(
-      cursor: "",
-      limit: "100",
-      assistantId: "",
+      limit: 100,
       assistantModel: "dify",
     );
+    debugPrint("🔑 request: ${request.toJson()}");
     return await repository.getConversations(request);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Chat History')),
       body: FutureBuilder<ConversationResponse>(
         future: _conversationFuture,
         builder: (context, snapshot) {
@@ -40,7 +40,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (!snapshot.hasData || snapshot.data!.items.isEmpty) {
-            return _buildEmptyState(); // 🛠 Thêm UI khi không có dữ liệu
+            return _buildEmptyState();
           }
 
           final chatHistory = snapshot.data!.items;
@@ -57,14 +57,13 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     );
   }
 
-  /// 🖼️ Hiển thị UI khi không có dữ liệu
   Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            "/images/no_found.png", // 📌 Đặt hình ảnh ở thư mục `assets/images/`
+            "assets/images/no_found.png", // 🛠️ nhớ khai báo trong pubspec.yaml
             width: 200,
             height: 200,
             fit: BoxFit.contain,
@@ -86,12 +85,16 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme
+              .of(context)
+              .colorScheme
+              .outline
+              .withOpacity(0.2),
         ),
       ),
       child: InkWell(
         onTap: () {
-          Navigator.pop(context);
+          Navigator.pop(context); // 👉 update logic tùy theo nhu cầu
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -99,66 +102,42 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      chat.title ?? "Untitled",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      chat.id, // Hiển thị ID hoặc thông tin phù hợp
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
               Text(
-                "Created at: ${_formatTimestamp(chat.createAt ?? 0)}",
-                style: TextStyle(
-                  color:
-                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                  fontSize: 14,
+                chat.title ?? "Untitled",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+              const SizedBox(height: 8),
+              Text(
+                "${formatTimeAgo(chat.createAt ?? '')}",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  fontSize: 14,
+                ),
+              ),
             ],
           ),
+
         ),
       ),
     );
   }
 
-  String _formatTimestamp(int timestamp) {
-    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+  String formatTimeAgo(String isoTimeString) {
+    final dateTime = DateTime.parse(isoTimeString);
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
     if (difference.inDays > 0) {
-      return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+      return '${difference.inDays} ngày trước';
     } else if (difference.inHours > 0) {
-      return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+      return '${difference.inHours} giờ trước';
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+      return '${difference.inMinutes} phút trước';
     } else {
       return 'Just now';
     }

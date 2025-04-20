@@ -1,3 +1,4 @@
+import 'package:advancedmobile_chatai/data_app/model/knowledge_base/assistant_model.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/home/ai_agent.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +25,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, dynamic>> messages = [];
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
+  AiModel? selectedAiModel;
+  @override
+  void initState() {
+    super.initState();
+    selectedAiModel = AiModel(
+      id: 'gpt-4o',
+      name: 'GPT-4o',
+      model: 'dify',
+      isDefault: true,
+    );
+  }
 
   void _sendMessage(String message) async {
     if (message.isNotEmpty) {
@@ -47,9 +59,9 @@ class _HomeScreenState extends State<HomeScreen> {
           conversation: Conversation(messages: []),
         ),
         assistant: AssistantInfo(
-          model: "knowledge-base",
-          name: "votutrinh2002's Default Team Assistant",
-          id: "29178123-34d4-4e52-94fb-8e580face2d5",
+          model: selectedAiModel?.model ?? 'dify',
+          name: selectedAiModel?.name ?? 'GPT-4o',
+          id: selectedAiModel?.id ?? 'gpt-4od',
         ),
       );
 
@@ -295,7 +307,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         //     AiModelDropdown();
                         //   },
                         // ),
-                        const AiModelDropdown(),
+                        AiModelDropdown(
+                          onModelSelected: (selectedModel) {
+                            setState(() {
+                              selectedAiModel = selectedModel;
+                            });
+                          },
+                        ),
                         const SizedBox(width: 8),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -339,7 +357,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           icon: const Icon(Icons.history_toggle_off),
                           label: "",
                           onTap: () {
-                            _showFullHistoryModal(context);
+                            // _showFullHistoryModal(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ChatHistoryScreen(),
+                              ),
+                            );
                           },
                         ),
                         const SizedBox(width: 8),
@@ -395,54 +420,54 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showFullHistoryModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.9,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Column(
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Chat History",
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const Expanded(
-                  child: ChatHistoryScreen(),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // void _showFullHistoryModal(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     backgroundColor: Colors.transparent,
+  //     isScrollControlled: true,
+  //     useSafeArea: true,
+  //     builder: (context) {
+  //       return Padding(
+  //         padding: EdgeInsets.only(
+  //           bottom: MediaQuery.of(context).viewInsets.bottom,
+  //         ),
+  //         child: Container(
+  //           height: MediaQuery.of(context).size.height * 0.9,
+  //           decoration: const BoxDecoration(
+  //             color: Colors.white,
+  //             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //           ),
+  //           child: Column(
+  //             children: [
+  //               Padding(
+  //                 padding:
+  //                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     Text(
+  //                       "Chat History",
+  //                       style: Theme.of(context).textTheme.headlineMedium,
+  //                     ),
+  //                     IconButton(
+  //                       icon: const Icon(Icons.close),
+  //                       onPressed: () {
+  //                         Navigator.pop(context);
+  //                       },
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               const Expanded(
+  //                 child: ChatHistoryScreen(),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   void _openCreateBotModal(BuildContext context) {
     showDialog(
