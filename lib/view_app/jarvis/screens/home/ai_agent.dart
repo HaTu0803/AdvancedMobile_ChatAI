@@ -5,8 +5,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../data_app/repository/knowledge_base/assistant_repository.dart';
 
 class AiModelDropdown extends StatefulWidget {
-  const AiModelDropdown({super.key});
+  final Function(AiModel) onModelSelected;
 
+  const AiModelDropdown({
+    super.key,
+    required this.onModelSelected,
+  });
   @override
   State<AiModelDropdown> createState() => _AiModelDropdownState();
 }
@@ -20,38 +24,38 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
     AiModel(
       id: 'gpt-4o-mini',
       name: 'GPT-4o mini',
-      iconPath: 'images/icons/gpt4o-mini.svg',
+      iconPath: 'images/gpt4o-mini.svg',
     ),
     AiModel(
       id: 'gpt-4o',
       name: 'GPT-4o',
-      iconPath: 'images/icons/gpt4o.svg',
+      iconPath: 'images/gpt4o.svg',
       isDefault: true,
     ),
     AiModel(
       id: 'gemini-1.5-flash-latest',
       name: 'Gemini 1.5 Flash',
-      iconPath: 'images/icons/gemini-flash.svg',
+      iconPath: 'images/gemini-flash.svg',
     ),
     AiModel(
       id: 'gemini-1.5-pro-latest',
       name: 'Gemini 1.5 Pro',
-      iconPath: 'images/icons/gemini-pro.svg',
+      iconPath: 'images/gemini-pro.svg',
     ),
     AiModel(
       id: 'claude-3-haiku-20240307',
       name: 'Claude 3 Haiku',
-      iconPath: 'images/icons/claude-haiku.svg',
+      iconPath: 'images/claude-haiku.svg',
     ),
     AiModel(
       id: 'claude-3-sonnet-20240229',
       name: 'Claude 3.5 Sonnet',
-      iconPath: 'images/icons/claude-sonnet.svg',
+      iconPath: 'images/claude-sonnet.svg',
     ),
     AiModel(
       id: 'deepseek-chat',
       name: 'Deepseek Chat',
-      iconPath: 'images/icons/deepseek.svg',
+      iconPath: 'images/deepseek.svg',
     ),
   ];
 
@@ -65,7 +69,7 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
           return AiModel(
             id: assistant.id,
             name: assistant.assistantName,
-            iconPath: 'images/icons/your_bots.svg',
+            iconPath: 'images/your_bots.svg',
             isDefault: assistant.isDefault ?? false,
             model: (assistant.isDefault ?? false) ? 'dify' : 'knowledge-base',
           );
@@ -80,7 +84,7 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
   void initState() {
     super.initState();
     selectedModel = baseAiModels.firstWhere(
-          (model) => model.isDefault == true,
+      (model) => model.isDefault == true,
       orElse: () => baseAiModels.first,
     );
     _fetchBots();
@@ -149,6 +153,7 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
     return ListTile(
       onTap: () {
         setState(() => selectedModel = model);
+        widget.onModelSelected(model);
         Navigator.of(context).pop();
       },
       leading: _buildIcon(model.iconPath),
@@ -167,7 +172,6 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
         path,
         width: size,
         height: size,
-
         placeholderBuilder: (context) => const Icon(Icons.image, size: 24),
       );
     } else {
@@ -176,7 +180,7 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
         width: size,
         height: size,
         errorBuilder: (context, error, stackTrace) =>
-        const Icon(Icons.error, size: 24),
+            const Icon(Icons.error, size: 24),
       );
     }
   }

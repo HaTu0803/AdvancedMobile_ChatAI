@@ -1,7 +1,7 @@
 class Items {
   final String? title;
   final String id;
-  final int? createAt;
+  final String? createAt;
 
   Items({
     this.title,
@@ -12,7 +12,7 @@ class Items {
 
 class ConversationRequest {
   final String? cursor;
-  final String? limit;
+  final int? limit;
   final String? assistantId;
   final String assistantModel;
 
@@ -25,43 +25,54 @@ class ConversationRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'cursor': cursor,
-      'limit': limit,
-      'assistant_id': assistantId,
-      'assistant_model': assistantModel,
+      if (cursor != null) 'cursor': cursor,
+      if (limit != null) 'limit': limit,
+      if (assistantId != null) 'assistantIid': assistantId,
+      'assistantModel': assistantModel,
     };
+  }
+
+  String toQueryString() {
+    final query = toJson().entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
+        .join('&');
+    return query;
   }
 }
 
+
 class ConversationResponse {
   final List<Items> items;
-  final String cursor;
+  final String? cursor;
   final bool has_more;
   final int limit;
 
   ConversationResponse({
     required this.items,
-    required this.cursor,
+     this.cursor,
     required this.has_more,
     required this.limit,
   });
 
   factory ConversationResponse.fromJson(Map<String, dynamic> json) {
     final List<Items> items = [];
-    final List<dynamic> data = json['data'];
+    final List<dynamic> data = json['items'];
+
     for (final item in data) {
       items.add(Items(
         title: item['title'],
         id: item['id'],
-        createAt: item['create_at'],
+        createAt: item['createdAt'],
       ));
     }
 
     return ConversationResponse(
       items: items,
-      cursor: json['cursor'],
+      cursor: json['cursor']  ?? "",
       has_more: json['has_more'],
-      limit: json['limit'],
+      limit: json['limit'] is int
+          ? json['limit']
+          : int.tryParse(json['limit'].toString()) ?? 0,
     );
   }
 }
