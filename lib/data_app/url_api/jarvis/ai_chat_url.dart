@@ -4,7 +4,8 @@ const String baseUrl = JARVIS_BASE_URL;
 
 class ApiJarvisAiChatUrl {
   static const String chatWithBot = '$baseUrl/messages';
-  static const String getConversations = '$baseUrl/conversations';
+  static String getConversations(String query)  =>
+      '$baseUrl/conversations${query.isNotEmpty ? '?$query' : ''}';
   static const String sendMessage = '$baseUrl/messages';
 
   static String getConversationHistory(String conversationId) {

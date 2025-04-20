@@ -11,9 +11,8 @@ class AiChatApiClient {
   Future<ConversationResponse> conversation(ConversationRequest params) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
-    final uri = Uri.parse(ApiJarvisAiChatUrl.getConversations).replace(
-      queryParameters: params.toJson(),
-    );
+    final uri = Uri.parse(ApiJarvisAiChatUrl.getConversations(params.toQueryString()));
+
 
     final response = await http.get(
       uri,

@@ -5,8 +5,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../data_app/repository/knowledge_base/assistant_repository.dart';
 
 class AiModelDropdown extends StatefulWidget {
-  const AiModelDropdown({super.key});
+  final Function(AiModel) onModelSelected;
 
+  const AiModelDropdown({
+    super.key,
+    required this.onModelSelected,
+  });
   @override
   State<AiModelDropdown> createState() => _AiModelDropdownState();
 }
@@ -80,7 +84,7 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
   void initState() {
     super.initState();
     selectedModel = baseAiModels.firstWhere(
-          (model) => model.isDefault == true,
+      (model) => model.isDefault == true,
       orElse: () => baseAiModels.first,
     );
     _fetchBots();
@@ -149,6 +153,7 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
     return ListTile(
       onTap: () {
         setState(() => selectedModel = model);
+        widget.onModelSelected(model);
         Navigator.of(context).pop();
       },
       leading: _buildIcon(model.iconPath),
@@ -167,7 +172,6 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
         path,
         width: size,
         height: size,
-
         placeholderBuilder: (context) => const Icon(Icons.image, size: 24),
       );
     } else {
@@ -176,7 +180,7 @@ class _AiModelDropdownState extends State<AiModelDropdown> {
         width: size,
         height: size,
         errorBuilder: (context, error, stackTrace) =>
-        const Icon(Icons.error, size: 24),
+            const Icon(Icons.error, size: 24),
       );
     }
   }
