@@ -361,10 +361,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const ChatHistoryScreen(),
+                                builder: (context) => ChatHistoryScreen(
+                                  assistantModel: selectedAiModel?.model ?? 'dify',
+                                ),
                               ),
                             );
+
                           },
                         ),
                         const SizedBox(width: 8),

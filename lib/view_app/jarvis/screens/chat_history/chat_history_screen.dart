@@ -3,7 +3,12 @@ import 'package:advancedmobile_chatai/data_app/model/jarvis/conversations_model.
 import 'package:advancedmobile_chatai/data_app/repository/jarvis/ai_chat_repository.dart';
 
 class ChatHistoryScreen extends StatefulWidget {
-  const ChatHistoryScreen({super.key});
+  final String assistantModel;
+
+  const ChatHistoryScreen({
+    super.key,
+    required this.assistantModel,
+  });
 
   @override
   State<ChatHistoryScreen> createState() => _ChatHistoryScreenState();
@@ -22,7 +27,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     final repository = AiChatRepository();
     final request = ConversationRequest(
       limit: 100,
-      assistantModel: "dify",
+      assistantModel: widget.assistantModel,
     );
     debugPrint("🔑 request: ${request.toJson()}");
     return await repository.getConversations(request);
