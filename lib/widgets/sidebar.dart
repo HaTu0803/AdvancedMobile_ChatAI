@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../core/util/themes/colors.dart';
 import '../data_app/model/jarvis/subscription_model.dart';
@@ -256,17 +257,37 @@ class _AppSidebarState extends State<AppSidebar> {
     );
   }
 
-  void _showUpgradePlansScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return const UpgradePlansScreen();
-        },
-      ),
-    );
+  void _showUpgradePlansScreen(BuildContext context) async {
+    final Uri url = Uri.parse('https://admin.dev.jarvis.cx/pricing/overview');
+    try {
+      if (!await launchUrl(url)) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not launch upgrade plans')),
+          );
+        }
+      } else {
+        // After successful URL launch, reload user data to check for subscription changes
+        if (context.mounted) {
+          await _loadUserData();
+          if (_subscription?.name == "Pro Plan") {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Successfully upgraded to Pro Plan!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    }
   }
-
 
   // This function shows the Bot screen as a modal bottom sheet
   void _showBotScreen(BuildContext context) {
