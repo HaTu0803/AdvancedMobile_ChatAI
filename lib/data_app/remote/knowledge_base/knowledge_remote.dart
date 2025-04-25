@@ -43,7 +43,7 @@ class KnowledgeApiClient {
         if (retryResponse.statusCode == 200 ||
             retryResponse.statusCode == 201) {
           return KnowledgeResponse.fromJson(
-              jsonDecode(retryResponse.body)['data']);
+              jsonDecode(retryResponse.body));
         } else {
           await AuthRepository().logOut();
           navigatorKey.currentState?.pushNamedAndRemoveUntil(

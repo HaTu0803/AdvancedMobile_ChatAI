@@ -36,7 +36,6 @@ class AiModel {
       'isDefault': isDefaultValue,
     };
   }
-
 }
 
 class Assistant {
@@ -82,7 +81,7 @@ class GetAssistants extends BaseQueryParams {
   }) : super(
           q: q,
           order: order,
-          orderField: order_field,
+          order_field: order_field,
           offset: offset,
           limit: limit,
         );

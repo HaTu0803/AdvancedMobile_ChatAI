@@ -79,6 +79,7 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
               children: [
                 _buildFormField(
                   label: 'Name',
+                  maxLines: 1,
                   controller: _nameController,
                   hintText: 'Enter a name for your bot...',
                   isRequired: true,

@@ -28,7 +28,9 @@ class KnowledgeResponse extends BaseModel {
   String userId;
   String knowledgeName;
   String description;
-
+  int numUnits;
+  int totalSize;
+  String id;
   KnowledgeResponse({
     required String createdAt,
     String? updatedAt,
@@ -37,6 +39,9 @@ class KnowledgeResponse extends BaseModel {
     required this.userId,
     required this.knowledgeName,
     required this.description,
+    required this.numUnits,
+    required this.totalSize,
+    required this.id,
   }) : super(
           createdAt: createdAt,
           updatedAt: updatedAt,
@@ -53,6 +58,9 @@ class KnowledgeResponse extends BaseModel {
       userId: json['userId'],
       knowledgeName: json['knowledgeName'],
       description: json['description'],
+      numUnits: json['numUnits'] ?? 0,
+      totalSize: json['totalSize'] ?? 0,
+      id: json['id'],
     );
   }
 
@@ -65,6 +73,9 @@ class KnowledgeResponse extends BaseModel {
       'userId': userId,
       'knowledgeName': knowledgeName,
       'description': description,
+      'numUnits': numUnits,
+      'totalSize': totalSize,
+      'id': id,
     };
   }
 }
