@@ -47,10 +47,10 @@ class KnowledgeRepository {
     }
   }
 
-  Future<UnitsOfKnowledgeListResponse> getUnitsOfKnowledge(
-      BaseQueryParams params, String id) async {
+    Future<UnitsOfKnowledgeListResponse> getUnitsOfKnowledge(
+  String id,BaseQueryParams params) async {
     try {
-      final response = await KnowledgeApi.getUnitsOfKnowledge(params, id);
+      final response = await KnowledgeApi.getUnitsOfKnowledge(        id, params);
       return response;
     } catch (e) {
       debugPrint("GetConversations Error: $e");

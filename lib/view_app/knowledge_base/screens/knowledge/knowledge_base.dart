@@ -2,6 +2,7 @@ import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_repository.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge/knowledge_base/create_knowledge.dart';
+import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge/units.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../widgets/dialog.dart';
@@ -208,6 +209,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                                         //       size: 20, color: Colors.grey),
                                         //   padding: EdgeInsets.zero,
                                         //   constraints: const BoxConstraints(),
+                                        //
                                         //   onPressed: () {
                                         //     // _openEditBotModal(
                                         //     //     context, assistant);
@@ -228,7 +230,12 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                                               size: 20, color: Colors.grey),
                                           padding: EdgeInsets.zero,
                                           constraints: const BoxConstraints(),
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            _showKnowledgeDetailBottomSheet(
+                                                context,
+                                                knowledge.id,
+                                                knowledge.knowledgeName);
+                                          },
                                         ),
                                       ],
                                     ),
@@ -390,4 +397,20 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
   //     );
   //   }
   // }
+}
+
+void _showKnowledgeDetailBottomSheet(
+    BuildContext context, String id, String knowledgeName) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (context) => DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.9, // Chiếm 90% màn hình
+      minChildSize: 0.5,
+      maxChildSize: 1.0,
+      builder: (_, controller) => KnowledgeUnitScreen(id: id, knowledgeName: knowledgeName)
+    ),
+
+  );
 }

@@ -22,11 +22,16 @@ class KnowledgeDataApiClient {
       print("🔑 AccessToken: $token");
 
       final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadLocal(id));
-      final headers = ApiHeaders.getAIChatHeaders("", token);
-      final body = {
-        'file': file.readAsBytesSync(),
-      };
-      final response = await http.post(url, headers: headers, body: body);
+
+      var request = http.MultipartRequest('POST', url);
+      request.headers.addAll(ApiHeaders.getHeadersWithFile("", token));
+
+      request.files.add(
+        await http.MultipartFile.fromPath('file', file.path),
+      );
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       print("📩 response.statusCode: ${response.statusCode}");
       print("📩 response.body: ${response.body}");
@@ -34,21 +39,22 @@ class KnowledgeDataApiClient {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return UploadFileResponse.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
-        final retryResponse = await retryWithRefreshToken(
+        // Nếu server trả 401, xử lý refresh token
+        final retryResponse = await retryWithRefreshTokenMultipart(
           url: url,
-          headers: headers,
-          body: body,
+          headers: request.headers,
+          filePath: file.path,
         );
 
         if (retryResponse.statusCode == 200 ||
             retryResponse.statusCode == 201) {
           return UploadFileResponse.fromJson(jsonDecode(retryResponse.body));
         } else {
-           await AuthRepository().logOut();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.login,
-              (route) => true,
-        );
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+            (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
@@ -88,11 +94,11 @@ class KnowledgeDataApiClient {
             retryResponse.statusCode == 201) {
           return UploadFileResponse.fromJson(jsonDecode(retryResponse.body));
         } else {
-           await AuthRepository().logOut();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.login,
-              (route) => true,
-        );
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+            (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
@@ -132,11 +138,11 @@ class KnowledgeDataApiClient {
             retryResponse.statusCode == 201) {
           return UploadFileResponse.fromJson(jsonDecode(retryResponse.body));
         } else {
-           await AuthRepository().logOut();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.login,
-              (route) => true,
-        );
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+            (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
@@ -177,11 +183,11 @@ class KnowledgeDataApiClient {
             retryResponse.statusCode == 201) {
           return UploadFileResponse.fromJson(jsonDecode(retryResponse.body));
         } else {
-           await AuthRepository().logOut();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.login,
-              (route) => true,
-        );
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+            (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
@@ -221,11 +227,11 @@ class KnowledgeDataApiClient {
             retryResponse.statusCode == 201) {
           return UploadFileResponse.fromJson(jsonDecode(retryResponse.body));
         } else {
-           await AuthRepository().logOut();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.login,
-              (route) => true,
-        );
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+            (route) => true,
+          );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {

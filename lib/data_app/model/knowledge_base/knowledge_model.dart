@@ -112,35 +112,66 @@ class UnitsOfKnowledgeResponse extends BaseModel {
   bool status;
   String userId;
   String knowledgeId;
+  String? type;
+  int? size;
+  List<String>? openAiFileIds;
+  Map<String, dynamic>? metadata;
+  String? deletedAt;
+  String? imagePath;
 
   UnitsOfKnowledgeResponse({
     required String createdAt,
     String? updatedAt,
     String? createdBy,
     String? updatedBy,
+    this.deletedAt,
     required this.id,
     required this.name,
+    this.type,
+    this.size,
     required this.status,
     required this.userId,
     required this.knowledgeId,
+    this.openAiFileIds,
+    this.metadata,
+    this.imagePath
   }) : super(
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-          createdBy: createdBy,
-          updatedBy: updatedBy,
-        );
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    createdBy: createdBy,
+    updatedBy: updatedBy,
+  );
 
   factory UnitsOfKnowledgeResponse.fromJson(Map<String, dynamic> json) {
+    final type = json['type'];
+
+    // Mapping type -> image
+    final imageMap = {
+      'local_file': 'images/file.png',
+      'web': 'images/web.png',
+      'google_drive': 'images/google_drive.png',
+      'github': 'images/github.png',
+      'gitlab': 'images/gitlab.png',
+      'slack': 'images/slack.png',
+      'confluence': 'images/confluence.png',
+    };
+
     return UnitsOfKnowledgeResponse(
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],
       createdBy: json['createdBy'],
       updatedBy: json['updatedBy'],
+      deletedAt: json['deletedAt'],
       id: json['id'],
       name: json['name'],
+      type: json['type'],
+      size: json['size'] is int ? json['size'] : int.tryParse(json['size'].toString()),
       status: json['status'],
       userId: json['userId'],
       knowledgeId: json['knowledgeId'],
+      openAiFileIds: (json['openAiFileIds'] as List?)?.map((e) => e.toString()).toList(),
+      metadata: json['metadata'] != null ? Map<String, dynamic>.from(json['metadata']) : null,
+      imagePath: imageMap[type] ?? 'images/file.png',
     );
   }
 
@@ -150,11 +181,16 @@ class UnitsOfKnowledgeResponse extends BaseModel {
       'updatedAt': updatedAt,
       'createdBy': createdBy,
       'updatedBy': updatedBy,
+      'deletedAt': deletedAt,
       'id': id,
       'name': name,
+      'type': type,
+      'size': size,
       'status': status,
       'userId': userId,
       'knowledgeId': knowledgeId,
+      'openAiFileIds': openAiFileIds,
+      'metadata': metadata,
     };
   }
 }

@@ -28,4 +28,9 @@ class ApiHeaders {
         'x-jarvis-guid': guid ?? '',
         'Authorization': 'Bearer $token',
       };
+  static Map<String, String> getHeadersWithFile(String? guid, String token) => {
+        "Content-Type": "multipart/form-data",
+        'x-jarvis-guid': guid ?? '',
+        'Authorization': 'Bearer $token',
+      };
 }
