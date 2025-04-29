@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../widgets/dialog.dart';
 import '../../../jarvis/screens/create_bot/create_bot_screens.dart';
+import 'edit_bot_screen.dart';
 
 class BotsScreen extends StatefulWidget {
   const BotsScreen({super.key});
@@ -77,7 +78,7 @@ class _BotsScreenState extends State<BotsScreen> {
       }
     });
 
-    _fetchAssistants(); // gọi lại API với filter mới
+    _fetchAssistants();
   }
 
   @override
@@ -442,52 +443,11 @@ class _BotsScreenState extends State<BotsScreen> {
   }
 
   void _openEditBotModal(BuildContext context, AssistantResponse assistant) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Center(
-          child: Dialog(
-            insetPadding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Edit Your Bot',
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    CreateYourOwnBotScreen(
-                      isUpdate: true,
-                      assistantId: assistant.id,
-                      onSuccess: () {
-                        _fetchAssistants();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditBotScreen(assistant: assistant),
+      ),
     );
   }
 
