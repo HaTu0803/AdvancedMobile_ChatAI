@@ -19,7 +19,6 @@ class KnowledgeDataApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadLocal(id));
 
@@ -32,9 +31,6 @@ class KnowledgeDataApiClient {
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return UploadFileResponse.fromJson(jsonDecode(response.body));
@@ -71,15 +67,11 @@ class KnowledgeDataApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadGgDrive(id));
       final headers = ApiHeaders.getAIChatHeaders("", token);
 
       final response = await http.post(url, headers: headers);
-
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return UploadFileResponse.fromJson(jsonDecode(response.body));
@@ -114,15 +106,11 @@ class KnowledgeDataApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadSlack(id));
       final headers = ApiHeaders.getAIChatHeaders("", token);
 
       final response = await http.post(url, headers: headers);
-
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return UploadFileResponse.fromJson(jsonDecode(response.body));
@@ -158,15 +146,11 @@ class KnowledgeDataApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadLocal(id));
       final headers = ApiHeaders.getAIChatHeaders("", token);
       final body = jsonEncode(request.toJson());
       final response = await http.post(url, headers: headers, body: body);
-
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return UploadFileResponse.fromJson(jsonDecode(response.body));
@@ -188,8 +172,6 @@ class KnowledgeDataApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-
-
         handleErrorResponse(response);
 
         throw Exception('Failed to upload file due to an error response');
@@ -203,15 +185,11 @@ class KnowledgeDataApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadLocal(id));
       final headers = ApiHeaders.getAIChatHeaders("", token);
       final body = jsonEncode(request.toJson());
       final response = await http.post(url, headers: headers, body: body);
-
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return UploadFileResponse.fromJson(jsonDecode(response.body));
@@ -235,10 +213,8 @@ class KnowledgeDataApiClient {
       } else {
         handleErrorResponse(response);
         throw Exception('Failed to upload file due to an error response');
-
       }
     } catch (e) {
-      // DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }

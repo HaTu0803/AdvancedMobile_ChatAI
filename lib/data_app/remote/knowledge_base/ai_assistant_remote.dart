@@ -52,11 +52,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -64,16 +61,12 @@ class AssistantApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url = Uri.parse(ApiKnowledgeAiAssistantUrl.createAssistant);
       final headers = ApiHeaders.getAIChatHeaders("", token);
       final body = jsonEncode(request.toJson());
 
       final response = await http.post(url, headers: headers, body: body);
-
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return AssistantResponse.fromJson(jsonDecode(response.body));
@@ -90,7 +83,7 @@ class AssistantApiClient {
           await AuthRepository().logOut();
           navigatorKey.currentState?.pushNamedAndRemoveUntil(
             AppRoutes.login,
-            (route) => false,
+            (route) => true,
           );
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
@@ -98,18 +91,13 @@ class AssistantApiClient {
         await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
           AppRoutes.login,
-          (route) => false,
+          (route) => true,
         );
 
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+        handleErrorResponse(response);
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }
@@ -143,16 +131,13 @@ class AssistantApiClient {
         await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
           AppRoutes.login,
-          (route) => false,
+          (route) => true,
         );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -168,9 +153,6 @@ class AssistantApiClient {
     final body = jsonEncode(request.toJson());
 
     final response = await http.patch(url, headers: headers, body: body);
-
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return AssistantResponse.fromJson(jsonDecode(response.body));
@@ -191,11 +173,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -232,11 +211,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -272,11 +248,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -313,11 +286,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -355,11 +325,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -409,11 +376,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -443,8 +407,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -474,11 +438,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -492,9 +453,6 @@ class AssistantApiClient {
     final body = jsonEncode(request.toJson());
 
     final response = await http.post(url, headers: headers, body: body);
-
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return true;
@@ -515,11 +473,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -527,16 +482,12 @@ class AssistantApiClient {
       String openAiThreadId) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
-    print("🔑 AccessToken: $token");
 
     final url = Uri.parse(
         ApiKnowledgeAiAssistantUrl.retrieveMessageOfThread(openAiThreadId));
     final headers = ApiHeaders.getAIChatHeaders("", token);
 
     final response = await http.get(url, headers: headers);
-
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -563,11 +514,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 
@@ -575,16 +523,12 @@ class AssistantApiClient {
       String assistantId, BaseQueryParams params) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
-    print("🔑 AccessToken: $token");
 
     final url = Uri.parse(ApiKnowledgeAiAssistantUrl.getAssistantThreads(
         assistantId, params.toQueryString()));
     final headers = ApiHeaders.getAIChatHeaders("", token);
 
     final response = await http.get(url, headers: headers);
-
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ThreadAssistantListResponse.fromJson(jsonDecode(response.body));
@@ -605,11 +549,8 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      final errorData = jsonDecode(response.body);
-      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-      DialogHelper.showError(errorMessage);
-      throw Exception('Lỗi: $errorMessage');
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
   }
 }

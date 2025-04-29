@@ -28,9 +28,6 @@ class KnowledgeApiClient {
 
       final response = await http.post(url, headers: headers, body: body);
 
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         return KnowledgeResponse.fromJson(jsonDecode(response.body)['data']);
       } else if (response.statusCode == 401) {
@@ -51,15 +48,10 @@ class KnowledgeApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+        handleErrorResponse(response);
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }
@@ -68,16 +60,12 @@ class KnowledgeApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url =
           Uri.parse(ApiKnowledgeBaseUrl.getKnowledges(params.toQueryString()));
       final headers = ApiHeaders.getAIChatHeaders("", token);
 
       final response = await http.get(url, headers: headers);
-
-      print("📩 response.statusCode bASE : ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return KnowledgeListResponse.fromJson(jsonDecode(response.body));
@@ -86,7 +74,6 @@ class KnowledgeApiClient {
           url: url,
           body: null,
         );
-        print("📩 retryResponse: ${retryResponse.body}");
 
         if (retryResponse.statusCode == 200 ||
             retryResponse.statusCode == 201) {
@@ -100,12 +87,8 @@ class KnowledgeApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+        handleErrorResponse(response);
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
       rethrow;
@@ -117,15 +100,11 @@ class KnowledgeApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url = Uri.parse(ApiKnowledgeBaseUrl.updateKnowledge(id));
       final headers = ApiHeaders.getAIChatHeaders("", token);
       final body = jsonEncode(request.toJson());
       final response = await http.patch(url, headers: headers, body: body);
-
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return KnowledgeListResponse.fromJson(jsonDecode(response.body));
@@ -147,15 +126,10 @@ class KnowledgeApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+        handleErrorResponse(response);
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }
@@ -164,14 +138,10 @@ class KnowledgeApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url = Uri.parse(ApiKnowledgeBaseUrl.deleteKnowledge(id));
       final headers = ApiHeaders.getAIChatHeaders("", token);
       final response = await http.delete(url, headers: headers);
-
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
@@ -193,15 +163,10 @@ class KnowledgeApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+        handleErrorResponse(response);
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }
@@ -211,7 +176,6 @@ class KnowledgeApiClient {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
-      print("🔑 AccessToken: $token");
 
       final url = Uri.parse(
           ApiKnowledgeBaseUrl.getUnitsOfKnowledge(id, params.toQueryString()));
@@ -219,9 +183,6 @@ class KnowledgeApiClient {
 
       final response = await http.get(url, headers: headers);
 
-      print("📩 response.statusCode: ${response.statusCode}");
-      print("📩 response.body: ${response.body}");
-      print("📩 response url: ${response.request?.url}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return UnitsOfKnowledgeListResponse.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
@@ -243,15 +204,10 @@ class KnowledgeApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
-
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+        handleErrorResponse(response);
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }
