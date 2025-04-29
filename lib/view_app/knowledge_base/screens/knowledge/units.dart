@@ -2,6 +2,7 @@ import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_repository.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_file.dart';
+import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_website.dart';
 import 'package:flutter/material.dart';
 
 class KnowledgeUnitScreen extends StatefulWidget {
@@ -302,7 +303,6 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                         showDialog(
                           context: context,
                           builder: (context) =>
-
                               ImportLocalFilesDialog(id: widget.id),
                         );
                       },
@@ -316,6 +316,10 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                       onTap: () {
                         // TODO: Open website connect screen
                         Navigator.pop(context);
+                        showDialog(
+                          context: context,
+                          builder: (context) => AddWebSiteScreen(id: widget.id),
+                        );
                       },
                     ),
                     const Divider(height: 32),
@@ -344,12 +348,12 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
   }
 
   Widget _buildSourceItem(
-      BuildContext context, {
-        required String title,
-        required String subtitle,
-        required String imagePath,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required String imagePath,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -364,8 +368,9 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 240, 248, 255)            ,
-                borderRadius: BorderRadius.circular(999), // Nếu muốn tròn 100% thì dùng BorderRadius.circular(999)
+                color: const Color.fromARGB(255, 240, 248, 255),
+                borderRadius: BorderRadius.circular(
+                    999), // Nếu muốn tròn 100% thì dùng BorderRadius.circular(999)
               ),
               child: Image.asset(
                 imagePath,
@@ -387,8 +392,8 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
-                    ),
+                          color: Colors.grey,
+                        ),
                   ),
                 ],
               ),
@@ -416,8 +421,9 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 240, 248, 255)            ,
-                borderRadius: BorderRadius.circular(999), // Nếu muốn tròn 100% thì dùng BorderRadius.circular(999)
+                color: const Color.fromARGB(255, 240, 248, 255),
+                borderRadius: BorderRadius.circular(
+                    999), // Nếu muốn tròn 100% thì dùng BorderRadius.circular(999)
               ),
               child: Image.asset(
                 imagePath,

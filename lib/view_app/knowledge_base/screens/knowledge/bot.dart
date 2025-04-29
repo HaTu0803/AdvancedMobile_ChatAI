@@ -222,108 +222,122 @@ class _BotsScreenState extends State<BotsScreen> {
                         itemBuilder: (context, index) {
                           final assistant = assistants[index];
 
-                          return Container(
-                            margin: const EdgeInsets.all(8),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 4,
-                                  spreadRadius: 1,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.smart_toy,
-                                        size: 20, color: Colors.blue),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        assistant.assistantName,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
+                          return GestureDetector(
+                            onTap: () {
+                              // Khi bấm vào item, trả assistant về HomeScreen
+                              Navigator.pop(context, assistant.assistantName);
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 4,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.smart_toy,
+                                          size: 20, color: Colors.blue),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          assistant.assistantName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        assistant.isFavorite == true
-                                            ? Icons.star
-                                            : Icons.star_border,
-                                        color: assistant.isFavorite == true
-                                            ? Colors.amber
-                                            : Colors.grey,
-                                        size: 20,
+                                      IconButton(
+                                        icon: Icon(
+                                          assistant.isFavorite == true
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: assistant.isFavorite == true
+                                              ? Colors.amber
+                                              : Colors.grey,
+                                          size: 20,
+                                        ),
+                                        tooltip: 'Favorite',
+                                        onPressed: () {
+                                          _handleFavoriteBot(assistant.id);
+                                        },
                                       ),
-                                      tooltip: 'Favorite',
-                                      onPressed: () {
-                                        _handleFavoriteBot(assistant.id);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        assistant.description?.isNotEmpty ==
-                                                true
-                                            ? assistant.description!
-                                            : 'No description available',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                            color: Colors.grey, fontSize: 12),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          assistant.description?.isNotEmpty ==
+                                                  true
+                                              ? assistant.description!
+                                              : 'No description available',
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                              color: Colors.grey, fontSize: 12),
+                                        ),
                                       ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.edit_outlined,
-                                              size: 20, color: Colors.grey),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                          onPressed: () {
-                                            _openEditBotModal(
-                                                context, assistant);
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete_outline,
-                                              size: 20, color: Colors.grey),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                          onPressed: () {
-                                            _handleDeleteBot(assistant.id,
-                                                assistant.assistantName);
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.arrow_forward,
-                                              size: 20, color: Colors.grey),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                          onPressed: () {},
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                                Icons.edit_outlined,
+                                                size: 20,
+                                                color: Colors.grey),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () {
+                                              _openEditBotModal(
+                                                  context, assistant);
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                                Icons.delete_outline,
+                                                size: 20,
+                                                color: Colors.grey),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () {
+                                              _handleDeleteBot(assistant.id,
+                                                  assistant.assistantName);
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                                Icons.arrow_forward,
+                                                size: 20,
+                                                color: Colors.grey),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () {
+                                              // Để trống hoặc có thể xử lý thêm nếu cần
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         }),

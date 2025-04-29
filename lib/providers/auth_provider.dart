@@ -86,4 +86,8 @@ class AuthProvider with ChangeNotifier {
   Future<bool> isAuthenticated() async {
     return await authRepository.isAuthenticated();
   }
+
+  Future<String> fetchRefreshToken() async {
+    return await authRepository.fetchRefreshToken();
+  }
 }

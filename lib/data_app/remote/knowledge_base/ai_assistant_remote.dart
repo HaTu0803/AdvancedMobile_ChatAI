@@ -53,8 +53,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -100,7 +103,11 @@ class AssistantApiClient {
           (route) => false,
         );
 
-        throw Exception('Tạo trợ lý thất bại. Mã lỗi: ${response.statusCode}');
+        final errorData = jsonDecode(response.body);
+        final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+        DialogHelper.showError(errorMessage);
+        throw Exception('Lỗi: $errorMessage');
       }
     } catch (e) {
       DialogHelper.showError('Đã xảy ra lỗi: $e');
@@ -143,8 +150,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.body}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -184,8 +194,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -223,8 +236,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -261,8 +277,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -300,8 +319,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -340,8 +362,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -392,8 +417,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -456,8 +484,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -495,8 +526,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -541,8 +575,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -581,8 +618,11 @@ class AssistantApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
-      throw Exception('Lỗi: ${response.statusCode}');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 }

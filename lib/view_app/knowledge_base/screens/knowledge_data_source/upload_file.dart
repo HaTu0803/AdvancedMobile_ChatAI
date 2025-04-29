@@ -1,9 +1,10 @@
 import 'dart:io';
-
-import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository%20copy.dart';
+import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository copy.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:open_file/open_file.dart';
 
 class ImportLocalFilesDialog extends StatefulWidget {
   final String id;
@@ -42,16 +43,17 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            GestureDetector(
-              onTap: _pickFile,
-              child: DottedBorder(
-                borderType: BorderType.RRect,
-                radius: const Radius.circular(12),
-                dashPattern: [6, 3],
-                color: Colors.blue,
+            DottedBorder(
+              borderType: BorderType.RRect,
+              radius: const Radius.circular(12),
+              dashPattern: [6, 3],
+              color: Colors.blue,
+              child: GestureDetector(
+                onTap: _pickFile,
                 child: Container(
                   width: double.infinity,
                   height: 150,
+                  color: Colors.transparent,
                   alignment: Alignment.center,
                   child: _isUploading
                       ? const CircularProgressIndicator()
@@ -102,7 +104,6 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                   ),
                   child: const Text('Import'),
                 ),
-
               ],
             ),
           ],
@@ -112,6 +113,15 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
   }
 
   Future<void> _pickFile() async {
+    if (Platform.isAndroid) {
+      final status = await Permission.storage.request();
+      if (!status.isGranted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bạn cần cấp quyền truy cập bộ nhớ')),
+        );
+        return;
+      }
+    }
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
@@ -123,8 +133,14 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
     if (result != null && result.files.isNotEmpty) {
       final platformFile = result.files.first;
       setState(() {
+        print("Selected file path: ${_selectedFile!.path}");
         _selectedFile = File(platformFile.path!);
       });
+
+      // ✨ Mở file ngay sau khi chọn
+      if (_selectedFile != null) {
+        await OpenFile.open(_selectedFile!.path);
+      }
     }
   }
 

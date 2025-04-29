@@ -3,13 +3,15 @@ import 'package:advancedmobile_chatai/data_app/repository/auth/authentication_re
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
+import '../../providers/auth_provider.dart';
+
 Future<http.Response> retryWithRefreshToken({
   required Uri url,
   required Map<String, String> headers,
   required dynamic body,
 }) async {
   print("🔄 Token expired. Refreshing...");
-  final newToken = await AuthRepository().fetchRefreshToken();
+  final newToken = await AuthProvider().fetchRefreshToken();
 
   if (newToken != null) {
     final retryHeaders = {
