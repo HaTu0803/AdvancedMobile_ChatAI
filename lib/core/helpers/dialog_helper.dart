@@ -64,7 +64,6 @@ void handleErrorResponse(response) {
     DialogHelper.showError(finalMessage);
     throw Exception('Lỗi: $finalMessage');
   } catch (e) {
-    DialogHelper.showError('Đã xảy ra lỗi: $e');
     throw Exception('Đã xảy ra lỗi: $e');
   }
 }

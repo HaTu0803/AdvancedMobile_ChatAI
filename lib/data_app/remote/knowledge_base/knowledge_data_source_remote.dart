@@ -58,15 +58,11 @@ class KnowledgeDataApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+        handleErrorResponse(response);
 
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }
@@ -105,15 +101,11 @@ class KnowledgeDataApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+        handleErrorResponse(response);
 
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }
@@ -152,15 +144,11 @@ class KnowledgeDataApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+        handleErrorResponse(response);
 
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }
@@ -200,15 +188,13 @@ class KnowledgeDataApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
 
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
+
+        handleErrorResponse(response);
+
+        throw Exception('Failed to upload file due to an error response');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }
