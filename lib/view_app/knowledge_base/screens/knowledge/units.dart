@@ -316,10 +316,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                       onTap: () {
                         // TODO: Open website connect screen
                         Navigator.pop(context);
-                        showDialog(
-                          context: context,
-                          builder: (context) => AddWebSiteScreen(id: widget.id),
-                        );
+                        _openUploadWebsite(                      context);
                       },
                     ),
                     const Divider(height: 32),
@@ -456,6 +453,55 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
     );
   }
 
+  void _openUploadWebsite(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Dialog(
+            insetPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              width:
+              MediaQuery.of(context).size.width, // Full width of the screen
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Import Web Source',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    AddWebSiteScreen(
+                      onSuccess: () {
+                         _fetchKnowledgeUnits();
+                      },
+                      id: widget.id,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
   // void _openEditBotModal(BuildContext context, AssistantResponse assistant) {
   //   showDialog(
   //     context: context,

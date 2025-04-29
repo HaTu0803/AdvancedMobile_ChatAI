@@ -58,6 +58,8 @@ class AuthRepository {
           await basePreferences.getTokenPreferred('refresh_token');
       if (refreshToken.isNotEmpty) {
         final response = await authApiClient.fetchRefreshToken(refreshToken);
+        debugPrint("🔍 response Token: $response");
+
         return response;
       }
       debugPrint("Refresh token is empty: $refreshToken");

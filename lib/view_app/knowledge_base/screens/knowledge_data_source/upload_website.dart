@@ -44,10 +44,10 @@ class _AddWebSiteScreenState extends State<AddWebSiteScreen> {
     final name = _nameController.text.trim();
     final url = _webUrlController.text.trim();
 
-    const urlPattern = r'^(https:\/\/)([\w\-]+\.)+[a-zA-Z]{2,63}(\/\S*)?$';
-    final regex = RegExp(urlPattern);
+    final uri = Uri.tryParse(url);
+    final isValidUrl = uri != null && uri.hasScheme && uri.hasAuthority;
 
-    final isValid = name.isNotEmpty && regex.hasMatch(url);
+    final isValid = name.isNotEmpty && isValidUrl;
 
     if (isValid != _isFormValid) {
       setState(() {
@@ -55,6 +55,7 @@ class _AddWebSiteScreenState extends State<AddWebSiteScreen> {
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,15 +93,15 @@ class _AddWebSiteScreenState extends State<AddWebSiteScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a URL';
                     }
-                    const urlPattern =
-                        r'^(https:\/\/)([\w\-]+\.)+[a-zA-Z]{2,63}(\/\S*)?$';
-                    final regex = RegExp(urlPattern);
 
-                    if (!regex.hasMatch(value)) {
-                      return 'URL must start with https:// and be valid';
+                    final uri = Uri.tryParse(value);
+                    if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+                      return 'Please enter a valid URL';
                     }
+
                     return null;
                   },
+
                   maxLines: 1,
                 ),
                 const SizedBox(height: 16),
