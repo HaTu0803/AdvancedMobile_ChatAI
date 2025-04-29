@@ -38,7 +38,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: body,
       );
 
@@ -81,7 +80,6 @@ class AssistantApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: body,
         );
 
@@ -104,7 +102,8 @@ class AssistantApiClient {
         );
 
         final errorData = jsonDecode(response.body);
-        final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+        final errorMessage =
+            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
 
         DialogHelper.showError(errorMessage);
         throw Exception('Lỗi: $errorMessage');
@@ -135,7 +134,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: null,
       );
 
@@ -179,7 +177,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: body,
       );
 
@@ -221,7 +218,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: null,
       );
 
@@ -262,7 +258,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: null,
       );
 
@@ -304,7 +299,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: null,
       );
 
@@ -347,7 +341,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: null,
       );
 
@@ -400,7 +393,6 @@ class AssistantApiClient {
     if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: null,
       );
 
@@ -437,7 +429,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: body,
       );
 
@@ -469,7 +460,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: body,
       );
 
@@ -511,7 +501,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: body,
       );
 
@@ -557,7 +546,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: null,
       );
 
@@ -603,7 +591,6 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: null,
       );
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {

@@ -90,7 +90,6 @@ class KnowledgeDataApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: null,
         );
 
@@ -138,7 +137,6 @@ class KnowledgeDataApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: null,
         );
 
@@ -187,7 +185,6 @@ class KnowledgeDataApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: body,
         );
 
@@ -235,7 +232,6 @@ class KnowledgeDataApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: body,
         );
 
@@ -251,15 +247,12 @@ class KnowledgeDataApiClient {
           throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
         }
       } else {
-        final errorData = jsonDecode(response.body);
-        final errorMessage =
-            errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+        handleErrorResponse(response);
+        throw Exception('Failed to upload file due to an error response');
 
-        DialogHelper.showError(errorMessage);
-        throw Exception('Lỗi: $errorMessage');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
+      // DialogHelper.showError('Đã xảy ra lỗi: $e');
       throw Exception('Đã xảy ra lỗi: $e');
     }
   }

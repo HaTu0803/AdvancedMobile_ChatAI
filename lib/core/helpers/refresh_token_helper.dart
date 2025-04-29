@@ -7,15 +7,15 @@ import '../../providers/auth_provider.dart';
 
 Future<http.Response> retryWithRefreshToken({
   required Uri url,
-  required Map<String, String> headers,
+  Map<String, String>? headers,
   required dynamic body,
 }) async {
   print("🔄 Token expired. Refreshing...");
   final newToken = await AuthProvider().fetchRefreshToken();
+  debugPrint("newToken: $newToken");
 
   if (newToken != null) {
     final retryHeaders = {
-      ...headers,
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $newToken',
     };
@@ -26,7 +26,7 @@ Future<http.Response> retryWithRefreshToken({
       headers: retryHeaders,
       body: body,
     );
-    debugPrint("Retry response: ${retryResponse.body}");
+    debugPrint("Retry tú test response: ${retryResponse.body}");
     return retryResponse;
   } else {
     throw UnauthorizedException("Token expired and refresh failed");

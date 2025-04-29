@@ -36,7 +36,6 @@ class KnowledgeApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: body,
         );
 
@@ -77,7 +76,7 @@ class KnowledgeApiClient {
 
       final response = await http.get(url, headers: headers);
 
-      print("📩 response.statusCode: ${response.statusCode}");
+      print("📩 response.statusCode bASE : ${response.statusCode}");
       print("📩 response.body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -85,9 +84,9 @@ class KnowledgeApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: null,
         );
+        print("📩 retryResponse: ${retryResponse.body}");
 
         if (retryResponse.statusCode == 200 ||
             retryResponse.statusCode == 201) {
@@ -109,8 +108,7 @@ class KnowledgeApiClient {
         throw Exception('Lỗi: $errorMessage');
       }
     } catch (e) {
-      DialogHelper.showError('Đã xảy ra lỗi: $e');
-      throw Exception('Đã xảy ra lỗi: $e');
+      rethrow;
     }
   }
 
@@ -134,7 +132,6 @@ class KnowledgeApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: body,
         );
 
@@ -181,7 +178,6 @@ class KnowledgeApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: null,
         );
 
@@ -231,7 +227,6 @@ class KnowledgeApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          headers: headers,
           body: null,
         );
 

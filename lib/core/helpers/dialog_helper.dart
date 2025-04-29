@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -36,5 +38,33 @@ class DialogHelper {
     } else {
       debugPrint('⚠️ Không thể hiển thị dialog vì context = null');
     }
+  }
+}
+
+void handleErrorResponse(response) {
+  try {
+    final errorData = jsonDecode(response.body);
+
+    final errorMessage = errorData['message'] ?? 'Đã xảy ra lỗi không xác định';
+    final errorDetails = errorData['details'];
+    String finalMessage = errorMessage;
+
+    if (errorDetails is List && errorDetails.isNotEmpty) {
+      // Lấy tất cả các 'issue' nếu có
+      final issues = errorDetails
+          .where((detail) => detail is Map && detail['issue'] != null)
+          .map((detail) => detail['issue'].toString())
+          .toList();
+
+      if (issues.isNotEmpty) {
+        finalMessage = '$errorMessage:\n- ${issues.join('\n- ')}';
+      }
+    }
+
+    DialogHelper.showError(finalMessage);
+    throw Exception('Lỗi: $finalMessage');
+  } catch (e) {
+    DialogHelper.showError('Đã xảy ra lỗi: $e');
+    throw Exception('Đã xảy ra lỗi: $e');
   }
 }

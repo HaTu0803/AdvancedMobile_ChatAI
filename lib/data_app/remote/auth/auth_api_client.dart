@@ -65,16 +65,9 @@ class AuthApiClient {
 
   // Khi token hết hạn, sử dụng refresh token để lấy token mới
   Future<String> fetchRefreshToken(String refreshToken) async {
-    final response = await http.post(
-      Uri.parse(ApiAuthUrl.refreshToken),
-        headers: {
-          'Content-Type': 'application/json',
-          ...ApiHeaders.getRefreshHeaders(refreshToken),
-        },
-      body: jsonEncode({
-        'refresh_token': refreshToken,
-      }),
-    );
+    final url = Uri.parse(ApiAuthUrl.refreshToken);
+    final headers = ApiHeaders.getRefreshHeaders(refreshToken);
+    final response = await http.post(url, headers: headers);
     debugPrint("🔄 API Response: ${response.body}");
     debugPrint("🔄 Refresh token: $refreshToken");
     if (response.statusCode == 200 || response.statusCode == 201) {
