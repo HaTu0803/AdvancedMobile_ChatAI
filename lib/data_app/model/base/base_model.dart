@@ -33,14 +33,14 @@ class BaseModel {
 class BaseQueryParams {
   String? q;
   String? order; // ASC | DESC
-  String? orderField;
+  String? order_field;
   int? offset;
   int? limit;
 
   BaseQueryParams({
     this.q,
     this.order,
-    this.orderField,
+    this.order_field,
     this.offset,
     this.limit,
   });
@@ -49,13 +49,11 @@ class BaseQueryParams {
     return {
       if (q != null) 'q': q,
       if (order != null) 'order': order,
-      if (orderField != null) 'order_field': orderField,
+      if (order_field != null) 'order_field': order_field,
       if (offset != null) 'offset': offset,
       if (limit != null) 'limit': limit,
     };
-
-
-}
+  }
 
   String toQueryString() {
     final Map<String, dynamic> json = toJson();

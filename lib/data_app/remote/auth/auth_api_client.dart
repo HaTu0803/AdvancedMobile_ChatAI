@@ -6,6 +6,8 @@ import 'package:advancedmobile_chatai/data_app/url_api/auth/auth_url.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../core/helpers/dialog_helper.dart';
+
 class AuthApiClient {
   Future<AuthResponse> signUp(SignUpRequest request) async {
     final response = await http.post(
@@ -16,7 +18,11 @@ class AuthApiClient {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return AuthResponse.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to sign up');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -30,7 +36,11 @@ class AuthApiClient {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return AuthResponse.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to sign in');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 
@@ -46,7 +56,10 @@ class AuthApiClient {
     if (response.statusCode == 200 || response.statusCode == 201) {
       debugPrint("✅ Logout thành công!");
     } else {
-      throw Exception('Failed to sign out');
+      final errorData = jsonDecode(response.body);
+      final errorMessage = errorData['error'] ?? 'Đã xảy ra lỗi không xác định';
+      DialogHelper.showError(errorMessage);
+      throw Exception('Lỗi: $errorMessage');
     }
   }
 

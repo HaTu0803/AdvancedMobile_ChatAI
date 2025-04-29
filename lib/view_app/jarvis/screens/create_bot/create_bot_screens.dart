@@ -29,7 +29,6 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
   final _descriptionController = TextEditingController();
   bool _isLoading = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -54,6 +53,7 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
       );
     }
   }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -65,7 +65,6 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: SingleChildScrollView(
@@ -79,6 +78,7 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
               children: [
                 _buildFormField(
                   label: 'Name',
+                  maxLines: 1,
                   controller: _nameController,
                   hintText: 'Enter a name for your bot...',
                   isRequired: true,
@@ -135,9 +135,9 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
                               .textTheme
                               .bodyMedium
                               ?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                       ],
                     ),
@@ -159,8 +159,8 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
                               .textTheme
                               .labelLarge
                               ?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                         ),
                       ],
                     ),
@@ -178,7 +178,7 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
                 const SizedBox(height: 16),
                 Padding(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -197,23 +197,24 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
                       FilledButton(
                         onPressed: _isLoading ? null : _submitForm,
                         style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: _isLoading
                             ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                            : Text(widget.isUpdate ? 'Update Bot' : 'Create Bot'),
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                widget.isUpdate ? 'Update Bot' : 'Create Bot'),
                       ),
-
                     ],
                   ),
                 ),
@@ -266,7 +267,7 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
               borderSide: BorderSide.none,
             ),
             contentPadding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           ),
           maxLines: maxLines,
           validator: validator,
@@ -289,7 +290,8 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
 
       try {
         if (widget.isUpdate) {
-          await AssistantRepository().updateAssistant(widget.assistantId!, request);
+          await AssistantRepository()
+              .updateAssistant(widget.assistantId!, request);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Bot updated successfully')),
           );

@@ -1,9 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/conversations_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/jarvis/ai_chat_repository.dart';
+import 'package:flutter/material.dart';
 
 class ChatHistoryScreen extends StatefulWidget {
-  const ChatHistoryScreen({super.key});
+  final String assistantModel;
+
+  const ChatHistoryScreen({
+    super.key,
+    required this.assistantModel,
+  });
 
   @override
   State<ChatHistoryScreen> createState() => _ChatHistoryScreenState();
@@ -22,7 +27,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
     final repository = AiChatRepository();
     final request = ConversationRequest(
       limit: 100,
-      assistantModel: "dify",
+      assistantModel: widget.assistantModel,
     );
     debugPrint("🔑 request: ${request.toJson()}");
     return await repository.getConversations(request);
@@ -85,11 +90,7 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: Theme
-              .of(context)
-              .colorScheme
-              .outline
-              .withOpacity(0.2),
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
         ),
       ),
       child: InkWell(
@@ -115,13 +116,13 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
               Text(
                 "${formatTimeAgo(chat.createAt ?? '')}",
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   fontSize: 14,
                 ),
               ),
             ],
           ),
-
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/assistant_model.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/home/ai_agent.dart';
+import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge/bot.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../widgets/action_button.dart';
@@ -26,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
   AiModel? selectedAiModel;
+  AssistantResponse? _selectedAssistant;
   @override
   void initState() {
     super.initState();
@@ -119,6 +121,21 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     });
+  }
+
+  void _navigateToBotsScreen() async {
+    final assistant = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const BotsScreen(),
+      ),
+    );
+
+    if (assistant != null) {
+      setState(() {
+        _selectedAssistant = assistant; // Cập nhật assistant đã chọn
+      });
+    }
   }
 
   @override
@@ -361,8 +378,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const ChatHistoryScreen(),
+                                builder: (context) => ChatHistoryScreen(
+                                  assistantModel:
+                                      selectedAiModel?.model ?? 'dify',
+                                ),
                               ),
                             );
                           },

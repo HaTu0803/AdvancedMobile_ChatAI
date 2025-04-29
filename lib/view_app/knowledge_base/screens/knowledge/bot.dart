@@ -118,7 +118,6 @@ class _BotsScreenState extends State<BotsScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
-
       ),
       body: Column(
         children: [
@@ -153,17 +152,21 @@ class _BotsScreenState extends State<BotsScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           isDense: true,
-                          contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
                         ),
                         onChanged: (value) {
                           if (value != null) _onFilterChanged(value);
                         },
                         items: const [
-                          DropdownMenuItem(value: 'all', child: Text('All Bots')),
-                          DropdownMenuItem(value: 'favorites', child: Text('Favorites')),
-                          DropdownMenuItem(value: 'name', child: Text('Sort by Name')),
-                          DropdownMenuItem(value: 'date', child: Text('Sort by Date')),
+                          DropdownMenuItem(
+                              value: 'all', child: Text('All Bots')),
+                          DropdownMenuItem(
+                              value: 'favorites', child: Text('Favorites')),
+                          DropdownMenuItem(
+                              value: 'name', child: Text('Sort by Name')),
+                          DropdownMenuItem(
+                              value: 'date', child: Text('Sort by Date')),
                         ],
                       ),
                     ),
@@ -173,8 +176,7 @@ class _BotsScreenState extends State<BotsScreen> {
                     const Spacer(),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                        Theme.of(context).colorScheme.primary,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         padding: const EdgeInsets.symmetric(
                             vertical: 6, horizontal: 12),
                         shape: RoundedRectangleBorder(
@@ -189,17 +191,15 @@ class _BotsScreenState extends State<BotsScreen> {
                         children: [
                           Icon(
                             Icons.smart_toy_outlined,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
                           Icon(
                             Icons.add,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer,
+                            color:
+                                Theme.of(context).colorScheme.primaryContainer,
                             size: 20,
                           ),
                         ],
@@ -207,131 +207,146 @@ class _BotsScreenState extends State<BotsScreen> {
                     )
                   ],
                 )
-
               ],
             ),
           ),
           Expanded(
-
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : assistants.isEmpty
                     ? _buildEmptyState() // Hiển thị empty state nếu không có assistants
                     : ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 4.0, vertical: 8.0),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4.0, vertical: 8.0),
+                        itemCount: assistants.length,
+                        itemBuilder: (context, index) {
+                          final assistant = assistants[index];
 
-
-              itemCount: assistants.length,
-                itemBuilder: (context, index) {
-                  final assistant = assistants[index];
-
-                  return Container(
-                    margin: const EdgeInsets.all(8),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
-                          spreadRadius: 1,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.smart_toy, size: 20, color: Colors.blue),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                assistant.assistantName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
+                          return GestureDetector(
+                            onTap: () {
+                              // Khi bấm vào item, trả assistant về HomeScreen
+                              Navigator.pop(context, assistant.assistantName);
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 4,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.smart_toy,
+                                          size: 20, color: Colors.blue),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          assistant.assistantName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          assistant.isFavorite == true
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: assistant.isFavorite == true
+                                              ? Colors.amber
+                                              : Colors.grey,
+                                          size: 20,
+                                        ),
+                                        tooltip: 'Favorite',
+                                        onPressed: () {
+                                          _handleFavoriteBot(assistant.id);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          assistant.description?.isNotEmpty ==
+                                                  true
+                                              ? assistant.description!
+                                              : 'No description available',
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                              color: Colors.grey, fontSize: 12),
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                                Icons.edit_outlined,
+                                                size: 20,
+                                                color: Colors.grey),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () {
+                                              _openEditBotModal(
+                                                  context, assistant);
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                                Icons.delete_outline,
+                                                size: 20,
+                                                color: Colors.grey),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () {
+                                              _handleDeleteBot(assistant.id,
+                                                  assistant.assistantName);
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                                Icons.arrow_forward,
+                                                size: 20,
+                                                color: Colors.grey),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () {
+                                              // Để trống hoặc có thể xử lý thêm nếu cần
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                            IconButton(
-                              icon: Icon(
-                                assistant.isFavorite == true ? Icons.star : Icons.star_border,
-                                color: assistant.isFavorite == true ? Colors.amber : Colors.grey,
-                                size: 20,
-                              ),
-                              tooltip: 'Favorite',
-                              onPressed: () {
-                                _handleFavoriteBot(assistant.id);
-                              },
-                            ),
-
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                assistant.description?.isNotEmpty == true
-                                    ? assistant.description!
-                                    : 'No description available',
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: Colors.grey, fontSize: 12),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.grey),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  onPressed: () {
-                                    _openEditBotModal(context, assistant);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline, size: 20, color: Colors.grey),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  onPressed: () {
-                                    _handleDeleteBot(assistant.id, assistant.assistantName);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_forward, size: 20, color: Colors.grey),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  onPressed: () {
-
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-
-
-                }
-
-
-            )
-            ,
+                          );
+                        }),
           ),
         ],
       ),
     );
   }
+
   void _openCreateBotModal(BuildContext context) {
     showDialog(
       context: context,
@@ -344,7 +359,7 @@ class _BotsScreenState extends State<BotsScreen> {
             ),
             child: Container(
               width:
-              MediaQuery.of(context).size.width, // Full width of the screen
+                  MediaQuery.of(context).size.width, // Full width of the screen
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(
@@ -380,6 +395,7 @@ class _BotsScreenState extends State<BotsScreen> {
       },
     );
   }
+
   void _openEditBotModal(BuildContext context, AssistantResponse assistant) {
     showDialog(
       context: context,
@@ -416,9 +432,9 @@ class _BotsScreenState extends State<BotsScreen> {
                     CreateYourOwnBotScreen(
                       isUpdate: true,
                       assistantId: assistant.id,
-                        onSuccess: () {
-                          _fetchAssistants();
-                        },
+                      onSuccess: () {
+                        _fetchAssistants();
+                      },
                     ),
                   ],
                 ),
@@ -429,11 +445,13 @@ class _BotsScreenState extends State<BotsScreen> {
       },
     );
   }
+
   void _handleDeleteBot(String assistantId, String assistantName) {
     showCustomDialog(
       context: context,
       title: 'Delete Assistant',
-      message: 'Are you sure you want to delete the assistant titled "$assistantName"?',
+      message:
+          'Are you sure you want to delete the assistant titled "$assistantName"?',
       isConfirmation: true,
       confirmText: 'Yes, Delete',
       cancelText: 'Cancel',
@@ -469,13 +487,10 @@ class _BotsScreenState extends State<BotsScreen> {
           );
         }
       });
-
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to favorite assistant: $e')),
       );
     }
   }
-
 }
-
