@@ -33,7 +33,6 @@ class UserApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: headers,
         body: null,
       );
 
@@ -44,7 +43,7 @@ class UserApiClient {
         await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
           AppRoutes.login,
-              (route) => true,
+          (route) => true,
         );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }

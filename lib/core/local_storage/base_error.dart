@@ -16,7 +16,6 @@ class BaseError {
     try {
       final response = await _client.post(
         Uri.parse(url),
-        headers: headers,
         body: jsonEncode(body),
       );
 
