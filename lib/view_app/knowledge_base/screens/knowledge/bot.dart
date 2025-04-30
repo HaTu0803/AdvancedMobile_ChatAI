@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../widgets/dialog.dart';
 import '../../../jarvis/screens/create_bot/create_bot_screens.dart';
-import 'edit_bot_screen.dart';
+import "edit_bot_screen.dart";
 
 class BotsScreen extends StatefulWidget {
   const BotsScreen({super.key});
@@ -78,7 +78,7 @@ class _BotsScreenState extends State<BotsScreen> {
       }
     });
 
-    _fetchAssistants();
+    _fetchAssistants(); // gọi lại API với filter mới
   }
 
   @override
