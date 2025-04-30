@@ -3,6 +3,7 @@ import '../../../../data_app/model/knowledge_base/assistant_model.dart';
 import '../../../../data_app/repository/knowledge_base/assistant_repository.dart';
 import '../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../data_app/repository/jarvis/prompt_repository.dart';
+import '../../../../data_app/repository/knowledge_base/knowledge_repository.dart';
 import '../../../../data_app/model/base/base_model.dart';
 import "knowledge_base_list_screen.dart";
 
@@ -36,6 +37,7 @@ class _EditBotScreenState extends State<EditBotScreen> {
   String? _currentThreadId;
   List<RetrieveMessageOfThreadResponse> _messages = [];
   List<KnowledgeAssistantResponse> _importedKnowledges = [];
+  Map<String, String> _knowledgeIdMap = {};
   bool _isLoadingKnowledges = false;
 
   @override
@@ -46,6 +48,7 @@ class _EditBotScreenState extends State<EditBotScreen> {
     _instructionsController.text = _currentAssistant.instructions ?? '';
     _descriptionController.text = _currentAssistant.description ?? '';
     _messageController.addListener(_handleTextChange);
+    _fetchKnowledges();
     _fetchImportedKnowledges();
   }
 
@@ -99,6 +102,20 @@ class _EditBotScreenState extends State<EditBotScreen> {
     }
   }
 
+  Future<void> _fetchKnowledges() async {
+    try {
+      final params = BaseQueryParams(limit: 50);
+      final response = await KnowledgeRepository().getKnowledges(params);
+      setState(() {
+        _knowledgeIdMap = {
+          for (var k in response.data) k.knowledgeName: k.id
+        };
+      });
+    } catch (e) {
+      debugPrint('Error loading knowledges: $e');
+    }
+  }
+
   Future<void> _fetchImportedKnowledges() async {
     setState(() => _isLoadingKnowledges = true);
     try {
@@ -116,7 +133,37 @@ class _EditBotScreenState extends State<EditBotScreen> {
     }
   }
 
-  Future<void> _removeKnowledge(String knowledgeId) async {
+  Future<void> _removeKnowledge(String knowledgeName) async {
+    // Get the knowledge ID from our mapping
+    final knowledgeId = _knowledgeIdMap[knowledgeName];
+    if (knowledgeId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not find knowledge ID')),
+      );
+      return;
+    }
+
+    // Show confirmation dialog first
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Remove Knowledge Base'),
+        content: const Text('Are you sure you want to remove this knowledge base from the assistant?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
     try {
       setState(() => _isLoading = true);
       
@@ -128,10 +175,14 @@ class _EditBotScreenState extends State<EditBotScreen> {
       await AssistantRepository().removeKnowledge(params);
       await _fetchImportedKnowledges(); // Refresh the list
       
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Knowledge base removed successfully')),
       );
     } catch (e) {
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to remove knowledge base: $e')),
       );
