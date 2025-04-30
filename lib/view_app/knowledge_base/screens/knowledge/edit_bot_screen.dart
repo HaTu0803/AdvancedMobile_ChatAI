@@ -3,6 +3,8 @@ import '../../../../data_app/model/knowledge_base/assistant_model.dart';
 import '../../../../data_app/repository/knowledge_base/assistant_repository.dart';
 import '../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../data_app/repository/jarvis/prompt_repository.dart';
+import '../../../../data_app/model/base/base_model.dart';
+import "knowledge_base_list_screen.dart";
 
 class EditBotScreen extends StatefulWidget {
   final AssistantResponse assistant;
@@ -33,6 +35,8 @@ class _EditBotScreenState extends State<EditBotScreen> {
   late AssistantResponse _currentAssistant;
   String? _currentThreadId;
   List<RetrieveMessageOfThreadResponse> _messages = [];
+  List<KnowledgeAssistantResponse> _importedKnowledges = [];
+  bool _isLoadingKnowledges = false;
 
   @override
   void initState() {
@@ -42,6 +46,7 @@ class _EditBotScreenState extends State<EditBotScreen> {
     _instructionsController.text = _currentAssistant.instructions ?? '';
     _descriptionController.text = _currentAssistant.description ?? '';
     _messageController.addListener(_handleTextChange);
+    _fetchImportedKnowledges();
   }
 
   @override
@@ -91,6 +96,47 @@ class _EditBotScreenState extends State<EditBotScreen> {
       setState(() {
         _isLoadingPrompts = false;
       });
+    }
+  }
+
+  Future<void> _fetchImportedKnowledges() async {
+    setState(() => _isLoadingKnowledges = true);
+    try {
+      final params = BaseQueryParams(limit: 50);
+      final response = await AssistantRepository()
+          .getImportKnowledgeList(_currentAssistant.id, params);
+      setState(() => _importedKnowledges = response.data);
+    } catch (e) {
+      debugPrint('Error loading imported knowledges: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load knowledge bases: $e')),
+      );
+    } finally {
+      setState(() => _isLoadingKnowledges = false);
+    }
+  }
+
+  Future<void> _removeKnowledge(String knowledgeId) async {
+    try {
+      setState(() => _isLoading = true);
+      
+      final params = KnowledgeToAssistant(
+        knowledgeId: knowledgeId,
+        assistantId: _currentAssistant.id,
+      );
+      
+      await AssistantRepository().removeKnowledge(params);
+      await _fetchImportedKnowledges(); // Refresh the list
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Knowledge base removed successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to remove knowledge base: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -613,7 +659,14 @@ class _EditBotScreenState extends State<EditBotScreen> {
               elevation: 0,
             ),
             onPressed: () {
-              // Handle add knowledge source
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => KnowledgeBaseListScreen(
+                    assistantId: _currentAssistant.id,
+                  ),
+                ),
+              );
             },
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -695,54 +748,85 @@ class _EditBotScreenState extends State<EditBotScreen> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 1,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.grey.withOpacity(0.2),
-                  ),
-                ),
-                child: ListTile(
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.storage,
-                      color: Colors.blue,
-                      size: 20,
-                    ),
-                  ),
-                  title: Text(
-                    "${_currentAssistant.assistantName}'s Knowledge Base",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                        onPressed: () {
-                          // Handle delete
-                        },
+          child: _isLoadingKnowledges
+              ? const Center(child: CircularProgressIndicator())
+              : _importedKnowledges.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.storage_outlined,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No knowledge bases yet',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Add a knowledge base to get started',
+                            style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
-                      const Icon(Icons.chevron_right, color: Colors.grey),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _importedKnowledges.length,
+                      itemBuilder: (context, index) {
+                        final knowledge = _importedKnowledges[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey.withOpacity(0.2),
+                            ),
+                          ),
+                          child: ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.storage_outlined,
+                                color: Colors.blue,
+                                size: 20,
+                              ),
+                            ),
+                            title: Text(
+                              knowledge.knowledgeName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                                  onPressed: () => _removeKnowledge(knowledge.knowledgeName),
+                                ),
+                                const Icon(Icons.chevron_right, color: Colors.grey),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
         ),
       ],
     );
