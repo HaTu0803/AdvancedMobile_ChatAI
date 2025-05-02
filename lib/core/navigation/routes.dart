@@ -83,14 +83,20 @@ final GoRouter router = GoRouter(
         builder: (context, state) => const CreatePromptScreen(),
       ),
       GoRoute(
-          path: AppRoutes.history,
-          builder: (context, state) => const ChatHistoryScreen()),
+        path: AppRoutes.history,
+        builder: (context, state) {
+          final assistantModel = state.extra as String? ?? 'dify';
+          return ChatHistoryScreen(assistantModel: assistantModel);
+        },
+      ),
       GoRoute(
-          path: AppRoutes.bot,
-          builder: (context, state) => const ChatHistoryScreen()),
-      GoRoute(
-          path: AppRoutes.emailCompose,
-          builder: (context, state) => const EmailComposeScreen()),
+        path: AppRoutes.bot,
+        builder: (context, state) {
+          final assistantModel = state.extra as String? ?? 'dify';
+          return ChatHistoryScreen(assistantModel: assistantModel);
+        },
+      ),
+
     ],
     redirect: (context, state) async {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);

@@ -1,4 +1,5 @@
 import 'package:advancedmobile_chatai/core/navigation/routes.dart';
+import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge/knowledge_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -83,8 +84,9 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.person_outline,
                     title: "My Profile",
                     onTap: () {
-                      Navigator.pop(context);  // Close the sidebar
-                      _showProfileScreen(context);  // Show Profile Screen in bottom sheet
+                      Navigator.pop(context); // Close the sidebar
+                      _showProfileScreen(
+                          context); // Show Profile Screen in bottom sheet
                     },
                   ),
                   _buildMenuItem(
@@ -92,7 +94,8 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.workspace_premium,
                     title: "Upgrade Plans",
                     onTap: () {
-                      _showUpgradePlansScreen(context);  // Show Upgrade Plans Screen in bottom sheet
+                      _showUpgradePlansScreen(
+                          context); // Show Upgrade Plans Screen in bottom sheet
                     },
                   ),
                   const Divider(),
@@ -101,7 +104,8 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.smart_toy_outlined,
                     title: "Bot",
                     onTap: () {
-                      _showBotScreen(context);  // Show Bot Screen in bottom sheet
+                      _showBotScreen(
+                          context); // Show Bot Screen in bottom sheet
                     },
                   ),
                   _buildMenuItem(
@@ -122,7 +126,8 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.storage,
                     title: "Data",
                     onTap: () {
-                      _showDataScreen(context);  // Show Data Screen in bottom sheet
+                      _showDataScreen(
+                          context); // Show Data Screen in bottom sheet
                     },
                   ),
                   const Divider(),
@@ -131,7 +136,8 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.settings_outlined,
                     title: "Settings",
                     onTap: () {
-                      _showSettingsScreen(context);  // Show Settings Screen in bottom sheet
+                      _showSettingsScreen(
+                          context); // Show Settings Screen in bottom sheet
                     },
                   ),
                   _buildMenuItem(
@@ -139,7 +145,8 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.help_outline,
                     title: "Help & Support",
                     onTap: () {
-                      _showHelpSupportScreen(context);  // Show Help & Support Screen in bottom sheet
+                      _showHelpSupportScreen(
+                          context); // Show Help & Support Screen in bottom sheet
                     },
                   ),
                   _buildMenuItem(
@@ -147,7 +154,8 @@ class AppSidebar extends StatelessWidget {
                     icon: Icons.info_outline,
                     title: "About",
                     onTap: () {
-                      _showAboutScreen(context);  // Show About Screen in bottom sheet
+                      _showAboutScreen(
+                          context); // Show About Screen in bottom sheet
                     },
                   ),
                 ],
@@ -168,7 +176,8 @@ class AppSidebar extends StatelessWidget {
                       try {
                         await authProvider.logOut(); // Gọi hàm đăng xuất
                         if (!context.mounted) return;
-                        context.go(AppRoutes.login); // Điều hướng về trang đăng nhập
+                        context.go(
+                            AppRoutes.login); // Điều hướng về trang đăng nhập
                       } catch (e) {
                         debugPrint("Logout failed: $e");
                       }
@@ -206,10 +215,9 @@ class AppSidebar extends StatelessWidget {
     );
   }
 
-
   // This function shows the Bot screen as a modal bottom sheet
   void _showBotScreen(BuildContext context) {
-   Navigator.push(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) {
@@ -221,14 +229,13 @@ class AppSidebar extends StatelessWidget {
 
   // This function shows the Data screen as a modal bottom sheet
   void _showDataScreen(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: Text("Data"),  // Replace with your Data widget
-        );
-
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const KnowledgeBaseScreen();
+        },
+      ),
     );
   }
 
@@ -238,9 +245,8 @@ class AppSidebar extends StatelessWidget {
       context: context,
       builder: (context) {
         return const Center(
-          child: Text("Settings"),  // Replace with your Settings widget
+          child: Text("Settings"), // Replace with your Settings widget
         );
-
       },
     );
   }
@@ -251,7 +257,8 @@ class AppSidebar extends StatelessWidget {
       context: context,
       builder: (context) {
         return const Center(
-          child: Text("Help & Support"),  // Replace with your Help & Support widget
+          child:
+              Text("Help & Support"), // Replace with your Help & Support widget
         );
       },
     );
@@ -263,19 +270,18 @@ class AppSidebar extends StatelessWidget {
       context: context,
       builder: (context) {
         return const Center(
-          child: Text("About"),  // Replace with your About widget
+          child: Text("About"), // Replace with your About widget
         );
-
       },
     );
   }
 
   Widget _buildMenuItem(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
