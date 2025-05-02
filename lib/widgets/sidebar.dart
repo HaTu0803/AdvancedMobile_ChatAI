@@ -12,6 +12,7 @@ import '../data_app/model/jarvis/user_model.dart';
 import '../data_app/repository/jarvis/subscription_repository.dart';
 import '../data_app/repository/jarvis/user_repository.dart';
 import '../providers/auth_provider.dart';
+import '../view_app/jarvis/screens/email_compose/email_compose_screen.dart';
 import '../view_app/jarvis/screens/profile/profile_screen.dart';
 import '../view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
 import '../view_app/knowledge_base/screens/knowledge/bot.dart';
@@ -182,6 +183,19 @@ class _AppSidebarState extends State<AppSidebar> {
                     onTap: () {
                       _showBotScreen(
                           context); // Show Bot Screen in bottom sheet
+                    },
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.email_outlined,
+                    title: "Compose Email",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EmailComposeScreen(),
+                        ),
+                      );
                     },
                   ),
                   _buildMenuItem(
