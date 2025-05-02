@@ -86,4 +86,19 @@ class AuthProvider with ChangeNotifier {
   Future<bool> isAuthenticated() async {
     return await authRepository.isAuthenticated();
   }
+
+  Future<String> fetchRefreshToken() async {
+    // return await authRepository.fetchRefreshToken();
+    setLoading(true);
+    try {
+      final refreshToken = await authRepository.fetchRefreshToken();
+      return refreshToken;
+    } catch (e) {
+      debugPrint("Fetch Refresh Token Error: $e");
+      return '';
+    }
+    finally {
+      setLoading(false);
+    }
+  }
 }

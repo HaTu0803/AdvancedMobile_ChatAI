@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class KnowledgeDataRepository {
   final KnowledgeDataApiClient KnowledgeDataApi = KnowledgeDataApiClient();
 
-  Future<UploadFileResponse> createKnowledge(String id, File file) async {
+  Future<UploadFileResponse> uploadLocalFile(String id, File file) async {
     try {
       final response = await KnowledgeDataApi.uploadLocalFile(id, file);
       return response;
