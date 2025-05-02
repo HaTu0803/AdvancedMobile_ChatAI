@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../widgets/dialog.dart';
 import '../../../jarvis/screens/create_bot/create_bot_screens.dart';
+import "edit_bot_screen.dart";
 
 class BotsScreen extends StatefulWidget {
   const BotsScreen({super.key});
@@ -93,14 +94,26 @@ class _BotsScreenState extends State<BotsScreen> {
         children: [
           Image.asset(
             "images/no_found.png",
-            width: 300,
-            height: 300,
+            width: 200,
+            height: 200,
             fit: BoxFit.contain,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           const Text(
-            "No found",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            "No bots found",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Try adjusting your search or create a new bot",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),
@@ -109,71 +122,91 @@ class _BotsScreenState extends State<BotsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text(
+        elevation: 0,
+        backgroundColor: theme.colorScheme.surface,
+        title: Text(
           'Bots',
           style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: theme.colorScheme.onSurface,
           ),
         ),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  offset: const Offset(0, 2),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Dòng search
                 TextField(
                   onChanged: _onSearchChanged,
                   decoration: InputDecoration(
                     hintText: 'Search bots...',
-                    prefixIcon: const Icon(Icons.search),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
-                    isDense: true,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.colorScheme.primary),
+                    ),
+                    filled: true,
+                    fillColor: theme.colorScheme.surface,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
-                const SizedBox(height: 12),
-                // Dòng dropdown chiếm 1/3
+                const SizedBox(height: 16),
                 Row(
                   children: [
-                    // Dropdown with width wrapping longest text
-                    IntrinsicWidth(
-                      child: DropdownButtonFormField<String>(
-                        value: _currentFilterKey,
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        onChanged: (value) {
-                          if (value != null) _onFilterChanged(value);
-                        },
-                        items: const [
-                          DropdownMenuItem(
-                              value: 'all', child: Text('All Bots')),
-                          DropdownMenuItem(
-                              value: 'favorites', child: Text('Favorites')),
-                          DropdownMenuItem(
-                              value: 'name', child: Text('Sort by Name')),
-                          DropdownMenuItem(
-                              value: 'date', child: Text('Sort by Date')),
-                        ],
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _currentFilterKey,
+                            isExpanded: true,
+                            icon: Icon(Icons.keyboard_arrow_down, color: theme.colorScheme.primary),
+                            items: const [
+                              DropdownMenuItem(value: 'all', child: Text('All Bots')),
+                              DropdownMenuItem(value: 'favorites', child: Text('Favorites')),
+                              DropdownMenuItem(value: 'name', child: Text('Sort by Name')),
+                              DropdownMenuItem(value: 'date', child: Text('Sort by Date')),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) _onFilterChanged(value);
+                            },
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-
-                    // Icon-only button
-                    const Spacer(),
+                    const SizedBox(width: 16),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -206,143 +239,156 @@ class _BotsScreenState extends State<BotsScreen> {
                       ),
                     )
                   ],
-                )
+                ),
               ],
             ),
           ),
           Expanded(
             child: isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: theme.colorScheme.primary,
+                    ),
+                  )
                 : assistants.isEmpty
-                    ? _buildEmptyState() // Hiển thị empty state nếu không có assistants
+                    ? _buildEmptyState()
                     : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4.0, vertical: 8.0),
+                        padding: const EdgeInsets.all(16),
                         itemCount: assistants.length,
                         itemBuilder: (context, index) {
                           final assistant = assistants[index];
-
-                          return GestureDetector(
-                            onTap: () {
-                              // Khi bấm vào item, trả assistant về HomeScreen
-                              Navigator.pop(context, assistant.assistantName);
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.all(8),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 4,
-                                    spreadRadius: 1,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () => Navigator.pop(context, assistant.assistantName),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.smart_toy,
-                                          size: 20, color: Colors.blue),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          assistant.assistantName,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          assistant.isFavorite == true
-                                              ? Icons.star
-                                              : Icons.star_border,
-                                          color: assistant.isFavorite == true
-                                              ? Colors.amber
-                                              : Colors.grey,
-                                          size: 20,
-                                        ),
-                                        tooltip: 'Favorite',
-                                        onPressed: () {
-                                          _handleFavoriteBot(assistant.id);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          assistant.description?.isNotEmpty ==
-                                                  true
-                                              ? assistant.description!
-                                              : 'No description available',
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              color: Colors.grey, fontSize: 12),
-                                        ),
-                                      ),
                                       Row(
                                         children: [
-                                          IconButton(
-                                            icon: const Icon(
-                                                Icons.edit_outlined,
-                                                size: 20,
-                                                color: Colors.grey),
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            onPressed: () {
-                                              _openEditBotModal(
-                                                  context, assistant);
-                                            },
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: theme.colorScheme.primary.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(
+                                              Icons.smart_toy,
+                                              size: 24,
+                                              color: theme.colorScheme.primary,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              assistant.assistantName,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                              ),
+                                            ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(
-                                                Icons.delete_outline,
-                                                size: 20,
-                                                color: Colors.grey),
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            onPressed: () {
-                                              _handleDeleteBot(assistant.id,
-                                                  assistant.assistantName);
-                                            },
+                                            icon: Icon(
+                                              assistant.isFavorite == true
+                                                  ? Icons.star_rounded
+                                                  : Icons.star_outline_rounded,
+                                              color: assistant.isFavorite == true
+                                                  ? Colors.amber
+                                                  : Colors.grey,
+                                              size: 24,
+                                            ),
+                                            onPressed: () => _handleFavoriteBot(assistant.id),
                                           ),
-                                          IconButton(
-                                            icon: const Icon(
-                                                Icons.arrow_forward,
-                                                size: 20,
-                                                color: Colors.grey),
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            onPressed: () {
-                                              // Để trống hoặc có thể xử lý thêm nếu cần
-                                            },
+                                        ],
+                                      ),
+                                      if (assistant.description?.isNotEmpty == true) ...[
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          assistant.description!,
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 14,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          _buildActionButton(
+                                            icon: Icons.edit_outlined,
+                                            onPressed: () => _openEditBotModal(context, assistant),
+                                            theme: theme,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _buildActionButton(
+                                            icon: Icons.delete_outline,
+                                            onPressed: () => _handleDeleteBot(
+                                                assistant.id, assistant.assistantName),
+                                            theme: theme,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _buildActionButton(
+                                            icon: Icons.chat_bubble_outline,
+                                            onPressed: () {},
+                                            theme: theme,
+                                            isPrimary: true,
                                           ),
                                         ],
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
                             ),
                           );
-                        }),
+                        },
+                      ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required ThemeData theme,
+    bool isPrimary = false,
+  }) {
+    return Material(
+      color: isPrimary ? theme.colorScheme.primary : Colors.grey[100],
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onPressed,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Icon(
+            icon,
+            size: 20,
+            color: isPrimary ? Colors.white : Colors.grey[700],
+          ),
+        ),
       ),
     );
   }
@@ -397,52 +443,11 @@ class _BotsScreenState extends State<BotsScreen> {
   }
 
   void _openEditBotModal(BuildContext context, AssistantResponse assistant) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Center(
-          child: Dialog(
-            insetPadding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Edit Your Bot',
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    CreateYourOwnBotScreen(
-                      isUpdate: true,
-                      assistantId: assistant.id,
-                      onSuccess: () {
-                        _fetchAssistants();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditBotScreen(assistant: assistant),
+      ),
     );
   }
 

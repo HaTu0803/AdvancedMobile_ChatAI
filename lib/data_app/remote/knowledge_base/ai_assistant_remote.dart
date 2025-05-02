@@ -301,7 +301,7 @@ class AssistantApiClient {
             params.knowledgeId, params.assistantId));
     final headers = ApiHeaders.getAIChatHeaders("", token);
 
-    final response = await http.post(url, headers: headers);
+    final response = await http.delete(url, headers: headers);
 
     print("📩 response.statusCode: ${response.statusCode}");
     print("📩 response.body: ${response.body}");
