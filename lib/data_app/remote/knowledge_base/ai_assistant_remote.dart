@@ -19,7 +19,7 @@ class AssistantApiClient {
   Future<AssistantResponse> favoriteAssistant(assistantId) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
-    print("🔑 AccessToken: $token");
+    print("AccessToken: $token");
 
     final url =
         Uri.parse(ApiKnowledgeAiAssistantUrl.favoriteAssistant(assistantId));
@@ -30,8 +30,8 @@ class AssistantApiClient {
 
     final response = await http.post(url, headers: headers, body: body);
 
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
+    print("response.statusCode: ${response.statusCode}");
+    print("response.body: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return AssistantResponse.fromJson(jsonDecode(response.body));
@@ -301,7 +301,7 @@ class AssistantApiClient {
             params.knowledgeId, params.assistantId));
     final headers = ApiHeaders.getAIChatHeaders("", token);
 
-    final response = await http.post(url, headers: headers);
+    final response = await http.delete(url, headers: headers);
 
     print("📩 response.statusCode: ${response.statusCode}");
     print("📩 response.body: ${response.body}");

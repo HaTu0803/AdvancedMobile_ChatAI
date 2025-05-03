@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Import for Clipboard
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../providers/prompt_provider.dart';
+import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
 
 class PublicPromptsScreen extends StatefulWidget {
   const PublicPromptsScreen({super.key});
@@ -107,13 +108,28 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
     });
   }
 
-  void _toggleFavorite(int index) {
+  void _toggleFavorite(int index) async {
     final promptIndex = _prompts.indexOf(_filteredPrompts[index]);
     if (promptIndex != -1) {
-      setState(() {
-        _prompts[promptIndex].isFavorite = !_prompts[promptIndex].isFavorite;
-        _filterPrompts();
-      });
+      final prompt = _prompts[promptIndex];
+      try {
+        if (!prompt.isFavorite) {
+          await PromptRepository().addPromptToFavorites(prompt.id);
+        } else {
+          await PromptRepository().removePromptFromFavorites(prompt.id);
+        }
+        
+        setState(() {
+          _prompts[promptIndex].isFavorite = !_prompts[promptIndex].isFavorite;
+          _filterPrompts();
+        });
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error updating favorite status: $e')),
+          );
+        }
+      }
     }
   }
 
@@ -376,6 +392,32 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             .map((category) => _buildCategoryItem(category))
             .toList(),
       ),
+    );
+  }
+}
+
+// Hàm để xây dựng các PromptItem vào một Widget
+Widget? buildPromptItem(PromptItem? promptItem) {
+  if (promptItem == null) {
+    return null;
+  }
+
+  return promptItem;
+}
+
+// Widget để hiển thị danh sách PromptItem
+class PromptList extends StatelessWidget {
+  final List<PromptItem> promptItems;
+
+  PromptList({required this.promptItems});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: promptItems.length,
+      itemBuilder: (context, index) {
+        return buildPromptItem(promptItems[index]) ?? Container();
+      },
     );
   }
 }
