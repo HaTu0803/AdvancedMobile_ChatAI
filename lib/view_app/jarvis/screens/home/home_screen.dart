@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   AiModel? selectedAiModel;
   AssistantResponse? _selectedAssistant;
   
+  // Thêm biến quản lý conversationId và messages của conversation hiện tại
   String? _conversationId;
   List<Map<String, dynamic>> _conversationMessages = [];
 
@@ -393,9 +394,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ActionButton(
                           icon: const Icon(Icons.history_toggle_off),
                           label: "",
-                          onTap: () {
-                            // _showFullHistoryModal(context);
-                            Navigator.push(
+                          onTap: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ChatHistoryScreen(
@@ -404,6 +404,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             );
+
+                            if (result != null) {
+                              setState(() {
+                                // Clear existing messages
+                                messages.clear();
+                                _conversationMessages.clear();
+                                
+                                // Set conversation ID
+                                _conversationId = result['conversationId'];
+                                
+                                // Add history messages
+                                messages.addAll(result['messages']);
+                                
+                                // Convert messages to conversation format
+                                for (var msg in result['messages']) {
+                                  _conversationMessages.add({
+                                    'role': msg['isUser'] ? 'user' : 'bot',
+                                    'content': msg['text'],
+                                  });
+                                }
+                              });
+                            }
                           },
                         ),
                         const SizedBox(width: 8),
