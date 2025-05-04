@@ -100,8 +100,6 @@ class ConversationHistoryResponse {
         itemsList = (json['items'] as List)
             .map((item) => ConversationHistoryItem.fromJson(item))
             .toList();
-      } else {
-        debugPrint("Warning: items is not a List, it is: ${json['items'].runtimeType}");
       }
     }
 
