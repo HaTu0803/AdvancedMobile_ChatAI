@@ -8,6 +8,7 @@ import 'package:advancedmobile_chatai/data_app/model/jarvis/chat_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/conversations_model.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/jarvis/ai_chat_url.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 class AiChatApiClient {
   Future<ConversationResponse> conversation(ConversationRequest params) async {
@@ -41,16 +42,33 @@ class AiChatApiClient {
     await BasePreferences.init();
 
     String token = await BasePreferences().getTokenPreferred('access_token');
-    final uri =
-        Uri.parse(ApiJarvisAiChatUrl.getConversationHistory(conversationId))
-            .replace(queryParameters: params.toJson());
+    
+    // Build query string manually
+    final queryParams = <String, String>{};
+    if (params.limit != null) {
+      queryParams['limit'] = params.limit.toString();
+    }
+    if (params.cursor != null) {
+      queryParams['cursor'] = params.cursor!;
+    }
+    if (params.assistantId != null) {
+      queryParams['assistantId'] = params.assistantId!;
+    }
+    queryParams['assistantModel'] = params.assistantModel;
+
+    final uri = Uri.parse(ApiJarvisAiChatUrl.getConversationHistory(conversationId))
+        .replace(queryParameters: queryParams);
+
+    debugPrint("🔑 Request URL: ${uri.toString()}");
+    debugPrint("🔑 Request params: $queryParams");
 
     final response = await http.get(
       uri,
       headers: ApiHeaders.getAIChatHeaders("", token),
     );
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body params: ${response.body}");
+    debugPrint("📩 response.statusCode: ${response.statusCode}");
+    debugPrint("📩 response.body: ${response.body}");
+    
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ConversationHistoryResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
@@ -60,8 +78,7 @@ class AiChatApiClient {
       );
       throw Exception('Failed to sign up: ${response.body}');
     } else {
-      handleErrorResponse(response);
-      throw Exception('Failed to sign up: ${response.body}');
+      throw Exception('Failed to get conversation history: ${response.body}');
     }
   }
 
