@@ -7,8 +7,9 @@ import '../../providers/auth_provider.dart';
 
 Future<http.Response> retryWithRefreshToken({
   required Uri url,
+  required String method, // New method parameter
   Map<String, String>? headers,
-  required dynamic body,
+  dynamic body,
 }) async {
   print("🔄 Token expired. Refreshing...");
   final newToken = await AuthProvider().fetchRefreshToken();
@@ -18,15 +19,31 @@ Future<http.Response> retryWithRefreshToken({
     final retryHeaders = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $newToken',
+      ...?headers,
     };
-    debugPrint("newToken: $newToken");
 
-    final retryResponse = await http.post(
-      url,
-      headers: retryHeaders,
-      body: body,
-    );
-    debugPrint("Retry tú test response: ${retryResponse.body}");
+    http.Response retryResponse;
+
+    switch (method.toUpperCase()) {
+      case 'GET':
+        retryResponse = await http.get(url, headers: retryHeaders);
+        break;
+      case 'POST':
+        retryResponse = await http.post(url, headers: retryHeaders, body: body);
+        break;
+      case 'PATCH':
+        retryResponse =
+            await http.patch(url, headers: retryHeaders, body: body);
+        break;
+      case 'DELETE':
+        retryResponse =
+            await http.delete(url, headers: retryHeaders, body: body);
+        break;
+      default:
+        throw UnsupportedError("Unsupported HTTP method: $method");
+    }
+
+    debugPrint("Retry response: ${retryResponse.body}");
     return retryResponse;
   } else {
     throw UnauthorizedException("Token expired and refresh failed");

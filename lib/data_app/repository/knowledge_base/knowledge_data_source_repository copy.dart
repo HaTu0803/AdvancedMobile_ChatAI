@@ -28,9 +28,9 @@ class KnowledgeDataRepository {
     }
   }
 
-  Future<UploadFileResponse> uploadSlack(String id) async {
+  Future<UploadFileResponse> uploadSlack(String id, UpLoadFileSlack request) async {
     try {
-      final response = await KnowledgeDataApi.uploadSlack(id);
+      final response = await KnowledgeDataApi.uploadSlack(id, request);
       return response;
     } catch (e) {
       debugPrint("GetConversations Error: $e");

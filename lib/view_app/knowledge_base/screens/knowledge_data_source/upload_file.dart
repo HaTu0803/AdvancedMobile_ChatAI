@@ -1,10 +1,9 @@
 import 'dart:io';
-import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository copy.dart';
+import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository%20copy.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:open_file/open_file.dart';
 
 class ImportLocalFilesDialog extends StatefulWidget {
   final String id;
@@ -17,6 +16,7 @@ class ImportLocalFilesDialog extends StatefulWidget {
 class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
   bool _isUploading = false;
   File? _selectedFile;
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -47,39 +47,73 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
               borderType: BorderType.RRect,
               radius: const Radius.circular(12),
               dashPattern: [6, 3],
-              color: Colors.blue,
-              child: GestureDetector(
-                onTap: _pickFile,
-                child: Container(
-                  width: double.infinity,
-                  height: 150,
-                  color: Colors.transparent,
-                  alignment: Alignment.center,
-                  child: _isUploading
-                      ? const CircularProgressIndicator()
-                      : _selectedFile == null
-                      ? const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.upload_file, size: 40, color: Colors.blue),
-                      SizedBox(height: 8),
-                      Text('Click or drag files to upload'),
-                      SizedBox(height: 4),
-                      Text(
-                        'Supported formats: .c, .cpp, .docx, .html, ...',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  )
-                      : Text(
-                    _selectedFile!.path.split('/').last,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 14),
+              child: MouseRegion(
+                onEnter: (_) => setState(() => _isHovered = true),
+                onExit: (_) => setState(() => _isHovered = false),
+                child: GestureDetector(
+                  onTap: _pickFile,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: _isHovered ? Colors.grey.shade100 : Colors.transparent,
+                    ),
+                    alignment: Alignment.center,
+                    child: _isUploading
+                        ? const CircularProgressIndicator()
+                        : const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.upload_file, size: 40, color: Colors.blue),
+                        SizedBox(height: 8),
+                        Text('Click or drag files to upload'),
+                        SizedBox(height: 4),
+                        Text(
+                          'Supported formats: .c, .cpp, .docx, .html, ...',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
+
+
+            // Hiển thị thông tin file đã chọn
+            if (_selectedFile != null) ...[
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Image.asset('images/file.png', width: 20, height: 20),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _selectedFile!.path.split('/').last,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline_sharp, color: Colors.grey),
+                      onPressed: () {
+                        setState(() {
+                          _selectedFile = null; // Xóa file đã chọn
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -92,16 +126,6 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                   onPressed: _selectedFile != null && !_isUploading
                       ? () => _uploadFile(_selectedFile!)
                       : null,
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.disabled)) {
-                          return Colors.grey.shade300;
-                        }
-                        return Theme.of(context).colorScheme.onPrimary;
-                      },
-                    ),
-                  ),
                   child: const Text('Import'),
                 ),
               ],
@@ -122,25 +146,20 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
         return;
       }
     }
+
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
         'c', 'cpp', 'docx', 'html', 'java', 'json', 'md',
-        'pdf', 'php', 'pptx', 'py', 'rb', 'tex', 'txt'
+        'pdf', 'php', 'pptx', 'py', 'rb', 'tex', 'txt', 'jpg', 'jpeg', 'png', 'gif'
       ],
     );
 
     if (result != null && result.files.isNotEmpty) {
       final platformFile = result.files.first;
       setState(() {
-        print("Selected file path: ${_selectedFile!.path}");
         _selectedFile = File(platformFile.path!);
       });
-
-      // ✨ Mở file ngay sau khi chọn
-      if (_selectedFile != null) {
-        await OpenFile.open(_selectedFile!.path);
-      }
     }
   }
 

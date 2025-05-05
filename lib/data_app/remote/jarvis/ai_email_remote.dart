@@ -35,6 +35,7 @@ class AiEmailApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: body,
+        method: 'POST',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -73,6 +74,7 @@ class AiEmailApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: body,
+        method: 'POST',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {

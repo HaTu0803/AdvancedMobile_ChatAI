@@ -26,7 +26,7 @@ class SubscriptionApiClient {
       }
 
       final url = Uri.parse(ApiJarvisSubscriptionUrl.getUsage);
-      
+
       final headers = ApiHeaders.getAIChatHeaders("", token);
 
       final response = await http.get(url, headers: headers);
@@ -42,16 +42,18 @@ class SubscriptionApiClient {
           url: url,
           headers: headers,
           body: null,
+          method: 'GET',
         );
 
-        if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        if (retryResponse.statusCode == 200 ||
+            retryResponse.statusCode == 201) {
           final responseData = jsonDecode(retryResponse.body);
           return UsageResponse.fromJson(responseData);
         } else {
           await AuthRepository().logOut();
-            navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
             AppRoutes.login,
-                (route) => true,
+            (route) => true,
           );
           throw Exception('Session expired. Please log in again.');
         }
@@ -86,6 +88,7 @@ class SubscriptionApiClient {
         url: url,
         headers: headers,
         body: null,
+        method: 'GET',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -94,7 +97,7 @@ class SubscriptionApiClient {
         await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
           AppRoutes.login,
-              (route) => true,
+          (route) => true,
         );
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
@@ -103,6 +106,7 @@ class SubscriptionApiClient {
       throw Exception('Lỗi: ${response.statusCode}');
     }
   }
+
   String _parseErrorMessage(String responseBody) {
     try {
       final bodyMap = jsonDecode(responseBody);
