@@ -103,22 +103,22 @@ class KnowledgeDataApiClient {
     }
   }
 
-  Future<UploadFileResponse> uploadSlack(String id) async {
+  Future<UploadFileResponse> uploadSlack(String id, UpLoadFileSlack request) async {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
 
       final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadSlack(id));
       final headers = ApiHeaders.getAIChatHeaders("", token);
-
-      final response = await http.post(url, headers: headers);
+      final body = jsonEncode(request.toJson());
+      final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return UploadFileResponse.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          body: null,
+          body: body,
           method: 'POST',
         );
 

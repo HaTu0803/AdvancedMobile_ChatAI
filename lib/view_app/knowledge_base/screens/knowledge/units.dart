@@ -2,6 +2,7 @@ import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_repository.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_file.dart';
+import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_slack.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_website.dart';
 import 'package:flutter/material.dart';
 
@@ -316,7 +317,27 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                       onTap: () {
                         // TODO: Open website connect screen
                         Navigator.pop(context);
-                        _openUploadWebsite(                      context);
+                        _openUploadWebsite(context);
+                      },
+                    ),
+                    _buildSourceItem(
+                      context,
+                      title: 'Slack',
+                      subtitle: 'Connect to Slack Workspace',
+                      imagePath: 'images/slack.png',
+                      onTap: () {
+                        Navigator.pop(context);
+                        _openUploadSlack(context);
+                      },
+                    ),
+                    _buildSourceItem(
+                      context,
+                      title: 'Confluence',
+                      subtitle: 'Connect to Confluence',
+                      imagePath: 'images/confluence.png',
+                      onTap: () {
+                        Navigator.pop(context);
+                        _openUploadSlack(context);
                       },
                     ),
                     const Divider(height: 32),
@@ -329,11 +350,6 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                     _buildComingSoonItem(context,
                         title: 'Gitlab Repository',
                         imagePath: 'images/gitlab.png'),
-                    _buildComingSoonItem(context,
-                        title: 'Slack', imagePath: 'images/slack.png'),
-                    _buildComingSoonItem(context,
-                        title: 'Confluence',
-                        imagePath: 'images/confluence.png'),
                   ],
                 ),
               ),
@@ -465,7 +481,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
             ),
             child: Container(
               width:
-              MediaQuery.of(context).size.width, // Full width of the screen
+                  MediaQuery.of(context).size.width, // Full width of the screen
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(
@@ -489,7 +505,57 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                     const SizedBox(height: 16),
                     AddWebSiteScreen(
                       onSuccess: () {
-                         _fetchKnowledgeUnits();
+                        _fetchKnowledgeUnits();
+                      },
+                      id: widget.id,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _openUploadSlack(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Dialog(
+            insetPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              width:
+                  MediaQuery.of(context).size.width, // Full width of the screen
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Import Slack Source',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    UploadSlackScreen(
+                      onSuccess: () {
+                        _fetchKnowledgeUnits();
                       },
                       id: widget.id,
                     ),
