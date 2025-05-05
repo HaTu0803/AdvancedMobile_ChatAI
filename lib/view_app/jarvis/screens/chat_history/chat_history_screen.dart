@@ -94,8 +94,55 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
         ),
       ),
       child: InkWell(
-        onTap: () {
-          Navigator.pop(context); // 👉 update logic tùy theo nhu cầu
+        onTap: () async {
+          // Fetch conversation history
+          final repository = AiChatRepository();
+          final request = ConversationRequest(
+            limit: 100,
+            assistantModel: widget.assistantModel,
+          );
+          
+          try {
+            final history = await repository.getConversationsHistory(request, chat.id);
+            debugPrint("History response: ${history.items.length} items");
+            
+            // Convert history items to messages format
+            final List<Map<String, dynamic>> messages = [];
+            for (var item in history.items) {
+              if (item.query != null && item.query!.isNotEmpty) {
+                messages.add({
+                  'text': item.query!,
+                  'isUser': true,
+                });
+              }
+              if (item.answer != null && item.answer!.isNotEmpty) {
+                messages.add({
+                  'text': item.answer!,
+                  'isUser': false,
+                });
+              }
+            }
+
+            // Return to chat screen with conversation history
+            if (mounted) {
+              Navigator.pop(context, {
+                'conversationId': chat.id,
+                'messages': messages,
+                'title': chat.title,
+              });
+            }
+          } catch (e, stackTrace) {
+            debugPrint("Error fetching conversation history: $e");
+            debugPrint("Stack trace: $stackTrace");
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to load conversation history: ${e.toString()}'),
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

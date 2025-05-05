@@ -28,6 +28,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _messageController = TextEditingController();
   AiModel? selectedAiModel;
   AssistantResponse? _selectedAssistant;
+  
+  // Thêm biến quản lý conversationId và messages của conversation hiện tại
+  String? _conversationId;
+  List<Map<String, dynamic>> _conversationMessages = [];
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (message.isNotEmpty) {
       setState(() {
         messages.add({'text': message, 'isUser': true});
+        _conversationMessages.add({'role': 'user', 'content': message});
         _messageController.clear();
       });
       _scrollToBottom();
@@ -53,12 +59,28 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       _scrollToBottom();
 
-      // Create the request body for the API
+      // Tạo danh sách ChatMessage cho conversation
+      List<ChatMessage> chatMessages = _conversationMessages.map((msg) {
+        return ChatMessage(
+          role: msg['role'],
+          content: msg['content'],
+          assistant: AssistantInfo(
+            model: selectedAiModel?.model ?? 'dify',
+            name: selectedAiModel?.name ?? 'GPT-4o',
+            id: selectedAiModel?.id ?? 'gpt-4od',
+          ),
+        );
+      }).toList();
+
+      // Tạo request body cho API
       final chatRequest = ChatRequest(
         content: message,
         files: [],
         metadata: ChatMetadata(
-          conversation: Conversation(messages: []),
+          conversation: Conversation(
+            id: _conversationId, // Truyền conversationId nếu có
+            messages: chatMessages,
+          ),
         ),
         assistant: AssistantInfo(
           model: selectedAiModel?.model ?? 'dify',
@@ -68,29 +90,28 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       try {
-        // Send the message to the bot using the chat API
+        // Gửi message tới bot
         final response = await AiChatRepository().chatWithBot(chatRequest);
-        debugPrint("Bot response: ${response.message}");
+        debugPrint("Bot response: [32m");
 
-        // Update the loading message with the actual response
-        setState(() {
-          // Remove the loading message
-          messages.removeLast();
-          // Add the actual bot response
-          messages.add({
-            'text': response.message,
-            'isUser': false,
-            // 'avatarUrl': response.avatarUrl
+        // Lưu lại conversationId nếu có (chỉ lấy lần đầu)
+        if (_conversationId == null && response.conversationId != null) {
+          setState(() {
+            _conversationId = response.conversationId;
           });
+        }
+
+        // Lưu message bot vào conversation
+        setState(() {
+          messages.removeLast();
+          messages.add({'text': response.message, 'isUser': false});
+          _conversationMessages.add({'role': 'bot', 'content': response.message});
         });
         _scrollToBottom();
       } catch (e) {
         debugPrint("Error sending message to bot: $e");
-        // Update UI to show error
         setState(() {
-          // Remove the loading message
           messages.removeLast();
-          // Add error message
           messages.add({
             'text': 'Sorry, I encountered an error. Please try again.',
             'isUser': false,
@@ -373,9 +394,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ActionButton(
                           icon: const Icon(Icons.history_toggle_off),
                           label: "",
-                          onTap: () {
-                            // _showFullHistoryModal(context);
-                            Navigator.push(
+                          onTap: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ChatHistoryScreen(
@@ -384,6 +404,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             );
+
+                            if (result != null) {
+                              setState(() {
+                                // Clear existing messages
+                                messages.clear();
+                                _conversationMessages.clear();
+                                
+                                // Set conversation ID
+                                _conversationId = result['conversationId'];
+                                
+                                // Add history messages
+                                messages.addAll(result['messages']);
+                                
+                                // Convert messages to conversation format
+                                for (var msg in result['messages']) {
+                                  _conversationMessages.add({
+                                    'role': msg['isUser'] ? 'user' : 'bot',
+                                    'content': msg['text'],
+                                  });
+                                }
+                              });
+                            }
                           },
                         ),
                         const SizedBox(width: 8),
@@ -395,6 +437,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             // Clear messages and return to the initial state
                             setState(() {
                               messages.clear();
+                              _conversationMessages.clear();
+                              _conversationId = null;
                             });
                           },
                         ),
