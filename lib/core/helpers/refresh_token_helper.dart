@@ -1,4 +1,3 @@
-import 'package:advancedmobile_chatai/core/util/exception.dart';
 import 'package:advancedmobile_chatai/data_app/repository/auth/authentication_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -15,39 +14,33 @@ Future<http.Response> retryWithRefreshToken({
   final newToken = await AuthProvider().fetchRefreshToken();
   debugPrint("newToken: $newToken");
 
-  if (newToken != null) {
-    final retryHeaders = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $newToken',
-      ...?headers,
-    };
+  final retryHeaders = {
+    // 'Content-Type': 'application/json',
+    'Authorization': 'Bearer $newToken',
+    ...?headers,
+  };
 
-    http.Response retryResponse;
+  http.Response retryResponse;
 
-    switch (method.toUpperCase()) {
-      case 'GET':
-        retryResponse = await http.get(url, headers: retryHeaders);
-        break;
-      case 'POST':
-        retryResponse = await http.post(url, headers: retryHeaders, body: body);
-        break;
-      case 'PATCH':
-        retryResponse =
-            await http.patch(url, headers: retryHeaders, body: body);
-        break;
-      case 'DELETE':
-        retryResponse =
-            await http.delete(url, headers: retryHeaders, body: body);
-        break;
-      default:
-        throw UnsupportedError("Unsupported HTTP method: $method");
-    }
-
-    debugPrint("Retry response: ${retryResponse.body}");
-    return retryResponse;
-  } else {
-    throw UnauthorizedException("Token expired and refresh failed");
+  switch (method.toUpperCase()) {
+    case 'GET':
+      retryResponse = await http.get(url, headers: retryHeaders);
+      break;
+    case 'POST':
+      retryResponse = await http.post(url, headers: retryHeaders, body: body);
+      break;
+    case 'PATCH':
+      retryResponse = await http.patch(url, headers: retryHeaders, body: body);
+      break;
+    case 'DELETE':
+      retryResponse = await http.delete(url, headers: retryHeaders, body: body);
+      break;
+    default:
+      throw UnsupportedError("Unsupported HTTP method: $method");
   }
+
+  debugPrint("Retry response: ${retryResponse.body}");
+  return retryResponse;
 }
 
 Future<http.Response> retryWithRefreshTokenMultipart({

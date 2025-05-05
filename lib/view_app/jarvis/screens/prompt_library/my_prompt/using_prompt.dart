@@ -2,6 +2,8 @@ import 'package:advancedmobile_chatai/data_app/model/jarvis/prompt_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../../core/util/themes/colors.dart';
+
 class PromptBottomSheet extends StatefulWidget {
   final PromptItemV2 prompt;
 
@@ -63,16 +65,26 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          left: 16,
+          right: 16,
+          top: 8,
+        ),
+    child: SingleChildScrollView(
+
+    child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header with Back + Close
             Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () => Navigator.of(context).pop(),
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+
                 ),
                 Expanded(
                   child: Text(
@@ -85,6 +97,8 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.of(context).pop(),
+                  iconSize: 20,
+
                 ),
               ],
             ),
@@ -94,101 +108,119 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
               alignment: Alignment.centerLeft,
               child: Text(
                 "Other · Anonymous User",
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 4),
 
             // Prompt TextField (read-only)
 // Prompt TextField (editable)
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF4F5F7),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Prompt', // Header for the prompt
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  // Editable TextField
-                  TextField(
-                    controller:
-                        TextEditingController(text: widget.prompt.content),
-                    readOnly: false, // Allows editing
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter prompt content here...',
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Prompt',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
-                    onChanged: (newText) {
-                      // Update prompt content
-                      // widget.prompt.content = newText;
-                    },
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(text: widget.prompt.content ?? ''),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Copied to clipboard')),
+                        );
+                      },
+                      icon: const Icon(Icons.copy, color: Colors.grey, size: 14),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Add to chat input
+                      },
+                      child: const Text("Add to chat input"),
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(fontSize: 10),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Save
+                      },
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(fontSize: 10),
+                      ),
+                      child: const Text("Save"),
+                    ),
+                  ],
+                ),
+                TextField(
+                    style: const TextStyle(fontSize: 12),
+                  controller: TextEditingController(text: widget.prompt.content),
+                  readOnly: false,
+                  maxLines: 2, // Giới hạn hiển thị 2 dòng
+                  decoration: const InputDecoration(
+                    filled: true,
+                    fillColor: Color(0xFFF4F5F7), // Màu nền xám nhạt
+                    border: InputBorder.none, // Không có viền
+                    hintText: 'Enter prompt content here...',
+                    contentPadding: EdgeInsets.all(12),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      TextButton.icon(
-                        onPressed: () {
-                          // Copy
-                          Clipboard.setData(
-                              ClipboardData(text: widget.prompt.content ?? ''));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Copied to clipboard')),
-                          );
-                        },
-                        icon: const Icon(Icons.copy, size: 16),
-                        label: const Text("Copy"),
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () {
-                          // Add to chat input
-                          // Logic to add content to chat input
-                        },
-                        child: const Text("Add to chat input"),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Save logic
-                          // Implement your save functionality here
-                        },
-                        child: const Text("Save"),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                  onChanged: (newText) {
+                    // Cập nhật nếu cần
+                  },
+                ),
+
+              ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             // Dropdown Language
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              value: selectedLanguage,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: const Color(0xFFF4F5F7),
-                labelText: "Output Language",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+            Row(
+              children: [
+                Text(
+                  "Output Language",
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                 ),
-              ),
-              items: _buildDropdownItems(),
-              onChanged: (value) {
-                setState(() {
-                  selectedLanguage = value;
-                });
-              },
+                const SizedBox(width: 8), // Khoảng cách giữa label và dropdown
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    value: selectedLanguage,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: const Color(0xFFF4F5F7),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    items: _buildDropdownItems(),
+                    selectedItemBuilder: (BuildContext context) {
+                      // Chỉ trả về list label ngắn gọn để hiển thị sau khi chọn
+                      return languageOptions
+                          .expand<Widget>((group) => group['items'].map<Widget>((lang) {
+                        return Text(lang['label'], style: const TextStyle(fontSize: 12));
+                      }))
+                          .toList();
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        selectedLanguage = value;
+                      });
+                    },
+                    menuMaxHeight: 200,
+                  )
+
+                ),
+              ],
             ),
+
 
             const SizedBox(height: 16),
 
@@ -197,9 +229,7 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
               width: double.infinity,
               height: 48,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF7F56D9), Color(0xFF4F46E5)],
-                ),
+                color: AppColors.primary, // Sửa từ backgroundColor → color
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Material(
@@ -213,22 +243,25 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Send', style: TextStyle(color: Colors.white)),
+                        Text(
+                          'Send',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                        ),
                         SizedBox(width: 8),
-                        Icon(Icons.subdirectory_arrow_left_rounded,
-                            color: Colors.white),
+                        Icon(Icons.subdirectory_arrow_left_rounded, color: Colors.white),
                       ],
                     ),
                   ),
                 ),
               ),
             )
+
           ],
         ),
+    ),
       ),
     );
   }
-
   List<DropdownMenuItem<String>> _buildDropdownItems() {
     final List<DropdownMenuItem<String>> items = [];
 
@@ -236,12 +269,9 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
       items.add(
         DropdownMenuItem<String>(
           enabled: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(
-              group['group'],
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+          child: Text(
+            group['group'],
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ),
       );
@@ -253,10 +283,10 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(lang['label'], style: const TextStyle(fontSize: 16)),
+                Text(lang['label'], style: const TextStyle(fontSize: 12)),
                 Text(
                   lang['native'],
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(fontSize: 10, color: Colors.grey),
                 ),
               ],
             ),
@@ -267,4 +297,5 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
 
     return items;
   }
+
 }

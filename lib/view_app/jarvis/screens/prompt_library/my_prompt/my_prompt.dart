@@ -197,15 +197,19 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
   }
 
   void _showPromptBottomSheet(PromptItemV2 prompt) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      isScrollControlled: true,
-      builder: (context) => PromptBottomSheet(prompt: prompt),
-    );
+    Navigator.pop(context);
+    Future.delayed(const Duration(milliseconds: 100), () {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        isScrollControlled: true,
+        builder: (context) => PromptBottomSheet(prompt: prompt),
+      );
+    });
   }
+
 
   Future<void> _handleDeletePrompt(PromptItemV2 prompt) async {
     showCustomDialog(

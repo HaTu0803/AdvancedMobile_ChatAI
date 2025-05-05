@@ -63,6 +63,7 @@ class AuthRepository {
       if (refreshToken.isNotEmpty) {
         final response = await authApiClient.fetchRefreshToken(refreshToken);
         debugPrint("🔍 response Token: $response");
+        await basePreferences.setTokenPreferred('access_token', response);
 
         return response;
       }
