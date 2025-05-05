@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:advancedmobile_chatai/data_app/repository/jarvis/prompt_repository.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/create_prompt/create_prompt_screen.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/my_prompt/using_prompt.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
@@ -160,7 +161,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
                             ),
                             onDelete: () => _handleDeletePrompt(
                                 prompt), // Pass the whole PromptItemV2 object
-                            onUse: () {},
+                            onUse: () => _showPromptBottomSheet(prompt),
                           );
                         },
                       ),
@@ -192,6 +193,17 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showPromptBottomSheet(PromptItemV2 prompt) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      isScrollControlled: true,
+      builder: (context) => PromptBottomSheet(prompt: prompt),
     );
   }
 
@@ -245,57 +257,61 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
     required VoidCallback onDelete,
     required VoidCallback onUse,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              prompt.title, // Access the title from PromptItemV2
-              style: Theme.of(context).textTheme.titleMedium,
-              overflow: TextOverflow.ellipsis,
+    return InkWell(
+      onTap: onUse, // Bấm vào toàn bộ item
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              spreadRadius: 1,
+              offset: const Offset(0, 2),
             ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit_outlined,
-                    size: 20, color: Colors.grey),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: onEdit,
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                prompt.title,
+                style: Theme.of(context).textTheme.titleMedium,
+                overflow: TextOverflow.ellipsis,
               ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline,
-                    size: 20, color: Colors.grey),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: onDelete,
-              ),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward,
-                    size: 20, color: Colors.grey),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: onUse,
-              ),
-            ],
-          ),
-        ],
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined,
+                      size: 20, color: Colors.grey),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: onEdit,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline,
+                      size: 20, color: Colors.grey),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: onDelete,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward,
+                      size: 20, color: Colors.grey),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: onUse,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -387,7 +387,7 @@ class PromptItemV2 {
       content: json["content"] ?? "",
       description: json["description"] ?? "No description",
       isPublic: json["isPublic"] ?? false,
-      language: json["language"] ?? "en",
+      language: json["language"] ?? "Auto",
       title: json["title"] ?? "Untitled",
       userId: json["userId"] ?? "Unknown",
       userName: json["userName"] ?? "Anonymous",
