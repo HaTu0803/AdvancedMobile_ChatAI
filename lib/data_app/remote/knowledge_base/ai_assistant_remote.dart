@@ -39,6 +39,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: body,
+        method: 'POST',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -74,6 +75,7 @@ class AssistantApiClient {
         final retryResponse = await retryWithRefreshToken(
           url: url,
           body: body,
+          method: 'POST',
         );
 
         if (retryResponse.statusCode == 200 ||
@@ -122,7 +124,7 @@ class AssistantApiClient {
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        body: null,
+        method: 'GET',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -160,6 +162,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: body,
+        method: 'PATCH',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -198,6 +201,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: null,
+        method: 'DELETE',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -235,6 +239,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: null,
+        method: 'GET',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -273,6 +278,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: null,
+        method: 'POST',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -312,6 +318,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: null,
+        method: 'DELETE',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -361,6 +368,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: null,
+        method: 'GET',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -394,6 +402,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: body,
+        method: 'POST',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -425,6 +434,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: body,
+        method: 'POST',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -460,6 +470,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: body,
+        method: 'POST',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -498,6 +509,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: null,
+        method: 'GET',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
@@ -536,6 +548,7 @@ class AssistantApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: null,
+        method: 'GET',
       );
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return ThreadAssistantListResponse.fromJson(

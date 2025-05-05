@@ -79,6 +79,7 @@ class KnowledgeDataApiClient {
         final retryResponse = await retryWithRefreshToken(
           url: url,
           body: null,
+          method: 'POST',
         );
 
         if (retryResponse.statusCode == 200 ||
@@ -118,6 +119,7 @@ class KnowledgeDataApiClient {
         final retryResponse = await retryWithRefreshToken(
           url: url,
           body: null,
+          method: 'POST',
         );
 
         if (retryResponse.statusCode == 200 ||
@@ -158,6 +160,7 @@ class KnowledgeDataApiClient {
         final retryResponse = await retryWithRefreshToken(
           url: url,
           body: body,
+          method: 'POST',
         );
 
         if (retryResponse.statusCode == 200 ||
@@ -197,6 +200,7 @@ class KnowledgeDataApiClient {
         final retryResponse = await retryWithRefreshToken(
           url: url,
           body: body,
+          method: 'POST',
         );
 
         if (retryResponse.statusCode == 200 ||

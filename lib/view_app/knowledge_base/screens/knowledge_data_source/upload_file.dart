@@ -61,39 +61,38 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                     alignment: Alignment.center,
                     child: _isUploading
                         ? const CircularProgressIndicator()
-                        : _selectedFile == null
-                            ? const Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.upload_file, size: 40, color: Colors.blue),
-                                  SizedBox(height: 8),
-                                  Text('Click or drag files to upload'),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'Supported formats: .c, .cpp, .docx, .html, ...',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              )
-                            : Container(), // Add this line to prevent showing the previous upload text
+                        : const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.upload_file, size: 40, color: Colors.blue),
+                        SizedBox(height: 8),
+                        Text('Click or drag files to upload'),
+                        SizedBox(height: 4),
+                        Text(
+                          'Supported formats: .c, .cpp, .docx, .html, ...',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-            ),
+
 
             // Hiển thị thông tin file đã chọn
             if (_selectedFile != null) ...[
               const SizedBox(height: 20),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blue, width: 1),
+                  border: Border.all(color: Colors.grey, width: 1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    Image.asset('images/file.png', width: 40, height: 40),
+                    Image.asset('images/file.png', width: 20, height: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -103,7 +102,7 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
+                      icon: const Icon(Icons.delete_outline_sharp, color: Colors.grey),
                       onPressed: () {
                         setState(() {
                           _selectedFile = null; // Xóa file đã chọn

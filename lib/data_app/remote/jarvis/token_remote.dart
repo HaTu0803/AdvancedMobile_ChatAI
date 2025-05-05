@@ -34,6 +34,7 @@ class TokenApiClient {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: null,
+        method: 'GET',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
