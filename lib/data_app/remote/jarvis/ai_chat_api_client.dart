@@ -7,8 +7,8 @@ import 'package:advancedmobile_chatai/core/local_storage/base_preferences.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/chat_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/conversations_model.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/jarvis/ai_chat_url.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 class AiChatApiClient {
   Future<ConversationResponse> conversation(ConversationRequest params) async {
@@ -42,7 +42,7 @@ class AiChatApiClient {
     await BasePreferences.init();
 
     String token = await BasePreferences().getTokenPreferred('access_token');
-    
+
     // Build query string manually
     final queryParams = <String, String>{};
     if (params.limit != null) {
@@ -56,8 +56,9 @@ class AiChatApiClient {
     }
     queryParams['assistantModel'] = params.assistantModel;
 
-    final uri = Uri.parse(ApiJarvisAiChatUrl.getConversationHistory(conversationId))
-        .replace(queryParameters: queryParams);
+    final uri =
+        Uri.parse(ApiJarvisAiChatUrl.getConversationHistory(conversationId))
+            .replace(queryParameters: queryParams);
 
     debugPrint("🔑 Request URL: ${uri.toString()}");
     debugPrint("🔑 Request params: $queryParams");
@@ -68,7 +69,7 @@ class AiChatApiClient {
     );
     debugPrint("📩 response.statusCode: ${response.statusCode}");
     debugPrint("📩 response.body: ${response.body}");
-    
+
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ConversationHistoryResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
@@ -78,6 +79,7 @@ class AiChatApiClient {
       );
       throw Exception('Failed to sign up: ${response.body}');
     } else {
+      handleErrorResponse(response);
       throw Exception('Failed to get conversation history: ${response.body}');
     }
   }
@@ -120,8 +122,6 @@ class AiChatApiClient {
       headers: ApiHeaders.getAIChatHeaders("", token),
       body: jsonEncode(request.toJson()),
     );
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body params: ${response.body}");
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ChatResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {

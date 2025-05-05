@@ -197,7 +197,10 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
   }
 
   void _showPromptBottomSheet(PromptItemV2 prompt) {
-    Navigator.pop(context);
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+
     Future.delayed(const Duration(milliseconds: 100), () {
       showModalBottomSheet(
         context: context,

@@ -43,6 +43,7 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
     _slackBotToken.dispose();
     super.dispose();
   }
+
   void _validateForm() {
     final name = _nameController.text.trim();
     final slackWorkspace = _slackWorkspace.text.trim();
@@ -61,7 +62,6 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -93,21 +93,15 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                 _buildFormField(
                   label: 'Slack Workspace',
                   controller: _slackWorkspace,
-                  hintText: 'https://example.com',
+                  hintText: 'Enter Slack Workspace',
                   isRequired: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a URL';
-                    }
-
-                    final uri = Uri.tryParse(value);
-                    if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-                      return 'Please enter a valid URL';
+                      return 'Please enter a Slack Workspace URL';
                     }
 
                     return null;
                   },
-
                   maxLines: 1,
                 ),
                 const SizedBox(height: 8),
@@ -121,11 +115,8 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                       return 'Please enter a Slack Bot Token';
                     }
 
-
-
                     return null;
                   },
-
                   maxLines: 1,
                 ),
                 const SizedBox(height: 16),
@@ -133,7 +124,7 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                 const SizedBox(height: 16),
                 Padding(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -151,7 +142,7 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                       const SizedBox(width: 12),
                       FilledButton(
                         onPressed:
-                        (_isLoading || !_isFormValid) ? null : _submitForm,
+                            (_isLoading || !_isFormValid) ? null : _submitForm,
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8),
@@ -161,13 +152,13 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                         ),
                         child: _isLoading
                             ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
                             : const Text('Import'),
                       ),
                     ],
@@ -226,15 +217,15 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                   borderSide: BorderSide.none,
                 ),
                 contentPadding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               ),
               maxLines: maxLines,
               maxLength: maxLength,
               buildCounter: (_,
-                  {required currentLength,
-                    required isFocused,
-                    maxLength}) =>
-              null,
+                      {required currentLength,
+                      required isFocused,
+                      maxLength}) =>
+                  null,
               validator: validator,
             ),
             if (maxLength != null && currentLength != null)

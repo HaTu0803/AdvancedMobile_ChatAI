@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../core/util/themes/colors.dart';
+import '../prompt_library.dart';
+import 'my_prompt.dart';
 
 class PromptBottomSheet extends StatefulWidget {
   final PromptItemV2 prompt;
@@ -69,131 +71,149 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
           bottom: MediaQuery.of(context).viewInsets.bottom + 16,
           left: 16,
           right: 16,
-          top: 8,
+          top: 16,
         ),
-    child: SingleChildScrollView(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
 
-    child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.of(context).pop(),
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PromptLibraryScreen(
+                            selectedTab: 'My Prompts', // Chọn tab này
+                          ),
+                        ),
+                      );
 
-                ),
-                Expanded(
-                  child: Text(
-                    widget.prompt.title,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
+                    },
+                    child: const Icon(Icons.arrow_back, size: 20),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
-                  iconSize: 20,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(
+                        widget.prompt.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
 
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 4),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Other · Anonymous User",
-                style: TextStyle(color: Colors.grey, fontSize: 12),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: const Icon(Icons.close, size: 20),
+                  ),
+                ],
               ),
-            ),
 
-            const SizedBox(height: 4),
 
-            // Prompt TextField (read-only)
+              const SizedBox(height: 8),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Other · Anonymous User",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              // Prompt TextField (read-only)
 // Prompt TextField (editable)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Prompt',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () {
-                        Clipboard.setData(
-                          ClipboardData(text: widget.prompt.content ?? ''),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied to clipboard')),
-                        );
-                      },
-                      icon: const Icon(Icons.copy, color: Colors.grey, size: 14),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Add to chat input
-                      },
-                      child: const Text("Add to chat input"),
-                      style: TextButton.styleFrom(
-                        textStyle: const TextStyle(fontSize: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Prompt',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Save
-                      },
-                      style: TextButton.styleFrom(
-                        textStyle: const TextStyle(fontSize: 10),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          Clipboard.setData(
+                            ClipboardData(text: widget.prompt.content ?? ''),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Copied to clipboard')),
+                          );
+                        },
+                        icon: const Icon(Icons.copy,
+                            color: Colors.grey, size: 14),
                       ),
-                      child: const Text("Save"),
-                    ),
-                  ],
-                ),
-                TextField(
-                    style: const TextStyle(fontSize: 12),
-                  controller: TextEditingController(text: widget.prompt.content),
-                  readOnly: false,
-                  maxLines: 2, // Giới hạn hiển thị 2 dòng
-                  decoration: const InputDecoration(
-                    filled: true,
-                    fillColor: Color(0xFFF4F5F7), // Màu nền xám nhạt
-                    border: InputBorder.none, // Không có viền
-                    hintText: 'Enter prompt content here...',
-                    contentPadding: EdgeInsets.all(12),
+                      TextButton(
+                        onPressed: () {
+                          // Add to chat input
+                        },
+                        child: const Text("Add to chat input"),
+                        style: TextButton.styleFrom(
+                          textStyle: const TextStyle(fontSize: 10),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // Save
+                        },
+                        style: TextButton.styleFrom(
+                          textStyle: const TextStyle(fontSize: 10),
+                        ),
+                        child: const Text("Save"),
+                      ),
+                    ],
                   ),
-                  onChanged: (newText) {
-                    // Cập nhật nếu cần
-                  },
-                ),
+                  TextField(
+                    style: const TextStyle(fontSize: 12),
+                    controller:
+                        TextEditingController(text: widget.prompt.content),
+                    readOnly: false,
+                    maxLines: 2, // Giới hạn hiển thị 2 dòng
+                    decoration: const InputDecoration(
+                      filled: true,
+                      fillColor: Color(0xFFF4F5F7), // Màu nền xám nhạt
+                      border: InputBorder.none, // Không có viền
+                      hintText: 'Enter prompt content here...',
+                      contentPadding: EdgeInsets.all(12),
+                    ),
+                    onChanged: (newText) {
+                      // Cập nhật nếu cần
+                    },
+                  ),
+                ],
+              ),
 
-              ],
-            ),
+              const SizedBox(height: 8),
 
-            const SizedBox(height: 8),
-
-            // Dropdown Language
-            Row(
-              children: [
-                Text(
-                  "Output Language",
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(width: 8), // Khoảng cách giữa label và dropdown
-                Expanded(
-                  child: DropdownButtonFormField<String>(
+              // Dropdown Language
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Output Language",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4), // khoảng cách giữa label và dropdown
+                  DropdownButtonFormField<String>(
                     isExpanded: true,
                     value: selectedLanguage,
                     decoration: InputDecoration(
                       filled: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+
                       fillColor: const Color(0xFFF4F5F7),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -202,10 +222,10 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                     ),
                     items: _buildDropdownItems(),
                     selectedItemBuilder: (BuildContext context) {
-                      // Chỉ trả về list label ngắn gọn để hiển thị sau khi chọn
                       return languageOptions
                           .expand<Widget>((group) => group['items'].map<Widget>((lang) {
-                        return Text(lang['label'], style: const TextStyle(fontSize: 12));
+                        return Text(lang['label'],
+                            style: const TextStyle(fontSize: 12));
                       }))
                           .toList();
                     },
@@ -215,53 +235,54 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                       });
                     },
                     menuMaxHeight: 200,
-                  )
-
-                ),
-              ],
-            ),
-
-
-            const SizedBox(height: 16),
-
-            // Send button
-            Container(
-              width: double.infinity,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.primary, // Sửa từ backgroundColor → color
-                borderRadius: BorderRadius.circular(24),
+                  ),
+                ],
               ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
+
+
+              const SizedBox(height: 16),
+
+              // Send button
+              Container(
+                width: double.infinity,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.primary, // Sửa từ backgroundColor → color
                   borderRadius: BorderRadius.circular(24),
-                  onTap: () {
-                    // Handle send
-                  },
-                  child: const Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Send',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(Icons.subdirectory_arrow_left_rounded, color: Colors.white),
-                      ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: () {
+                      // Handle send
+                    },
+                    child: const Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Send',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.subdirectory_arrow_left_rounded,
+                              color: Colors.white),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            )
-
-          ],
+              )
+            ],
+          ),
         ),
-    ),
       ),
     );
   }
+
   List<DropdownMenuItem<String>> _buildDropdownItems() {
     final List<DropdownMenuItem<String>> items = [];
 
@@ -297,5 +318,4 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
 
     return items;
   }
-
 }

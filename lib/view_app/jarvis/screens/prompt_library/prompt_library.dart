@@ -1,24 +1,35 @@
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/public_prompt/public_prompt.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'create_prompt/create_prompt_screen.dart';
 import 'my_prompt/my_prompt.dart';
 
 class PromptLibraryScreen extends StatefulWidget {
-  const PromptLibraryScreen({super.key});
+  final String? selectedTab; // Có thể nhận null
+
+  const PromptLibraryScreen({super.key, this.selectedTab});
 
   @override
   State<PromptLibraryScreen> createState() => _PromptLibraryScreenState();
 }
 
 class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
+  late String _selectedTab;
   final List<String> _tabs = ['Public Prompts', 'My Prompts'];
-  String _selectedTab = 'Public Prompts';
+  @override
+  void initState() {
+    super.initState();
+    // Nếu không có tham số selectedTab, sử dụng mặc định là 'Public Prompts'
+    _selectedTab = widget.selectedTab ?? 'Public Prompts';
+  }
+
   void _reloadCurrentTab() {
     setState(() {
       // Cập nhật lại tab hiện tại để reload lại nội dung
     });
   }
+
   void _selectTab(String tab) {
     setState(() {
       _selectedTab = tab;
@@ -59,12 +70,7 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    CreatePromptScreen(
-                      // onSubmitSuccess: () {
-                      //   Navigator.pop(context);  // Đóng modal
-                      //   _reloadCurrentTab();     // Reload lại tab hiện tại
-                      // },
-                    ),
+                    CreatePromptScreen(),
                   ],
                 ),
               ),
