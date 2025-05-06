@@ -164,7 +164,7 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                         onPressed: () {
                           Provider.of<PromptInputProvider>(context,
                                   listen: false)
-                              .setContent(widget.prompt.content);
+                              .setInputContent(widget.prompt.content);
                           print(
                               'PromptInputProvider: setContent: ${widget.prompt.content}');
                           Navigator.pop(context);
@@ -272,7 +272,7 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                     borderRadius: BorderRadius.circular(24),
                     onTap: () {
                       Provider.of<PromptInputProvider>(context, listen: false)
-                          .setContent(widget.prompt.content);
+                          .sendPrompt(widget.prompt.content);
                       print(
                           'PromptInputProvider: setContent: ${widget.prompt.content}');
                       Navigator.pop(context);

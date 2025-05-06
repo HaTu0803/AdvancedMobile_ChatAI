@@ -1,12 +1,10 @@
 import 'package:advancedmobile_chatai/data_app/model/jarvis/token_model.dart';
-import 'package:advancedmobile_chatai/data_app/repository/jarvis/ai_chat_repository.dart';
 import 'package:advancedmobile_chatai/data_app/repository/jarvis/token_repository.dart';
 import 'package:advancedmobile_chatai/providers/prompt_input.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/util/themes/colors.dart';
-import '../data_app/model/jarvis/chat_model.dart';
 import '../data_app/model/jarvis/prompt_model.dart';
 import '../data_app/repository/jarvis/prompt_repository.dart';
 import '../view_app/jarvis/screens/prompt_library/prompt_library.dart';
@@ -253,7 +251,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                         ),
                         enabled: !isOutOfTokens,
                         onChanged: (text) {
-                          _promptInputProvider.setContent(text);
+                          _promptInputProvider.setInputContent(text);
                           setState(() {
                             _isComposing = text.isNotEmpty;
                           });
@@ -434,29 +432,29 @@ class _MessageInputFieldState extends State<MessageInputField> {
     });
     _hideOverlay();
 
-    // Create the request body for the API
-    final chatRequest = ChatRequest(
-      content: text,
-      files: [],
-      metadata: ChatMetadata(
-        conversation: Conversation(messages: []),
-      ),
-      assistant: AssistantInfo(
-        model: "knowledge-base",
-        name: "votutrinh2002's Default Team Assistant",
-        id: "29178123-34d4-4e52-94fb-8e580face2d5",
-      ),
-    );
+    // // Create the request body for the API
+    // final chatRequest = ChatRequest(
+    //   content: text,
+    //   files: [],
+    //   metadata: ChatMetadata(
+    //     conversation: Conversation(messages: []),
+    //   ),
+    //   assistant: AssistantInfo(
+    //     model: "knowledge-base",
+    //     name: "votutrinh2002's Default Team Assistant",
+    //     id: "29178123-34d4-4e52-94fb-8e580face2d5",
+    //   ),
+    // );
 
-    try {
-      // Send the message to the bot using the chat API
-      final response = await AiChatRepository().chatWithBot(chatRequest);
-      debugPrint("Bot response: ${response.message}");
+    // try {
+    //   // Send the message to the bot using the chat API
+    //   final response = await AiChatRepository().chatWithBot(chatRequest);
+    //   debugPrint("Bot response: ${response.message}");
 
-      // Update token count after successful response
-      _fetchTokenData();
-    } catch (e) {
-      debugPrint("Error sending message to bot: $e");
-    }
+    //   // Update token count after successful response
+    //   _fetchTokenData();
+    // } catch (e) {
+    //   debugPrint("Error sending message to bot: $e");
+    // }
   }
 }
