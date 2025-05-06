@@ -1,7 +1,9 @@
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/assistant_model.dart';
+import 'package:advancedmobile_chatai/providers/prompt_input.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/home/ai_agent.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge/bot.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../widgets/action_button.dart';
 import '../../../../../widgets/chat_message.dart';
@@ -28,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _messageController = TextEditingController();
   AiModel? selectedAiModel;
   AssistantResponse? _selectedAssistant;
-  
+
   // Thêm biến quản lý conversationId và messages của conversation hiện tại
   String? _conversationId;
   List<Map<String, dynamic>> _conversationMessages = [];
@@ -42,6 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
       model: 'dify',
       isDefault: true,
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PromptInputProvider>(context, listen: false)
+          .registerSendPrompt(_sendMessage);
+    });
   }
 
   void _sendMessage(String message) async {
@@ -105,7 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           messages.removeLast();
           messages.add({'text': response.message, 'isUser': false});
-          _conversationMessages.add({'role': 'bot', 'content': response.message});
+          _conversationMessages
+              .add({'role': 'bot', 'content': response.message});
         });
         _scrollToBottom();
       } catch (e) {
@@ -296,7 +303,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                             baseline: TextBaseline.alphabetic,
                                             child: GestureDetector(
                                               onTap: () {
-                                                _showFullPromptModal(context);
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => const PromptLibraryScreen(),
+                                                  ),
+                                                );
                                               },
                                               child: Text(
                                                 "Prompts!",
@@ -410,13 +422,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 // Clear existing messages
                                 messages.clear();
                                 _conversationMessages.clear();
-                                
+
                                 // Set conversation ID
                                 _conversationId = result['conversationId'];
-                                
+
                                 // Add history messages
                                 messages.addAll(result['messages']);
-                                
+
                                 // Convert messages to conversation format
                                 for (var msg in result['messages']) {
                                   _conversationMessages.add({
@@ -459,78 +471,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showFullPromptModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.9,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: const PromptLibraryScreen(),
-          ),
-        );
-      },
-    );
-  }
-
-  // void _showFullHistoryModal(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.transparent,
-  //     isScrollControlled: true,
-  //     useSafeArea: true,
-  //     builder: (context) {
-  //       return Padding(
-  //         padding: EdgeInsets.only(
-  //           bottom: MediaQuery.of(context).viewInsets.bottom,
-  //         ),
-  //         child: Container(
-  //           height: MediaQuery.of(context).size.height * 0.9,
-  //           decoration: const BoxDecoration(
-  //             color: Colors.white,
-  //             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //           ),
-  //           child: Column(
-  //             children: [
-  //               Padding(
-  //                 padding:
-  //                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: [
-  //                     Text(
-  //                       "Chat History",
-  //                       style: Theme.of(context).textTheme.headlineMedium,
-  //                     ),
-  //                     IconButton(
-  //                       icon: const Icon(Icons.close),
-  //                       onPressed: () {
-  //                         Navigator.pop(context);
-  //                       },
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //               const Expanded(
-  //                 child: ChatHistoryScreen(),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   void _openCreateBotModal(BuildContext context) {
     showDialog(
@@ -577,121 +517,5 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // void _showAIModelsBottomSheet(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.transparent,
-  //     isScrollControlled: true,
-  //     useSafeArea: true,
-  //     builder: (context) {
-  //       return Padding(
-  //         padding: EdgeInsets.only(
-  //           bottom: MediaQuery.of(context).viewInsets.bottom,
-  //         ),
-  //         child: Container(
-  //           height: MediaQuery.of(context).size.height * 0.8,
-  //           decoration: const BoxDecoration(
-  //             color: Colors.white,
-  //             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //           ),
-  //           child: Column(
-  //             children: [
-  //               Padding(
-  //                 padding:
-  //                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: [
-  //                     Text(
-  //                       "AI Models",
-  //                       style: Theme.of(context).textTheme.headlineMedium,
-  //                     ),
-  //                     IconButton(
-  //                       icon: const Icon(Icons.close),
-  //                       onPressed: () {
-  //                         Navigator.pop(context);
-  //                       },
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //               Expanded(
-  //                 child: ListView(
-  //                   padding: const EdgeInsets.symmetric(horizontal: 16),
-  //                   children: aiModels.map((model) {
-  //                     return _buildModelOption(
-  //                       model["name"],
-  //                       model["description"],
-  //                       model["isSelected"],
-  //                     );
-  //                   }).toList(),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
-  Widget _buildModelOption(String name, String description, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: isSelected
-            ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary
-              : Colors.grey.shade200,
-          width: isSelected ? 2 : 1,
-        ),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: isSelected
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Colors.grey.shade100,
-          child: Text(
-            name[0],
-            style: TextStyle(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.grey.shade600,
-            ),
-          ),
-        ),
-        title: Text(
-          name,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            description,
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-            ),
-          ),
-        ),
-        trailing: isSelected
-            ? Icon(
-                Icons.check_circle,
-                color: Theme.of(context).colorScheme.primary,
-              )
-            : null,
-        onTap: () {
-          Navigator.pop(context);
-        },
-      ),
-    );
-  }
 }

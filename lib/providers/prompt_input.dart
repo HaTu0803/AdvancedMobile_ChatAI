@@ -2,26 +2,27 @@ import 'package:flutter/material.dart';
 
 class PromptInputProvider extends ChangeNotifier {
   String _content = '';
+  Function(String)? _sendPromptCallback;
 
   String get content => _content;
+
+  void registerSendPrompt(Function(String) callback) {
+    _sendPromptCallback = callback;
+  }
 
   void setInputContent(String value) {
     _content = value;
     notifyListeners();
-    print('PromptInputProvider: setInputContent: $_content');
   }
 
-  void sendPrompt(String value) {
-    _content = value;
-    notifyListeners();
-    print('PromptInputProvider: sendPrompt: $_content');
-    _sendToBot(value);
+  void sendPrompt(String content) {
+    print('Sending prompt: $content');
+    if (_sendPromptCallback != null && content.trim().isNotEmpty) {
+      _sendPromptCallback!(content);
+      clear(); // hoặc _content = ''; notifyListeners();
+    }
   }
 
-  void _sendToBot(String content) {
-    print('Sending to bot: $content');
-    // Gửi message thật sự ở đây
-  }
 
   void clear() {
     _content = '';

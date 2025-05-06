@@ -271,8 +271,11 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(24),
                     onTap: () {
-                      Provider.of<PromptInputProvider>(context, listen: false)
-                          .sendPrompt(widget.prompt.content);
+                      final provider = Provider.of<PromptInputProvider>(context, listen: false);
+                      provider.sendPrompt(
+                        _promptController.text.trim(),
+                      );
+
                       print(
                           'PromptInputProvider: setContent: ${widget.prompt.content}');
                       Navigator.pop(context);
