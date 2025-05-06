@@ -22,7 +22,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
   final _contentController = TextEditingController();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  bool _isPublic = false;
 
   bool get isEditMode => widget.promptToEdit != null;
 
@@ -34,7 +33,6 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       _titleController.text = prompt.title;
       _contentController.text = prompt.content;
       _descriptionController.text = prompt.description ?? '';
-      _isPublic = prompt.isPublic ?? false;
     }
   }
 
@@ -166,7 +164,7 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
       final request = CreatePromptRequest(
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
-        isPublic: _isPublic,
+        isPublic: false,
         description: _descriptionController.text.trim(),
       );
 

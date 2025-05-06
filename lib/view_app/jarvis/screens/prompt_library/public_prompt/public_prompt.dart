@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../providers/prompt_provider.dart';
 import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
+import '../../../widgets/using_public_prompt.dart';
 
 class PublicPromptsScreen extends StatefulWidget {
   const PublicPromptsScreen({super.key});
@@ -153,7 +154,12 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             return AlertDialog(
               title: Row(
                 children: [
-                  Text(prompt.title),
+                  Text(
+                    prompt.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
                   const Spacer(),
                   IconButton(
                     icon: Icon(
@@ -243,7 +249,9 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Handle "Use this prompt" action
+                    _showUsingMyPrompt(
+                      prompt);
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: buttonColor,
@@ -261,6 +269,22 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         );
       },
     );
+  }
+  void _showUsingMyPrompt(Prompt prompt) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        isScrollControlled: true,
+        builder: (context) => UsingPublicPrompt(prompt: prompt),
+      );
+    });
   }
 
   @override

@@ -4,20 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../core/util/themes/colors.dart';
-import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
-import '../prompt_library.dart';
+import '../../../core/util/themes/colors.dart';
+import '../screens/prompt_library/prompt_library.dart';
 
-class PromptBottomSheet extends StatefulWidget {
-  final PromptItemV2 prompt;
+class UsingPublicPrompt extends StatefulWidget {
+  final Prompt prompt;
 
-  const PromptBottomSheet({super.key, required this.prompt});
+  const UsingPublicPrompt({super.key, required this.prompt});
 
   @override
-  State<PromptBottomSheet> createState() => _PromptBottomSheetState();
+  State<UsingPublicPrompt> createState() => _UsingPublicPromptState();
 }
 
-class _PromptBottomSheetState extends State<PromptBottomSheet> {
+class _UsingPublicPromptState extends State<UsingPublicPrompt> {
   late String? selectedLanguage;
   late TextEditingController _promptController;
   bool isSaving = false;
@@ -64,7 +63,7 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
   @override
   void initState() {
     super.initState();
-    selectedLanguage = widget.prompt.language ?? 'Auto';
+    selectedLanguage = 'Auto';
     _promptController = TextEditingController(text: widget.prompt.content);
   }
 
@@ -97,7 +96,7 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const PromptLibraryScreen(
-                            selectedTab: 'My Prompts', // Chọn tab này
+                            selectedTab: 'Public Prompts', // Chọn tab này
                           ),
                         ),
                       );
@@ -126,16 +125,24 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
               ),
 
               const SizedBox(height: 8),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Other · Anonymous User",
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                  '${widget.prompt.category} · ${widget.prompt.userName}',
+                  style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
                 ),
               ),
 
               const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  widget.prompt.description,
+                  style: const TextStyle(color: Colors.grey, fontSize: 10),
+                ),
+              ),
 
+              const SizedBox(height: 4),
               // Prompt TextField (read-only)
 // Prompt TextField (editable)
               Column(
@@ -173,21 +180,6 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                         style: TextButton.styleFrom(
                           textStyle: const TextStyle(fontSize: 10),
                         ),
-                      ),
-                      TextButton(
-                        onPressed: isSaving ? null : updatePrompt,
-                        style: TextButton.styleFrom(
-                          textStyle: const TextStyle(
-                              fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                        child: isSaving
-                            ? const SizedBox(
-                                width: 12,
-                                height: 12,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Text("Save"),
                       ),
                     ],
                   ),
@@ -271,13 +263,18 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(24),
                     onTap: () {
-                      final provider = Provider.of<PromptInputProvider>(context, listen: false);
-                      provider.sendPrompt(
-                        _promptController.text.trim(),
-                      );
+                      final provider = Provider.of<PromptInputProvider>(context,
+                          listen: false);
 
-                      print(
-                          'PromptInputProvider: setContent: ${widget.prompt.content}');
+                      String finalPrompt = _promptController.text.trim();
+
+                      if (selectedLanguage != null &&
+                          selectedLanguage != 'Auto') {
+                        finalPrompt += '\n\nResponse in $selectedLanguage';
+                      }
+
+                      provider.sendPrompt(finalPrompt);
+
                       Navigator.pop(context);
                     },
                     child: const Center(
@@ -340,28 +337,6 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
     }
 
     return items;
-  }
-
-  Future<void> updatePrompt() async {
-    setState(() {
-      isSaving = true;
-    });
-
-    final request = CreatePromptRequest(
-      title: widget.prompt.title,
-      content: _promptController.text.trim(),
-      isPublic: false,
-    );
-
-    try {
-      await PromptRepository().updatePrompt(widget.prompt.id, request);
-    } catch (e) {
-      print('Error updating prompt: $e');
-    } finally {
-      setState(() {
-        isSaving = false;
-      });
-    }
   }
 
   void showCustomSnackBar(BuildContext context, String message) {

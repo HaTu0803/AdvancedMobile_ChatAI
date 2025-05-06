@@ -114,7 +114,7 @@ class PromptItem extends StatelessWidget {
       content: json["content"] ?? "",
       description: json["description"] ?? "",
       isPublic: json["isPublic"] ?? false,
-      language: json["language"] ?? "en",
+      language: json["language"] ?? "",
       title: json["title"] ?? "",
       userId: json["userId"] ?? "Unknown",
       userName: json["userName"] ?? "Anonymous",

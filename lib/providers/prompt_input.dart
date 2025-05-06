@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class PromptInputProvider extends ChangeNotifier {
   String _content = '';
   Function(String)? _sendPromptCallback;
+  String _language = 'Auto';
 
   String get content => _content;
 
@@ -23,6 +24,10 @@ class PromptInputProvider extends ChangeNotifier {
     }
   }
 
+  void setLanguage(String lang) {
+    _language = lang;
+    notifyListeners();
+  }
 
   void clear() {
     _content = '';
