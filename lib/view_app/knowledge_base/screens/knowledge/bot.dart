@@ -123,7 +123,7 @@ class _BotsScreenState extends State<BotsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
@@ -160,7 +160,8 @@ class _BotsScreenState extends State<BotsScreen> {
                   decoration: InputDecoration(
                     hintText: 'Search bots...',
                     hintStyle: TextStyle(color: Colors.grey[400]),
-                    prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary),
+                    prefixIcon:
+                        Icon(Icons.search, color: theme.colorScheme.primary),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: Colors.grey[300]!),
@@ -175,7 +176,8 @@ class _BotsScreenState extends State<BotsScreen> {
                     ),
                     filled: true,
                     fillColor: theme.colorScheme.surface,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -192,12 +194,17 @@ class _BotsScreenState extends State<BotsScreen> {
                           child: DropdownButton<String>(
                             value: _currentFilterKey,
                             isExpanded: true,
-                            icon: Icon(Icons.keyboard_arrow_down, color: theme.colorScheme.primary),
+                            icon: Icon(Icons.keyboard_arrow_down,
+                                color: theme.colorScheme.primary),
                             items: const [
-                              DropdownMenuItem(value: 'all', child: Text('All Bots')),
-                              DropdownMenuItem(value: 'favorites', child: Text('Favorites')),
-                              DropdownMenuItem(value: 'name', child: Text('Sort by Name')),
-                              DropdownMenuItem(value: 'date', child: Text('Sort by Date')),
+                              DropdownMenuItem(
+                                  value: 'all', child: Text('All Bots')),
+                              DropdownMenuItem(
+                                  value: 'favorites', child: Text('Favorites')),
+                              DropdownMenuItem(
+                                  value: 'name', child: Text('Sort by Name')),
+                              DropdownMenuItem(
+                                  value: 'date', child: Text('Sort by Date')),
                             ],
                             onChanged: (value) {
                               if (value != null) _onFilterChanged(value);
@@ -274,19 +281,23 @@ class _BotsScreenState extends State<BotsScreen> {
                               color: Colors.transparent,
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
-                                onTap: () => Navigator.pop(context, assistant.assistantName),
+                                onTap: () => Navigator.pop(
+                                    context, assistant.assistantName),
                                 child: Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
                                           Container(
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              color: theme.colorScheme.primary.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(8),
+                                              color: theme.colorScheme.primary
+                                                  .withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: Icon(
                                               Icons.smart_toy,
@@ -298,6 +309,8 @@ class _BotsScreenState extends State<BotsScreen> {
                                           Expanded(
                                             child: Text(
                                               assistant.assistantName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 16,
@@ -309,16 +322,19 @@ class _BotsScreenState extends State<BotsScreen> {
                                               assistant.isFavorite == true
                                                   ? Icons.star_rounded
                                                   : Icons.star_outline_rounded,
-                                              color: assistant.isFavorite == true
-                                                  ? Colors.amber
-                                                  : Colors.grey,
+                                              color:
+                                                  assistant.isFavorite == true
+                                                      ? Colors.amber
+                                                      : Colors.grey,
                                               size: 24,
                                             ),
-                                            onPressed: () => _handleFavoriteBot(assistant.id),
+                                            onPressed: () => _handleFavoriteBot(
+                                                assistant.id),
                                           ),
                                         ],
                                       ),
-                                      if (assistant.description?.isNotEmpty == true) ...[
+                                      if (assistant.description?.isNotEmpty ==
+                                          true) ...[
                                         const SizedBox(height: 8),
                                         Text(
                                           assistant.description!,
@@ -332,18 +348,21 @@ class _BotsScreenState extends State<BotsScreen> {
                                       ],
                                       const SizedBox(height: 16),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
                                         children: [
                                           _buildActionButton(
                                             icon: Icons.edit_outlined,
-                                            onPressed: () => _openEditBotModal(context, assistant),
+                                            onPressed: () => _openEditBotModal(
+                                                context, assistant),
                                             theme: theme,
                                           ),
                                           const SizedBox(width: 8),
                                           _buildActionButton(
                                             icon: Icons.delete_outline,
                                             onPressed: () => _handleDeleteBot(
-                                                assistant.id, assistant.assistantName),
+                                                assistant.id,
+                                                assistant.assistantName),
                                             theme: theme,
                                           ),
                                           const SizedBox(width: 8),
@@ -464,8 +483,13 @@ class _BotsScreenState extends State<BotsScreen> {
         try {
           await AssistantRepository().deleteAssistant(assistantId);
 
+          // Debugging: Print to check if the assistant is removed
+          print("Deleting assistant with ID: $assistantId");
+
           setState(() {
             assistants.removeWhere((a) => a.id == assistantId);
+            print(
+                "Assistants after deletion: ${assistants.length} items remaining");
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -475,7 +499,7 @@ class _BotsScreenState extends State<BotsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to delete assistant: $e')),
           );
-        }
+        } finally {}
       },
     );
   }

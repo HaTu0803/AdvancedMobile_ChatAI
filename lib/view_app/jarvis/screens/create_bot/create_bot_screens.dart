@@ -305,9 +305,7 @@ class _CreateYourOwnBotScreenState extends State<CreateYourOwnBotScreen> {
         widget.onSuccess?.call();
         Navigator.pop(context);
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to process the request')),
-        );
+        print('Error: $e');
       } finally {
         if (mounted) {
           setState(() {

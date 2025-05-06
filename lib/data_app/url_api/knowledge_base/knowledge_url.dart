@@ -10,5 +10,5 @@ class ApiKnowledgeBaseUrl {
   static String deleteKnowledge(String id) => '$baseUrl/$id';
 
   static String getUnitsOfKnowledge(String id, String query) =>
-      '$baseUrl/$id/units${query.isNotEmpty ? '?$query' : ''}';
+      '$baseUrl/$id/datasources${query.isNotEmpty ? '?$query' : ''}';
 }

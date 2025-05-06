@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/util/themes/colors.dart';
+import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
 import '../prompt_library.dart';
 
 class PromptBottomSheet extends StatefulWidget {
@@ -18,6 +19,8 @@ class PromptBottomSheet extends StatefulWidget {
 
 class _PromptBottomSheetState extends State<PromptBottomSheet> {
   late String? selectedLanguage;
+  late TextEditingController _promptController;
+  bool isSaving = false;
 
   final List<Map<String, dynamic>> languageOptions = [
     {
@@ -62,6 +65,13 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
   void initState() {
     super.initState();
     selectedLanguage = widget.prompt.language ?? 'Auto';
+    _promptController = TextEditingController(text: widget.prompt.content);
+  }
+
+  @override
+  void dispose() {
+    _promptController.dispose();
+    super.dispose();
   }
 
   @override
@@ -145,10 +155,7 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                           Clipboard.setData(
                             ClipboardData(text: widget.prompt.content ?? ''),
                           );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Copied to clipboard')),
-                          );
+                          showCustomSnackBar(context, 'Copied to clipboard');
                         },
                         icon: const Icon(Icons.copy,
                             color: Colors.grey, size: 14),
@@ -168,20 +175,26 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
-                          // Save
-                        },
+                        onPressed: isSaving ? null : updatePrompt,
                         style: TextButton.styleFrom(
-                          textStyle: const TextStyle(fontSize: 10),
+                          textStyle: const TextStyle(
+                              fontSize: 10, fontWeight: FontWeight.bold),
                         ),
-                        child: const Text("Save"),
+                        child: isSaving
+                            ? const SizedBox(
+                                width: 12,
+                                height: 12,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text("Save"),
                       ),
                     ],
                   ),
                   TextField(
                     style: const TextStyle(fontSize: 12),
-                    controller:
-                        TextEditingController(text: widget.prompt.content),
+                    controller: _promptController,
+
                     readOnly: false,
                     maxLines: 2, // Giới hạn hiển thị 2 dòng
                     decoration: const InputDecoration(
@@ -258,7 +271,11 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(24),
                     onTap: () {
-                      // Handle send
+                      Provider.of<PromptInputProvider>(context, listen: false)
+                          .setContent(widget.prompt.content);
+                      print(
+                          'PromptInputProvider: setContent: ${widget.prompt.content}');
+                      Navigator.pop(context);
                     },
                     child: const Center(
                       child: Row(
@@ -320,5 +337,50 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
     }
 
     return items;
+  }
+
+  Future<void> updatePrompt() async {
+    setState(() {
+      isSaving = true;
+    });
+
+    final request = CreatePromptRequest(
+      title: widget.prompt.title,
+      content: _promptController.text.trim(),
+      isPublic: false,
+    );
+
+    try {
+      await PromptRepository().updatePrompt(widget.prompt.id, request);
+    } catch (e) {
+      print('Error updating prompt: $e');
+    } finally {
+      setState(() {
+        isSaving = false;
+      });
+    }
+  }
+
+  void showCustomSnackBar(BuildContext context, String message) {
+    final overlay = Overlay.of(context);
+    final entry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 4,
+        left: 10,
+        right: 10,
+        child: Material(
+          elevation: 10,
+          borderRadius: BorderRadius.circular(30),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            color: Colors.black,
+            child: Text(message, style: const TextStyle(color: Colors.white)),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(entry);
+    Future.delayed(const Duration(seconds: 2), () => entry.remove());
   }
 }
