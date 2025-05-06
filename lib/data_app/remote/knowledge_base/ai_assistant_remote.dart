@@ -117,7 +117,7 @@ class AssistantApiClient {
     final response = await http.get(url, headers: headers);
 
     print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
+    print("📩 response.body 1111: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return AssistantListResponse.fromJson(jsonDecode(response.body));

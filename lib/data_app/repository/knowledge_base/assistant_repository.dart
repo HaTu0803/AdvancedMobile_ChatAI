@@ -31,7 +31,7 @@ class AssistantRepository {
       final response = await AssistantApi.getAssistantList(params);
       return response;
     } catch (e) {
-      debugPrint("GetConversations Error: $e");
+      debugPrint("getAssistants Error: $e");
       rethrow;
     }
   }

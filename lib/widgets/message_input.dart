@@ -1,7 +1,9 @@
-import 'package:advancedmobile_chatai/data_app/repository/jarvis/ai_chat_repository.dart';
-import 'package:flutter/material.dart';
-import 'package:advancedmobile_chatai/data_app/repository/jarvis/token_repository.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/token_model.dart';
+import 'package:advancedmobile_chatai/data_app/repository/jarvis/ai_chat_repository.dart';
+import 'package:advancedmobile_chatai/data_app/repository/jarvis/token_repository.dart';
+import 'package:advancedmobile_chatai/providers/prompt_input.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../core/util/themes/colors.dart';
 import '../data_app/model/jarvis/chat_model.dart';
@@ -26,7 +28,8 @@ class _MessageInputFieldState extends State<MessageInputField> {
   OverlayEntry? _overlayEntry;
   List<PromptItemV2> _suggestions = [];
   bool _isLoading = false;
-  
+  late PromptInputProvider _promptInputProvider;
+
   // Add token related variables
   final TokenRepository _tokenRepository = TokenRepository();
   UsageTokenResponse? _tokenData;
@@ -38,6 +41,15 @@ class _MessageInputFieldState extends State<MessageInputField> {
     super.initState();
     _controller.addListener(_handleTextChange);
     _fetchTokenData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get the provider instance here
+    _promptInputProvider = Provider.of<PromptInputProvider>(context);
+    // Listen to changes and update the controller text
+    _controller.text = _promptInputProvider.content;
   }
 
   @override
@@ -195,8 +207,9 @@ class _MessageInputFieldState extends State<MessageInputField> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isOutOfTokens = _tokenData != null && _tokenData!.availableTokens <= 0;
-    
+    final bool isOutOfTokens =
+        _tokenData != null && _tokenData!.availableTokens <= 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -206,9 +219,9 @@ class _MessageInputFieldState extends State<MessageInputField> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.0),
             border: Border.all(
-              color: isOutOfTokens 
-                ? Theme.of(context).colorScheme.error.withOpacity(0.5)
-                : Theme.of(context).primaryColor,
+              color: isOutOfTokens
+                  ? Theme.of(context).colorScheme.error.withOpacity(0.5)
+                  : Theme.of(context).primaryColor,
               width: 1,
             ),
           ),
@@ -223,22 +236,24 @@ class _MessageInputFieldState extends State<MessageInputField> {
                         controller: _controller,
                         style: Theme.of(context).textTheme.bodyMedium,
                         decoration: InputDecoration(
-                          hintText: isOutOfTokens 
-                            ? 'You have run out of tokens, please wait until tomorrow or upgrade your account to get more tokens.'
-                            : 'Type a message... (Type / for prompts)',
+                          hintText: isOutOfTokens
+                              ? 'You have run out of tokens, please wait until tomorrow or upgrade your account to get more tokens.'
+                              : 'Type a message... (Type / for prompts)',
                           hintStyle: TextStyle(
-                            color: isOutOfTokens 
-                              ? Theme.of(context).colorScheme.error
-                              : Colors.grey.shade500,
+                            color: isOutOfTokens
+                                ? Theme.of(context).colorScheme.error
+                                : Colors.grey.shade500,
                             fontSize: 14,
                           ),
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12.0),
                         ),
                         enabled: !isOutOfTokens,
                         onChanged: (text) {
+                          _promptInputProvider.setContent(text);
                           setState(() {
                             _isComposing = text.isNotEmpty;
                           });
@@ -256,7 +271,8 @@ class _MessageInputFieldState extends State<MessageInputField> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        _buildActionButton(Icons.terminal_outlined, onPressed: () {
+                        _buildActionButton(Icons.terminal_outlined,
+                            onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -290,9 +306,11 @@ class _MessageInputFieldState extends State<MessageInputField> {
               Icon(
                 Icons.local_fire_department,
                 size: 16,
-                color: isOutOfTokens 
-                  ? Theme.of(context).colorScheme.error
-                  : (_tokenError.isNotEmpty ? Colors.red : Colors.grey.shade600),
+                color: isOutOfTokens
+                    ? Theme.of(context).colorScheme.error
+                    : (_tokenError.isNotEmpty
+                        ? Colors.red
+                        : Colors.grey.shade600),
               ),
               const SizedBox(width: 4),
               if (_isLoadingToken)
@@ -304,7 +322,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                   ),
                 )
               else if (_tokenError.isNotEmpty)
-                Text(
+                const Text(
                   'Error loading tokens',
                   style: TextStyle(
                     fontSize: 14,
@@ -317,9 +335,9 @@ class _MessageInputFieldState extends State<MessageInputField> {
                   '${_tokenData?.availableTokens ?? 0}',
                   style: TextStyle(
                     fontSize: 14,
-                    color: isOutOfTokens 
-                      ? Theme.of(context).colorScheme.error
-                      : Colors.grey.shade600,
+                    color: isOutOfTokens
+                        ? Theme.of(context).colorScheme.error
+                        : Colors.grey.shade600,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -361,7 +379,8 @@ class _MessageInputFieldState extends State<MessageInputField> {
           return Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -391,7 +410,8 @@ class _MessageInputFieldState extends State<MessageInputField> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

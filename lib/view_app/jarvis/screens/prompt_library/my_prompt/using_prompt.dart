@@ -1,10 +1,11 @@
 import 'package:advancedmobile_chatai/data_app/model/jarvis/prompt_model.dart';
+import 'package:advancedmobile_chatai/providers/prompt_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../../core/util/themes/colors.dart';
 import '../prompt_library.dart';
-import 'my_prompt.dart';
 
 class PromptBottomSheet extends StatefulWidget {
   final PromptItemV2 prompt;
@@ -77,7 +78,6 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               Row(
                 children: [
                   GestureDetector(
@@ -91,7 +91,6 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                           ),
                         ),
                       );
-
                     },
                     child: const Icon(Icons.arrow_back, size: 20),
                   ),
@@ -108,7 +107,6 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
@@ -116,7 +114,6 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                   ),
                 ],
               ),
-
 
               const SizedBox(height: 8),
               const Align(
@@ -158,7 +155,12 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // Add to chat input
+                          Provider.of<PromptInputProvider>(context,
+                                  listen: false)
+                              .setContent(widget.prompt.content);
+                          print(
+                              'PromptInputProvider: setContent: ${widget.prompt.content}');
+                          Navigator.pop(context);
                         },
                         child: const Text("Add to chat input"),
                         style: TextButton.styleFrom(
@@ -206,14 +208,15 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                     "Output Language",
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4), // khoảng cách giữa label và dropdown
+                  const SizedBox(
+                      height: 4), // khoảng cách giữa label và dropdown
                   DropdownButtonFormField<String>(
                     isExpanded: true,
                     value: selectedLanguage,
                     decoration: InputDecoration(
                       filled: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
                       fillColor: const Color(0xFFF4F5F7),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -223,10 +226,11 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                     items: _buildDropdownItems(),
                     selectedItemBuilder: (BuildContext context) {
                       return languageOptions
-                          .expand<Widget>((group) => group['items'].map<Widget>((lang) {
-                        return Text(lang['label'],
-                            style: const TextStyle(fontSize: 12));
-                      }))
+                          .expand<Widget>(
+                              (group) => group['items'].map<Widget>((lang) {
+                                    return Text(lang['label'],
+                                        style: const TextStyle(fontSize: 12));
+                                  }))
                           .toList();
                     },
                     onChanged: (value) {
@@ -238,7 +242,6 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                   ),
                 ],
               ),
-
 
               const SizedBox(height: 16),
 

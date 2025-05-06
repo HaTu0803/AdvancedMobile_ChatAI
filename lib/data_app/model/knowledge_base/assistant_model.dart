@@ -197,7 +197,7 @@ class AskAssistant {
 class AssistantResponse extends BaseModel {
   final String id;
   final String assistantName;
-  final String openAiAssistantId;
+  final String? openAiAssistantId;
   final String? instructions;
   final String? description;
   final String? openAiThreadIdPlay;
@@ -211,7 +211,7 @@ class AssistantResponse extends BaseModel {
     String? updatedBy,
     required this.id,
     required this.assistantName,
-    required this.openAiAssistantId,
+     this.openAiAssistantId,
     this.instructions,
     this.description,
     this.openAiThreadIdPlay,

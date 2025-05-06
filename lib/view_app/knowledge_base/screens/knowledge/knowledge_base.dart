@@ -149,7 +149,16 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                         itemBuilder: (context, index) {
                           final knowledge = knowledges[index];
 
-                          return Container(
+                          return
+                            InkWell(
+                              onTap: () {
+                                _showKnowledgeDetailBottomSheet(
+                                    context,
+                                    knowledge.id,
+                                    knowledge.knowledgeName);
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                                child: Container(
                             margin: const EdgeInsets.all(8),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -243,7 +252,8 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                                 ),
                               ],
                             ),
-                          );
+                          ),
+                            );
                         }),
           ),
         ],

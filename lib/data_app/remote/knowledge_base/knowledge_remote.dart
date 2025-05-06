@@ -151,7 +151,6 @@ class KnowledgeApiClient {
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          body: null,
           method: 'DELETE',
         );
 
