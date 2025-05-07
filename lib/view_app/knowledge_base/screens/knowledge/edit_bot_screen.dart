@@ -8,6 +8,7 @@ import '../../../../data_app/repository/knowledge_base/knowledge_repository.dart
 import '../../../../data_app/model/base/base_model.dart';
 import "knowledge_base_list_screen.dart";
 import '../../../../data_app/repository/knowledge_base/bot_integration_repository.dart';
+import 'package:advancedmobile_chatai/data_app/model/knowledge_base/bot_integrations_model.dart';
 
 class EditBotScreen extends StatefulWidget {
   final AssistantResponse assistant;
@@ -1177,8 +1178,34 @@ class _EditBotScreenState extends State<EditBotScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _platformChecked.values.any((v) => v)
-                    ? () {
-                        // TODO: Handle publish action
+                    ? () async {
+                        debugPrint('Platform checked: $_platformChecked');
+                        debugPrint('Platform status: $_platformStatus');
+                        // Xử lý publish cho từng nền tảng
+                        if (_platformChecked['Telegram'] == true) {
+                          debugPrint('Publish TelegramBot with assistantId: \\${_currentAssistant.id}');
+                          try {
+                            // Hiển thị loading nếu muốn
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const Center(child: CircularProgressIndicator()),
+                            );
+                            await BotIntegrationRepository().publishTelegramBot(_currentAssistant.id);
+                            debugPrint('Publish Telegram bot: success');
+                            Navigator.pop(context); // Đóng loading
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Publish Telegram bot thành công!')),
+                            );
+                          } catch (e) {
+                            debugPrint('PublishTelegramBot Error: $e');
+                            Navigator.pop(context); // Đóng loading nếu lỗi
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Publish Telegram bot thất bại: $e')),
+                            );
+                          }
+                        }
+                        // TODO: Xử lý publish cho Slack, Messenger nếu cần
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -1333,157 +1360,247 @@ class _EditBotScreenState extends State<EditBotScreen> {
     final _clientIdController = TextEditingController();
     final _clientSecretController = TextEditingController();
     final _signingSecretController = TextEditingController();
+    bool isVerified = _platformStatus['Slack']?['status'] == 'Verified';
+    bool isLoading = false;
 
     showDialog(
       context: context,
       builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          elevation: 16,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(28.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Row(
+        return StatefulBuilder(
+          builder: (context, setState) {
+            Future<void> verifyAndSetStatus() async {
+              if (!_formKey.currentState!.validate()) return;
+              setState(() => isLoading = true);
+              try {
+                final request = SlackBot(
+                  botToken: _tokenController.text,
+                  clientId: _clientIdController.text,
+                  clientSecret: _clientSecretController.text,
+                  signingSecret: _signingSecretController.text,
+                );
+                final result = await BotIntegrationRepository().verifySlackBotConfigure(request);
+                if (result) {
+                  setState(() {
+                    isVerified = true;
+                  });
+                  this.setState(() {
+                    _platformStatus['Slack'] = {'status': 'Verified'};
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Slack bot verified successfully')),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to verify Slack bot: $e')),
+                );
+              } finally {
+                setState(() => isLoading = false);
+              }
+            }
+
+            Future<void> disconnectSlack() async {
+              setState(() => isLoading = true);
+              try {
+                final request = DisconnectBotIntegration(
+                  assistantId: _currentAssistant.id,
+                  type: 'slack',
+                );
+                final result = await BotIntegrationRepository().disconnectBotIntegration(request);
+                if (result) {
+                  setState(() {
+                    isVerified = false;
+                  });
+                  this.setState(() {
+                    _platformStatus['Slack'] = {'status': 'Not Configured'};
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Slack bot disconnected')),
+                  );
+                  Navigator.pop(context);
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to disconnect Slack bot: $e')),
+                );
+              } finally {
+                setState(() => isLoading = false);
+              }
+            }
+
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              elevation: 16,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(28.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          'Configure Slack Bot',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[900],
-                              ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  // Step 1: Copylink
-                  Card(
-                    color: Colors.blue[50],
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // Title
+                      Row(
                         children: [
-                          Text('Slack copylink',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.blue[800],
-                                  )),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Copy the following content to your Slack app configuration page.',
-                            style: TextStyle(color: Colors.blueGrey[700], fontSize: 14),
-                          ),
-                          _buildCopyRow('OAuth2 Redirect URLs', 'https://knowledge-api.jarvis.cx/kb-core/v1/bot-integration/slack/auth/${_currentAssistant.id}'),
-                          const SizedBox(height: 10),
-                          _buildCopyRow('Event Request URL', 'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/${_currentAssistant.id}'),
-                          const SizedBox(height: 10),
-                          _buildCopyRow('Slash Request URL', 'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/slash/${_currentAssistant.id}'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  // Step 2: Slack Information
-                  Card(
-                    color: Colors.white,
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Slack information',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.blue[800],
-                                  )),
-                          const SizedBox(height: 10),
-                          Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                _buildSlackTextField(
-                                  'Token',
-                                  _tokenController,
-                                  'Please enter bot token',
-                                  icon: Icons.vpn_key,
-                                ),
-                                const SizedBox(height: 12),
-                                _buildSlackTextField(
-                                  'Client ID',
-                                  _clientIdController,
-                                  'Please enter client ID',
-                                  icon: Icons.perm_identity,
-                                ),
-                                const SizedBox(height: 12),
-                                _buildSlackTextField(
-                                  'Client Secret',
-                                  _clientSecretController,
-                                  'Please enter client secret',
-                                  icon: Icons.lock_outline,
-                                ),
-                                const SizedBox(height: 12),
-                                _buildSlackTextField(
-                                  'Signing Secret',
-                                  _signingSecretController,
-                                  'Please enter signing secret',
-                                  icon: Icons.security,
-                                ),
-                              ],
+                          Expanded(
+                            child: Text(
+                              'Configure Slack Bot',
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[900],
+                                  ),
                             ),
                           ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          ),
                         ],
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Action buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          side: BorderSide(color: Colors.blue.shade700),
+                      const SizedBox(height: 18),
+                      // Step 1: Copylink
+                      Card(
+                        color: Colors.blue[50],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Slack copylink',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.blue[800],
+                                      )),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Copy the following content to your Slack app configuration page.',
+                                style: TextStyle(color: Colors.blueGrey[700], fontSize: 14),
+                              ),
+                              _buildCopyRow('OAuth2 Redirect URLs', 'https://knowledge-api.jarvis.cx/kb-core/v1/bot-integration/slack/auth/${_currentAssistant.id}'),
+                              const SizedBox(height: 10),
+                              _buildCopyRow('Event Request URL', 'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/${_currentAssistant.id}'),
+                              const SizedBox(height: 10),
+                              _buildCopyRow('Slash Request URL', 'https://knowledge-api.jarvis.cx/kb-core/v1/hook/slack/slash/${_currentAssistant.id}'),
+                            ],
+                          ),
                         ),
-                        child: const Text('Cancel'),
                       ),
-                      const SizedBox(width: 14),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // TODO: Save config
-                            Navigator.pop(context);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[700],
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                      const SizedBox(height: 18),
+                      // Step 2: Slack Information
+                      Card(
+                        color: Colors.white,
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Slack information',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.blue[800],
+                                      )),
+                              const SizedBox(height: 10),
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: [
+                                    _buildSlackTextField(
+                                      'Token',
+                                      _tokenController,
+                                      'Please enter bot token',
+                                      icon: Icons.vpn_key,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildSlackTextField(
+                                      'Client ID',
+                                      _clientIdController,
+                                      'Please enter client ID',
+                                      icon: Icons.perm_identity,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildSlackTextField(
+                                      'Client Secret',
+                                      _clientSecretController,
+                                      'Please enter client secret',
+                                      icon: Icons.lock_outline,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildSlackTextField(
+                                      'Signing Secret',
+                                      _signingSecretController,
+                                      'Please enter signing secret',
+                                      icon: Icons.security,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: const Text('OK', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(height: 24),
+                      // Action buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              side: BorderSide(color: Colors.blue.shade700),
+                            ),
+                            child: const Text('Cancel'),
+                          ),
+                          const SizedBox(width: 14),
+                          isVerified
+                              ? ElevatedButton(
+                                  onPressed: isLoading ? null : disconnectSlack,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red[700],
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                                  ),
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text('Disconnect', style: TextStyle(fontWeight: FontWeight.bold)),
+                                )
+                              : ElevatedButton(
+                                  onPressed: isLoading ? null : verifyAndSetStatus,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue[700],
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                                  ),
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text('OK', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -1551,147 +1668,236 @@ class _EditBotScreenState extends State<EditBotScreen> {
     final _appIdController = TextEditingController();
     final _appSecretController = TextEditingController();
     final _pageAccessTokenController = TextEditingController();
+    bool isVerified = _platformStatus['Messenger']?['status'] == 'Verified';
+    bool isLoading = false;
 
     showDialog(
       context: context,
       builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          elevation: 16,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(28.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Row(
+        return StatefulBuilder(
+          builder: (context, setState) {
+            Future<void> verifyAndSetStatus() async {
+              if (!_formKey.currentState!.validate()) return;
+              setState(() => isLoading = true);
+              try {
+                final request = MessengerSlackBot(
+                  botToken: _pageAccessTokenController.text,
+                  pageId: _pageIdController.text,
+                  appSecret: _appSecretController.text,
+                );
+                final result = await BotIntegrationRepository().verifyMessengerBotConfigure(request);
+                if (result) {
+                  setState(() {
+                    isVerified = true;
+                  });
+                  this.setState(() {
+                    _platformStatus['Messenger'] = {'status': 'Verified'};
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Messenger bot verified successfully')),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to verify Messenger bot: $e')),
+                );
+              } finally {
+                setState(() => isLoading = false);
+              }
+            }
+
+            Future<void> disconnectMessenger() async {
+              setState(() => isLoading = true);
+              try {
+                final request = DisconnectBotIntegration(
+                  assistantId: _currentAssistant.id,
+                  type: 'messenger',
+                );
+                final result = await BotIntegrationRepository().disconnectBotIntegration(request);
+                if (result) {
+                  setState(() {
+                    isVerified = false;
+                  });
+                  this.setState(() {
+                    _platformStatus['Messenger'] = {'status': 'Not Configured'};
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Messenger bot disconnected')),
+                  );
+                  Navigator.pop(context);
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to disconnect Messenger bot: $e')),
+                );
+              } finally {
+                setState(() => isLoading = false);
+              }
+            }
+
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              elevation: 16,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(28.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          'Configure Messenger Bot',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[900],
-                              ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  // Step 1: Copylink
-                  Card(
-                    color: Colors.blue[50],
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // Title
+                      Row(
                         children: [
-                          Text('Messenger Webhook URL',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.blue[800],
-                                  )),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Copy the following webhook URL to your Facebook App configuration page.',
-                            style: TextStyle(color: Colors.blueGrey[700], fontSize: 14),
-                          ),
-                          _buildCopyRow('Callback URL', 'https://knowledge-api.jarvis.cx/kb-core/v1/hook/messenger/${_currentAssistant.id}'),
-                          _buildCopyRow('Verify Token', 'knowledge'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  // Step 2: Messenger Information
-                  Card(
-                    color: Colors.white,
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Messenger information',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.blue[800],
-                                  )),
-                          const SizedBox(height: 10),
-                          Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                _buildMessengerTextField(
-                                  'Bot Token',
-                                  _pageAccessTokenController,
-                                  'Please enter Bot Token',
-                                  icon: Icons.vpn_key,
-                                ),
-                                const SizedBox(height: 12),
-                                _buildMessengerTextField(
-                                  'Page ID',
-                                  _pageIdController,
-                                  'Please enter Facebook Page ID',
-                                  icon: Icons.pages,
-                                ),
-                                const SizedBox(height: 12),
-                                _buildMessengerTextField(
-                                  'App Secret',
-                                  _appSecretController,
-                                  'Please enter Facebook App Secret',
-                                  icon: Icons.lock_outline,
-                                ),
-                              ],
+                          Expanded(
+                            child: Text(
+                              'Configure Messenger Bot',
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[900],
+                                  ),
                             ),
                           ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          ),
                         ],
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Action buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          side: BorderSide(color: Colors.blue.shade700),
+                      const SizedBox(height: 18),
+                      // Step 1: Copylink
+                      Card(
+                        color: Colors.blue[50],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Messenger Webhook URL',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.blue[800],
+                                      )),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Copy the following webhook URL to your Facebook App configuration page.',
+                                style: TextStyle(color: Colors.blueGrey[700], fontSize: 14),
+                              ),
+                              _buildCopyRow('Callback URL', 'https://knowledge-api.jarvis.cx/kb-core/v1/hook/messenger/${_currentAssistant.id}'),
+                              _buildCopyRow('Verify Token', 'knowledge'),
+                            ],
+                          ),
                         ),
-                        child: const Text('Cancel'),
                       ),
-                      const SizedBox(width: 14),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // TODO: Save config
-                            Navigator.pop(context);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[700],
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                      const SizedBox(height: 18),
+                      // Step 2: Messenger Information
+                      Card(
+                        color: Colors.white,
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Messenger information',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.blue[800],
+                                      )),
+                              const SizedBox(height: 10),
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: [
+                                    _buildMessengerTextField(
+                                      'Bot Token',
+                                      _pageAccessTokenController,
+                                      'Please enter Bot Token',
+                                      icon: Icons.vpn_key,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildMessengerTextField(
+                                      'Page ID',
+                                      _pageIdController,
+                                      'Please enter Facebook Page ID',
+                                      icon: Icons.pages,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildMessengerTextField(
+                                      'App Secret',
+                                      _appSecretController,
+                                      'Please enter Facebook App Secret',
+                                      icon: Icons.lock_outline,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: const Text('OK', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(height: 24),
+                      // Action buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              side: BorderSide(color: Colors.blue.shade700),
+                            ),
+                            child: const Text('Cancel'),
+                          ),
+                          const SizedBox(width: 14),
+                          isVerified
+                              ? ElevatedButton(
+                                  onPressed: isLoading ? null : disconnectMessenger,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red[700],
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                                  ),
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text('Disconnect', style: TextStyle(fontWeight: FontWeight.bold)),
+                                )
+                              : ElevatedButton(
+                                  onPressed: isLoading ? null : verifyAndSetStatus,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue[700],
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                                  ),
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text('OK', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -1718,140 +1924,230 @@ class _EditBotScreenState extends State<EditBotScreen> {
   void _showConfigureTelegramDialog() {
     final _formKey = GlobalKey<FormState>();
     final _tokenController = TextEditingController();
+    bool isVerified = _platformStatus['Telegram']?['status'] == 'Verified';
+    bool isLoading = false;
 
     showDialog(
       context: context,
       builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          elevation: 16,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+        return StatefulBuilder(
+          builder: (context, setState) {
+            Future<void> verifyAndSetStatus() async {
+              if (!_formKey.currentState!.validate()) return;
+              setState(() => isLoading = true);
+              try {
+                final request = TelegramBot(
+                  botToken: _tokenController.text,
+                );
+                debugPrint('Verify Telegram request: \\${request.toJson()}');
+                final result = await BotIntegrationRepository().verifyTelegramBotConfigure(request);
+                debugPrint('Verify Telegram result: $result');
+                if (result) {
+                  setState(() {
+                    isVerified = true;
+                  });
+                  this.setState(() {
+                    _platformStatus['Telegram'] = {'status': 'Verified'};
+                  });
+                  debugPrint('Platform status after verify: $_platformStatus');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Telegram bot verified successfully')),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to verify Telegram bot: $e')),
+                );
+              } finally {
+                setState(() => isLoading = false);
+              }
+            }
+
+            Future<void> disconnectTelegram() async {
+              setState(() => isLoading = true);
+              try {
+                final request = DisconnectBotIntegration(
+                  assistantId: _currentAssistant.id,
+                  type: 'telegram',
+                );
+                final result = await BotIntegrationRepository().disconnectBotIntegration(request);
+                if (result) {
+                  setState(() {
+                    isVerified = false;
+                  });
+                  this.setState(() {
+                    _platformStatus['Telegram'] = {'status': 'Not Configured'};
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Telegram bot disconnected')),
+                  );
+                  Navigator.pop(context);
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to disconnect Telegram bot: $e')),
+                );
+              } finally {
+                setState(() => isLoading = false);
+              }
+            }
+
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              elevation: 16,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: Text(
-                          'Configure Telegram Bot',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Connect to Telegram Bots and chat with this bot in Telegram App',
-                    style: TextStyle(fontSize: 15, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: Open Telegram config help link
-                    },
-                    child: Text(
-                      'How to obtain Telegram configurations?',
-                      style: TextStyle(
-                        color: Colors.blue[700],
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Icon(Icons.info, color: Colors.blue[700]),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Telegram information',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              '*',
-                              style: TextStyle(color: Colors.red, fontSize: 18),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Configure Telegram Bot',
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Token',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 15,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Connect to Telegram Bots and chat with this bot in Telegram App',
+                        style: TextStyle(fontSize: 15, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () {
+                          // TODO: Open Telegram config help link
+                        },
+                        child: Text(
+                          'How to obtain Telegram configurations?',
+                          style: TextStyle(
+                            color: Colors.blue[700],
+                            fontSize: 14,
+                            decoration: TextDecoration.underline,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Icon(Icons.info, color: Colors.blue[700]),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Telegram information',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  '*',
+                                  style: TextStyle(color: Colors.red, fontSize: 18),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Token',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _tokenController,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
                               ),
+                              validator: (value) => (value == null || value.isEmpty) ? 'Please enter bot token' : null,
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _tokenController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-                          ),
-                          validator: (value) => (value == null || value.isEmpty) ? 'Please enter bot token' : null,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: const Text('Cancel'),
                       ),
-                      const SizedBox(width: 14),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // TODO: Save config
-                            Navigator.pop(context);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[700],
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                        ),
-                        child: const Text('OK', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 32),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            child: const Text('Cancel'),
+                          ),
+                          const SizedBox(width: 14),
+                          isVerified
+                              ? ElevatedButton(
+                                  onPressed: isLoading ? null : disconnectTelegram,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red[700],
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                                  ),
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text('Disconnect', style: TextStyle(fontWeight: FontWeight.bold)),
+                                )
+                              : ElevatedButton(
+                                  onPressed: isLoading ? null : verifyAndSetStatus,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue[700],
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                                  ),
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text('OK', style: TextStyle(fontWeight: FontWeight.bold)),
+                                ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
