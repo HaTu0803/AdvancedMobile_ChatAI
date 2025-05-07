@@ -20,6 +20,8 @@ class _UsingPublicPromptState extends State<UsingPublicPrompt> {
   late String? selectedLanguage;
   late TextEditingController _promptController;
   bool isSaving = false;
+  final Map<String, TextEditingController> _inputControllers = {};
+  bool _isPromptVisible = false;
 
   final List<Map<String, dynamic>> languageOptions = [
     {
@@ -65,11 +67,27 @@ class _UsingPublicPromptState extends State<UsingPublicPrompt> {
     super.initState();
     selectedLanguage = 'Auto';
     _promptController = TextEditingController(text: widget.prompt.content);
+    _initializeInputFields();
+  }
+
+  void _initializeInputFields() {
+    final RegExp regex = RegExp(r'\[(.*?)\]');
+    final matches = regex.allMatches(widget.prompt.content);
+
+    for (final match in matches) {
+      final placeholder = match.group(1);
+      if (placeholder != null && placeholder.isNotEmpty) {
+        _inputControllers[placeholder] = TextEditingController();
+      }
+    }
   }
 
   @override
   void dispose() {
     _promptController.dispose();
+    for (final controller in _inputControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -143,63 +161,78 @@ class _UsingPublicPromptState extends State<UsingPublicPrompt> {
               ),
 
               const SizedBox(height: 4),
-              // Prompt TextField (read-only)
-// Prompt TextField (editable)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Prompt',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
+                  if (!_isPromptVisible)
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _isPromptVisible = true;
+                        });
+                      },
+                      child: const Text("View Prompt"),
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(fontSize: 10),
                       ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () {
-                          Clipboard.setData(
-                            ClipboardData(text: widget.prompt.content ?? ''),
-                          );
-                          showCustomSnackBar(context, 'Copied to clipboard');
-                        },
-                        icon: const Icon(Icons.copy,
-                            color: Colors.grey, size: 14),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Provider.of<PromptInputProvider>(context,
-                                  listen: false)
-                              .setInputContent(widget.prompt.content);
-                          print(
-                              'PromptInputProvider: setContent: ${widget.prompt.content}');
-                          Navigator.pop(context);
-                        },
-                        child: const Text("Add to chat input"),
-                        style: TextButton.styleFrom(
-                          textStyle: const TextStyle(fontSize: 10),
-                        ),
-                      ),
-                    ],
-                  ),
-                  TextField(
-                    style: const TextStyle(fontSize: 12),
-                    controller: _promptController,
-
-                    readOnly: false,
-                    maxLines: 2, // Giới hạn hiển thị 2 dòng
-                    decoration: const InputDecoration(
-                      filled: true,
-                      fillColor: Color(0xFFF4F5F7), // Màu nền xám nhạt
-                      border: InputBorder.none, // Không có viền
-                      hintText: 'Enter prompt content here...',
-                      contentPadding: EdgeInsets.all(12),
                     ),
-                    onChanged: (newText) {
-                      // Cập nhật nếu cần
-                    },
-                  ),
+                  if (_isPromptVisible)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Prompt',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              onPressed: () {
+                                Clipboard.setData(
+                                  ClipboardData(
+                                      text: widget.prompt.content ?? ''),
+                                );
+                                showCustomSnackBar(
+                                    context, 'Copied to clipboard');
+                              },
+                              icon: const Icon(Icons.copy,
+                                  color: Colors.grey, size: 14),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Provider.of<PromptInputProvider>(context,
+                                        listen: false)
+                                    .setInputContent(widget.prompt.content);
+                                print(
+                                    'PromptInputProvider: setContent: ${widget.prompt.content}');
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Add to chat input"),
+                              style: TextButton.styleFrom(
+                                textStyle: const TextStyle(fontSize: 10),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          style: const TextStyle(fontSize: 12),
+                          controller: _promptController,
+                          readOnly: false,
+                          maxLines: 4,
+                          decoration: const InputDecoration(
+                            filled: true,
+                            fillColor: Color(0xFFF4F5F7),
+                            border: InputBorder.none,
+                            hintText: 'Enter prompt content here...',
+                            contentPadding: EdgeInsets.all(12),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
 
@@ -247,7 +280,25 @@ class _UsingPublicPromptState extends State<UsingPublicPrompt> {
                   ),
                 ],
               ),
-
+              const SizedBox(height: 8),
+              ..._inputControllers.entries.map((entry) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: TextFormField(
+                    controller: entry.value,
+                    decoration: InputDecoration(
+                      // labelText: entry.key,
+                      hintText: entry.key,
+                      filled: true,
+                      fillColor: const Color(0xFFF4F5F7),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
               const SizedBox(height: 16),
 
               // Send button
@@ -268,11 +319,19 @@ class _UsingPublicPromptState extends State<UsingPublicPrompt> {
 
                       String finalPrompt = _promptController.text.trim();
 
+                      _inputControllers.forEach((key, controller) {
+                        if (controller.text.isNotEmpty) {
+                          finalPrompt =
+                              finalPrompt.replaceAll('[$key]', controller.text);
+                        }
+                      });
+
                       if (selectedLanguage != null &&
                           selectedLanguage != 'Auto') {
                         finalPrompt += '\n\nResponse in $selectedLanguage';
                       }
 
+                      // Send the final prompt
                       provider.sendPrompt(finalPrompt);
 
                       Navigator.pop(context);
