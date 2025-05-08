@@ -13,7 +13,7 @@ class AuthRepository {
       await saveTokens(response.accessToken, response.refreshToken);
       return response;
     } catch (e) {
-      debugPrint("SignUp Error: ${e.toString()}");
+      debugPrint(e.toString());
       rethrow;
     }
   }

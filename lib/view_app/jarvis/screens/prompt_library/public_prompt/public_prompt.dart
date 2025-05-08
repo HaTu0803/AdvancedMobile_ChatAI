@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
-import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
 import '../../../../../providers/prompt_provider.dart';
+import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
 import '../../../widgets/using_public_prompt.dart';
 
 class PublicPromptsScreen extends StatefulWidget {
@@ -20,6 +20,11 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   List<Prompt> _filteredPrompts = [];
   String _searchQuery = '';
   bool _isStarred = false;
+  bool _isLoading = false;
+  bool _hasNextPage = true;
+  int _currentOffset = 0;
+  final int _limit = 10;
+  final ScrollController _scrollController = ScrollController();
 
   late List<PromptCategory> _categories = [];
   late List<Prompt> _prompts = [];
@@ -28,50 +33,111 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   void initState() {
     super.initState();
     _fetchPromptsFromApi();
+    _scrollController.addListener(_onScroll);
     print("Categories from API:");
     _categories.forEach((category) {
       print("Category: ${category.name}, ID: ${category.id}");
     });
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      if (!_isLoading && _hasNextPage) {
+        _fetchMorePrompts();
+      }
+    }
+  }
+
+  Future<void> _fetchMorePrompts() async {
+    if (_isLoading || !_hasNextPage) return;
+
+    setState(() => _isLoading = true);
+    _currentOffset += _limit;
+
+    try {
+      final promptProvider = Provider.of<PromptProvider>(context, listen: false);
+      final response = await promptProvider.fetchPrompts(
+        offset: _currentOffset,
+        limit: _limit,
+        category: _selectedCategory == 'All' ? null : _selectedCategory,
+        isFavorite: _isStarred,
+        query: _searchQuery,
+      );
+
+      if (response != null) {
+        final newPrompts = response.items.map((data) => Prompt(
+          id: data.id,
+          title: data.title ?? '',
+          description: data.description ?? '',
+          category: data.category ?? '',
+          isFavorite: data.isFavorite ?? false,
+          createdAt: DateTime.parse(data.createdAt),
+          updatedAt: DateTime.parse(data.updatedAt),
+          content: data.content ?? '',
+          isPublic: data.isPublic ?? false,
+          language: data.language ?? '',
+          userId: data.userId ?? '',
+          userName: data.userName ?? '',
+        )).toList();
+
+        setState(() {
+          _prompts.addAll(newPrompts);
+          _hasNextPage = response.hasNext;
+          _filterPrompts();
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching more prompts: $e')),
+        );
+      }
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _fetchPromptsFromApi() async {
+    setState(() {
+      _isLoading = true;
+      _currentOffset = 0;
+      _hasNextPage = true;
+    });
+
     try {
-      final promptProvider =
-          Provider.of<PromptProvider>(context, listen: false);
+      final promptProvider = Provider.of<PromptProvider>(context, listen: false);
       await Future.wait([
-        promptProvider.fetchPrompts(),
+        promptProvider.fetchPrompts(
+          offset: 0,
+          limit: _limit,
+          category: _selectedCategory == 'All' ? null : _selectedCategory,
+          isFavorite: _isStarred,
+          query: _searchQuery,
+        ),
         promptProvider.fetchCategories(),
       ]);
 
-      // Lấy danh sách prompts và categories từ provider
-      final prompts = promptProvider.prompts?.items ?? [];
-      print(promptProvider.prompts);
+      final prompts = promptProvider.prompts ?? [];
+      final response = promptProvider.promptResponse;
 
       setState(() {
-        _prompts = prompts
-            .map((data) => Prompt(
-                  id: data.id,
-                  title: data.title ?? '',
-                  description: data.description ?? '',
-                  category: data.category ?? '',
-                  isFavorite: data.isFavorite ?? false,
-                  createdAt: DateTime.parse(data.createdAt),
-                  updatedAt: DateTime.parse(data.updatedAt),
-                  content: data.content ?? '',
-                  isPublic: data.isPublic ?? false,
-                  language: data.language ?? '',
-                  userId: data.userId ?? '',
-                  userName: data.userName ?? '',
-                ))
-            .toList();
+        _prompts = prompts.map((data) => Prompt(
+          id: data.id,
+          title: data.title ?? '',
+          description: data.description ?? '',
+          category: data.category ?? '',
+          isFavorite: data.isFavorite ?? false,
+          createdAt: DateTime.parse(data.createdAt),
+          updatedAt: DateTime.parse(data.updatedAt),
+          content: data.content ?? '',
+          isPublic: data.isPublic ?? false,
+          language: data.language ?? '',
+          userId: data.userId ?? '',
+          userName: data.userName ?? '',
+        )).toList();
 
         _categories = promptProvider.categories;
+        _hasNextPage = response?.hasNext ?? false;
         _filterPrompts();
       });
     } catch (e) {
@@ -80,6 +146,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
           SnackBar(content: Text('Error fetching prompts: $e')),
         );
       }
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -288,13 +356,20 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Row(
               children: [
                 Expanded(
@@ -340,30 +415,44 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
           _buildCategoriesList(),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: _filteredPrompts.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                final prompt = _filteredPrompts[index];
-                return PromptItem(
-                  id: prompt.id,
-                  createdAt: prompt.createdAt.toString(),
-                  updatedAt: prompt.updatedAt.toString(),
-                  category: prompt.category,
-                  content: prompt.content,
-                  description: prompt.description,
-                  isPublic: prompt.isPublic,
-                  language: prompt.language,
-                  title: prompt.title,
-                  userId: prompt.userId,
-                  userName: prompt.userName,
-                  isFavorite: prompt.isFavorite,
-                  onToggleFavorite: () => _toggleFavorite(index),
-                  showDetails: _showPromptDetails,
-                );
-              },
-            ),
+            child: _isLoading && _prompts.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : _filteredPrompts.isEmpty
+                    ? const Center(child: Text("No prompts found"))
+                    : ListView.separated(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        itemCount: _filteredPrompts.length + (_hasNextPage ? 1 : 0),
+                        separatorBuilder: (context, index) => const Divider(),
+                        itemBuilder: (context, index) {
+                          if (index == _filteredPrompts.length) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
+
+                          final prompt = _filteredPrompts[index];
+                          return PromptItem(
+                            id: prompt.id,
+                            createdAt: prompt.createdAt.toString(),
+                            updatedAt: prompt.updatedAt.toString(),
+                            category: prompt.category,
+                            content: prompt.content,
+                            description: prompt.description,
+                            isPublic: prompt.isPublic,
+                            language: prompt.language,
+                            title: prompt.title,
+                            userId: prompt.userId,
+                            userName: prompt.userName,
+                            isFavorite: prompt.isFavorite,
+                            onToggleFavorite: () => _toggleFavorite(index),
+                            showDetails: _showPromptDetails,
+                          );
+                        },
+                      ),
           ),
         ],
       ),

@@ -5,33 +5,58 @@ import 'package:flutter/material.dart';
 class PromptProvider with ChangeNotifier {
   final PromptRepository promptRepository = PromptRepository();
 
+  List<PromptItemV2>? _prompts;
+  List<PromptCategory> _categories = [];
   bool _isLoading = false;
+  GetPromptResponse? _promptResponse;
+
+  List<PromptItemV2>? get prompts => _prompts;
+  List<PromptCategory> get categories => _categories;
   bool get isLoading => _isLoading;
+  GetPromptResponse? get promptResponse => _promptResponse;
 
   void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
 
-  PromptResponse? _prompts;
-  PromptResponse? get prompts => _prompts;
-
-  List<PromptCategory> _categories = [];
-  List<PromptCategory> get categories => _categories;
-
-  Future<dynamic> fetchPrompts() async {
-    setLoading(true);
+  Future<GetPromptResponse?> fetchPrompts({
+    int offset = 0,
+    int limit = 10,
+    String? category,
+    bool? isFavorite,
+    String? query,
+  }) async {
     try {
-      _prompts = await promptRepository.getPrompts();
-      print(_prompts);
+      _isLoading = true;
       notifyListeners();
-      return _prompts;
+
+      final params = GetPromptRequest(
+        query: query,
+        offset: offset,
+        limit: limit,
+        category: category,
+        isFavorite: isFavorite,
+        isPublic: true,
+      );
+
+      final response = await PromptRepository().getPrompt(params);
+      _promptResponse = response;
+      
+      if (offset == 0) {
+        _prompts = response.items;
+      } else {
+        _prompts = [...?_prompts, ...response.items];
+      }
+
+      notifyListeners();
+      return response;
     } catch (e) {
-      print(e);
-      debugPrint("Error fetching prompts: $e");
+      print('Error fetching prompts: $e');
       return null;
     } finally {
-      setLoading(false);
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -45,9 +70,9 @@ class PromptProvider with ChangeNotifier {
 
       // Extract unique categories from prompts
       final Set<String> uniqueCategories = {};
-      _prompts?.items.forEach((prompt) {
-        if (prompt.category != null && prompt.category!.isNotEmpty) {
-          uniqueCategories.add(prompt.category!);
+      _prompts?.forEach((prompt) {
+        if (prompt.category.isNotEmpty) {
+          uniqueCategories.add(prompt.category);
         }
       });
 

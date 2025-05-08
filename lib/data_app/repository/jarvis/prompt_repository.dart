@@ -33,7 +33,7 @@ class PromptRepository {
       debugPrint("Get Prompt Response: ${response}");
       return response;
     } catch (e) {
-      debugPrint("Get Prompt Error: \${e.toString()}");
+      debugPrint(e.toString());
       rethrow;
     }
   }
