@@ -25,11 +25,26 @@ class KnowledgeApiClient {
       final url = Uri.parse(ApiKnowledgeBaseUrl.createKnowledge);
       final headers = ApiHeaders.getAIChatHeaders("", token);
       final body = jsonEncode(request.toJson());
-
+      
+      print("📤 Request body: $body");
       final response = await http.post(url, headers: headers, body: body);
+      print("📥 Response status: ${response.statusCode}");
+      print("📥 Response body: ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return KnowledgeResponse.fromJson(jsonDecode(response.body)['data']);
+        final responseBody = jsonDecode(response.body);
+        print("📥 Parsed response body: $responseBody");
+        
+        if (responseBody is Map<String, dynamic>) {
+          // Try to handle both possible response formats
+          if (responseBody.containsKey('data')) {
+            return KnowledgeResponse.fromJson(responseBody['data']);
+          } else if (responseBody.containsKey('knowledgeName')) {
+            // If the response is the knowledge object directly
+            return KnowledgeResponse.fromJson(responseBody);
+          }
+        }
+        throw Exception('Invalid response format from server: $responseBody');
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
@@ -146,7 +161,7 @@ class KnowledgeApiClient {
       final headers = ApiHeaders.getAIChatHeaders("", token);
       final response = await http.delete(url, headers: headers);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
         return true;
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
@@ -155,7 +170,8 @@ class KnowledgeApiClient {
         );
 
         if (retryResponse.statusCode == 200 ||
-            retryResponse.statusCode == 201) {
+            retryResponse.statusCode == 201 ||
+            retryResponse.statusCode == 204) {
           return true;
         } else {
           await AuthRepository().logOut();
@@ -167,7 +183,7 @@ class KnowledgeApiClient {
         }
       } else {
         handleErrorResponse(response);
-        throw Exception('Failed to upload file due to an error response');
+        throw Exception('Failed to delete knowledge base');
       }
     } catch (e) {
       throw Exception('Đã xảy ra lỗi: $e');
