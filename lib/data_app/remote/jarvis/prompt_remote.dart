@@ -18,7 +18,7 @@ class JarvisPromptApiClient {
   Future<PromptResponse> getPrompts() async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
-    final url = Uri.parse(ApiJarvisPromptUrl.getPrompts);
+    final url = Uri.parse(ApiJarvisPromptUrl.getPrompts(""));
     final headers = ApiHeaders.getAIChatHeaders("", token);
     final response = await http.get(
       url,
@@ -53,11 +53,10 @@ class JarvisPromptApiClient {
     }
   }
 
-  Future<GetPromptResponse> getPrompt(GetPromptRequest params) async {
+  Future<GetPromptResponse> getPrompt(GetPromptRequest? params) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
-    final uri = Uri.parse(ApiJarvisPromptUrl.getPrompts)
-        .replace(queryParameters: params.toQueryParams());
+    final uri = Uri.parse(ApiJarvisPromptUrl.getPrompts(params?.toQueryString() ?? ""));
 
     final response = await http.get(
       uri,

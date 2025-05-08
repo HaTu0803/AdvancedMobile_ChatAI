@@ -22,8 +22,12 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
   Timer? _debounce;
   List<PromptItemV2> _prompts = [];
   bool _isLoading = false;
-
-  @override
+bool _hasMore = true;
+  int _offset = 0;
+  final int _limit = 10;
+  String _currentQuery = "";
+   final ScrollController _scrollController = ScrollController();
+   @override
   void initState() {
     super.initState();
     _fetchPrompts();
@@ -33,34 +37,62 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
       _debounce = Timer(const Duration(milliseconds: 500), () {
         final query = _searchController.text.trim();
         if (query.isEmpty || query.length >= 2) {
-          _fetchPrompts(query: query);
+          _resetAndFetch(query);
         }
       });
     });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !_isLoading &&
+          _hasMore) {
+        _fetchPrompts(query: _currentQuery);
+      }
+    });
   }
 
-  Future<void> _fetchPrompts({String query = ""}) async {
-    setState(() => _isLoading = true);
-
-    final params = GetPromptRequest(
-      query: query,
-      limit: 100,
-      isPublic: false,
-    );
-
-    try {
-      final response = await PromptRepository().getPrompt(params);
-      setState(() => _prompts = response.items);
-      debugPrint("Fetched prompts: ${_prompts}");
-    } catch (e) {
-      debugPrint('Failed to fetch prompts: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
+  
+  void _resetAndFetch(String query) {
+    setState(() {
+      _offset = 0;
+      _prompts.clear();
+      _hasMore = true;
+      _currentQuery = query;
+    });
+    _fetchPrompts(query: query);
   }
 
+Future<void> _fetchPrompts({String query = ""}) async {
+  if (!_hasMore || _isLoading) return;
+
+  setState(() => _isLoading = true);
+
+  final params = GetPromptRequest(
+    query: query,
+    offset: _offset,
+    limit: _limit,
+    isPublic: false,
+  );
+
+  try {
+    final response = await PromptRepository().getPrompt(params);
+    final newItems = response.items;
+
+    setState(() {
+      _prompts.addAll(newItems);
+      _offset += _limit;
+      _hasMore = response.hasNext;
+    });
+  } catch (e) {
+    debugPrint('Failed to fetch prompts: $e');
+  } finally {
+    setState(() => _isLoading = false);
+  }
+}
   @override
   void dispose() {
+    _scrollController.dispose();
     _searchController.dispose();
     _debounce?.cancel();
     super.dispose();
@@ -149,16 +181,19 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
 
           // Prompt List
           Expanded(
-            child: _isLoading
+            child: _prompts.isEmpty && _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _prompts.isEmpty
-                ? const Center(child: Text("No prompts found"))
                 : ListView.separated(
+              controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-              itemCount: _prompts.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 8), // <-- Space between items
+              itemCount: _prompts.length + (_hasMore ? 1 : 0),
+              separatorBuilder: (context, index) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
-                final prompt = _prompts[index] as PromptItemV2;
+                if (index >= _prompts.length) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final prompt = _prompts[index];
                 return ButtonAction(
                   model: prompt,
                   iconActions: [
@@ -181,6 +216,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
               },
             ),
           ),
+
 
           // Footer
           Padding(

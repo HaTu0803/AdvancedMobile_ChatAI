@@ -290,34 +290,25 @@ class GetPromptRequest {
     this.isPublic,
   });
 
-  Map<String, String> toQueryParams() {
-    final Map<String, String> params = {};
+  Map<String, dynamic> toJson() {
+    return {
+      'q': query,
+      'offset': offset,
+      'limit': limit,
+      'category': category,
+      'isFavorite': isFavorite,
+      'isPublic': isPublic,
+    };
+  }
+  String toQueryString() {
+    final Map<String, dynamic> json = toJson();
 
-    if (query != null && query!.isNotEmpty) {
-      params['query'] = query!;
-    }
+    final filtered = json.entries.where((e) => e.value != null);
 
-    if (offset != null) {
-      params['offset'] = offset.toString();
-    }
-
-    if (limit != null) {
-      params['limit'] = limit.toString();
-    }
-
-    if (category != null && category!.isNotEmpty) {
-      params['category'] = category!;
-    }
-
-    if (isFavorite != null) {
-      params['isFavorite'] = isFavorite.toString();
-    }
-
-    if (isPublic != null) {
-      params['isPublic'] = isPublic.toString();
-    }
-
-    return params;
+    return filtered
+        .map((e) =>
+    '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value.toString())}')
+        .join('&');
   }
 }
 

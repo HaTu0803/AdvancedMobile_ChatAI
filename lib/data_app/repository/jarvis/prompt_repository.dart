@@ -27,7 +27,7 @@ class PromptRepository {
     }
   }
 
-  Future<GetPromptResponse> getPrompt(GetPromptRequest params) async {
+  Future<GetPromptResponse> getPrompt(GetPromptRequest? params) async {
     try {
       final response = await promptApiClient.getPrompt(params);
       debugPrint("Get Prompt Response: ${response}");
