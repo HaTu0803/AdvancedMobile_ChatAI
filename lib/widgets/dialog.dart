@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-
 import '../core/util/themes/colors.dart';
 
 class CustomDialog extends StatelessWidget {
   final String title;
-  final String message;
+  final Object message;
   final VoidCallback? onConfirm;
   final bool isConfirmation;
   final String confirmText;
@@ -25,13 +24,15 @@ class CustomDialog extends StatelessWidget {
     return AlertDialog(
       title: Text(
         title,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        style: Theme.of(context).textTheme.titleLarge,
       ),
-      content: Text(
-        message,
-        style: const TextStyle(fontSize: 16),
-      ),
-      actionsAlignment: MainAxisAlignment.end, // Căn nút về góc phải
+      content: message is String
+          ? Text(
+        message as String,
+        style: Theme.of(context).textTheme.bodyLarge,
+      )
+          : message as Widget,
+      actionsAlignment: MainAxisAlignment.end,
       actions: [
         if (isConfirmation)
           TextButton(
@@ -56,11 +57,11 @@ class CustomDialog extends StatelessWidget {
   }
 }
 
-/// Hàm tiện ích để hiển thị hộp thoại
+
 void showCustomDialog({
   required BuildContext context,
   required String title,
-  required String message,
+  required Object message,
   VoidCallback? onConfirm,
   bool isConfirmation = false,
   String confirmText = "Confirm",
@@ -68,7 +69,7 @@ void showCustomDialog({
 }) {
   showDialog(
     context: context,
-    barrierDismissible: false, // Ngăn người dùng bấm ra ngoài để đóng dialog
+    barrierDismissible: false,
     builder: (context) => CustomDialog(
       title: title,
       message: message,

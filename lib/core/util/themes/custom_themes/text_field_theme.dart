@@ -17,23 +17,23 @@ class TTextFormFieldTheme {
     floatingLabelStyle: TTextTheme.lightTextTheme.bodyMedium
         ?.copyWith(color: AppColors.textDark.withOpacity(0.8)),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1, color: AppColors.textGrayDarker),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1, color: AppColors.textGrayDarker),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1.5, color: AppColors.primary),
     ),
     errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1, color: AppColors.error),
     ),
     focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1.5, color: AppColors.warning),
     ),
   );
@@ -49,23 +49,23 @@ class TTextFormFieldTheme {
     floatingLabelStyle: TTextTheme.darkTextTheme.bodyMedium
         ?.copyWith(color: AppColors.textLight.withOpacity(0.8)),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1, color: AppColors.textGray),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1, color: AppColors.textGray),
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1.5, color: AppColors.primaryLight),
     ),
     errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1, color: AppColors.error),
     ),
     focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(width: 1.5, color: AppColors.warning),
     ),
   );

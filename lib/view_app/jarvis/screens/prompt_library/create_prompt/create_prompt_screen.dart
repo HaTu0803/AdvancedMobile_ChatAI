@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
+import '../../../../../widgets/custom_form_filed.dart';
 
 class CreatePromptScreen extends StatefulWidget {
   final PromptItemV2? promptToEdit;
@@ -44,14 +45,12 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
     super.dispose();
   }
 
-  final ButtonStyle buttonStyle = ButtonStyle(
-    padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16)),
-  );
+
   @override
   Widget build(BuildContext context) {
     return Material(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
         child: Column(
           children: [
             Form(
@@ -59,17 +58,18 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildFormField(
+                  CustomFormField(
                     label: 'Title',
                     controller: _titleController,
                     hintText: 'Title of the prompt',
                     isRequired: true,
+                    maxLines: 1,
                     validator: (value) => value == null || value.trim().isEmpty
                         ? 'Please enter a title'
                         : null,
                   ),
-                  const SizedBox(height: 24),
-                  _buildFormField(
+                  const SizedBox(height: 12),
+                  CustomFormField(
                     label: 'Prompt',
                     controller: _contentController,
                     hintText:
@@ -80,82 +80,39 @@ class _CreatePromptScreenState extends State<CreatePromptScreen> {
                         ? 'Please enter content'
                         : null,
                   ),
-                  const SizedBox(height: 24),
-                  _buildFormField(
+                  const SizedBox(height: 12),
+                  CustomFormField(
                     label: 'Description (optional)',
                     controller: _descriptionController,
                     hintText:
                         'Description of the prompt. For example: "This prompt is used to write about the benefits of [topic]"',
                     maxLines: 3,
                   ),
-                  const SizedBox(height: 24),
+
+                  const SizedBox(height: 16),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.end, // Align buttons to the right
                     children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          style: buttonStyle,
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancel'),
-                        ),
+                      // First button (Cancel)
+                      OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Cancel'),
                       ),
                       const SizedBox(width: 16),
-                      Expanded(
-                        child: FilledButton(
-                          style: buttonStyle,
-                          onPressed: _submitForm,
-                          child: Text(isEditMode ? 'Update' : 'Create'),
-                        ),
+                      // Second button (Create/Update)
+                      FilledButton(
+                        onPressed: _submitForm,
+                        child: Text(isEditMode ? 'Update' : 'Create'),
                       ),
                     ],
                   )
+
                 ],
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildFormField({
-    required String label,
-    required TextEditingController controller,
-    required String hintText,
-    bool isRequired = false,
-    int maxLines = 1,
-    String? Function(String?)? validator,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(label,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-            if (isRequired)
-              Text(' *',
-                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
-          ],
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          maxLines: maxLines,
-          validator: validator,
-          decoration: InputDecoration(
-            hintText: hintText,
-            filled: true,
-            fillColor:
-                Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.all(16),
-          ),
-        ),
-      ],
     );
   }
 

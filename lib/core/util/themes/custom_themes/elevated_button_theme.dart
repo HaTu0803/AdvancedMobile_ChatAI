@@ -16,7 +16,7 @@ class TElevatedButtonTheme {
       disabledBackgroundColor: AppColors.unSelected,
       side: const BorderSide(color: AppColors.primary),
       padding: const EdgeInsets.symmetric(vertical: 18),
-      textStyle: TTextTheme.lightTextTheme.labelLarge,
+      textStyle: TTextTheme.lightTextTheme.titleMedium,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   );
@@ -31,7 +31,7 @@ class TElevatedButtonTheme {
       disabledBackgroundColor: AppColors.unSelected,
       side: const BorderSide(color: AppColors.primaryDark),
       padding: const EdgeInsets.symmetric(vertical: 18),
-      textStyle: TTextTheme.darkTextTheme.labelLarge,
+      textStyle: TTextTheme.darkTextTheme.titleMedium,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   );

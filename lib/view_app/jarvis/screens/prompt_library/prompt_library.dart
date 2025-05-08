@@ -2,6 +2,7 @@ import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/pub
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/util/themes/colors.dart';
 import 'create_prompt/create_prompt_screen.dart';
 import 'my_prompt/my_prompt.dart';
 
@@ -20,13 +21,11 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
   @override
   void initState() {
     super.initState();
-    // Nếu không có tham số selectedTab, sử dụng mặc định là 'Public Prompts'
     _selectedTab = widget.selectedTab ?? 'Public Prompts';
   }
 
   void _reloadCurrentTab() {
     setState(() {
-      // Cập nhật lại tab hiện tại để reload lại nội dung
     });
   }
 
@@ -108,7 +107,7 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
 
             // Tab Selector + Add Button
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Row(
                 children: [
                   ..._tabs.map((tab) {
@@ -117,21 +116,26 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                       padding: const EdgeInsets.only(right: 4.0),
                       child: InkWell(
                         onTap: () => _selectTab(tab),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(12),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
+                              horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? Theme.of(context).primaryColor
-                                : const Color(0xFFF5F5F5),
-                            borderRadius: BorderRadius.circular(20),
+                                : AppColors.categoryGrey,
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             tab,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
-                              fontWeight: FontWeight.w500,
+                            // style: TextStyle(
+                            //   color: isSelected ? Colors.white : Colors.black,
+                            //   fontWeight: FontWeight.w500,
+                            // ),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.black,
                             ),
                           ),
                         ),
@@ -139,13 +143,20 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                     );
                   }),
                   const Spacer(),
-                  IconButton(
-                    icon: Icon(Icons.add_box,
-                        size: 30, color: Theme.of(context).primaryColor),
-                    onPressed : () {
-                      _openCreatePromptModal(context);
-                    },
-                  ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.add_box,
+                        size: 30,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      onPressed: () {
+                        _openCreatePromptModal(context);
+                      },
+                    ),
+                  )
+
                 ],
               ),
             ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'colors.dart';
 import 'custom_themes/elevated_button_theme.dart';
+import 'custom_themes/filled_button_theme.dart';
 import 'custom_themes/outlined_button_theme.dart';
 import 'custom_themes/text_field_theme.dart';
 import 'custom_themes/text_theme.dart';
@@ -15,9 +17,17 @@ class TAppTheme {
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.backgroundLight,
     textTheme: TTextTheme.lightTextTheme,
+    iconButtonTheme: const IconButtonThemeData(
+      style: ButtonStyle(
+        iconColor: WidgetStatePropertyAll<Color>(AppColors.iconColorDark),
+        
+      ),
+    ),
     inputDecorationTheme: TTextFormFieldTheme.lightInputDecorationTheme,
     elevatedButtonTheme: TElevatedButtonTheme.lightElevatedButtonTheme,
     outlinedButtonTheme: TOutlinedButtonTheme.LightOutlinedButtonTheme,
+    filledButtonTheme: TFilledButtonTheme.LightFilledButtonTheme,
+    dividerColor: AppColors.divider,
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
       onPrimary: AppColors.textLight,
@@ -41,6 +51,7 @@ class TAppTheme {
     inputDecorationTheme: TTextFormFieldTheme.darkInputDecorationTheme,
     elevatedButtonTheme: TElevatedButtonTheme.darkElevatedButtonTheme,
     outlinedButtonTheme: TOutlinedButtonTheme.DarkOutlinedButtonTheme,
+    filledButtonTheme: TFilledButtonTheme.DarkFilledButtonTheme,
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primaryDark,
       onPrimary: AppColors.textLight,

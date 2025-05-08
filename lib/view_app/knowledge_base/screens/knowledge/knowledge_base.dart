@@ -364,8 +364,24 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
     showCustomDialog(
       context: context,
       title: 'Delete Knowledge Base',
-      message:
-          'Are you sure you want to delete the assistant titled "$knowledgeName"?',
+      message: Text.rich(
+        TextSpan(
+          children: [
+            const TextSpan(
+              text: 'Are you sure you want to delete the assistant Name ',
+            ),
+            TextSpan(
+              text: '$knowledgeName',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red, 
+              ),
+            ),
+            const TextSpan(text: '?'),
+          ],
+        ),
+        textAlign: TextAlign.left,
+      ),
       isConfirmation: true,
       confirmText: 'Yes, Delete',
       cancelText: 'Cancel',
