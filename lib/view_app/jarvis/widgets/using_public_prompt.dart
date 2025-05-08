@@ -4,23 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../core/util/themes/colors.dart';
-import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
-import '../prompt_library.dart';
+import '../../../core/util/themes/colors.dart';
+import '../screens/prompt_library/prompt_library.dart';
 
-class PromptBottomSheet extends StatefulWidget {
-  final PromptItemV2 prompt;
+class UsingPublicPrompt extends StatefulWidget {
+  final Prompt prompt;
 
-  const PromptBottomSheet({super.key, required this.prompt});
+  const UsingPublicPrompt({super.key, required this.prompt});
 
   @override
-  State<PromptBottomSheet> createState() => _PromptBottomSheetState();
+  State<UsingPublicPrompt> createState() => _UsingPublicPromptState();
 }
 
-class _PromptBottomSheetState extends State<PromptBottomSheet> {
+class _UsingPublicPromptState extends State<UsingPublicPrompt> {
   late String? selectedLanguage;
   late TextEditingController _promptController;
   bool isSaving = false;
+  final Map<String, TextEditingController> _inputControllers = {};
+  bool _isPromptVisible = false;
 
   final List<Map<String, dynamic>> languageOptions = [
     {
@@ -64,13 +65,29 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
   @override
   void initState() {
     super.initState();
-    selectedLanguage = widget.prompt.language ?? 'Auto';
+    selectedLanguage = 'Auto';
     _promptController = TextEditingController(text: widget.prompt.content);
+    _initializeInputFields();
+  }
+
+  void _initializeInputFields() {
+    final RegExp regex = RegExp(r'\[(.*?)\]');
+    final matches = regex.allMatches(widget.prompt.content);
+
+    for (final match in matches) {
+      final placeholder = match.group(1);
+      if (placeholder != null && placeholder.isNotEmpty) {
+        _inputControllers[placeholder] = TextEditingController();
+      }
+    }
   }
 
   @override
   void dispose() {
     _promptController.dispose();
+    for (final controller in _inputControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -97,7 +114,7 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const PromptLibraryScreen(
-                            selectedTab: 'My Prompts', // Chọn tab này
+                            selectedTab: 'Public Prompts', // Chọn tab này
                           ),
                         ),
                       );
@@ -126,88 +143,96 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
               ),
 
               const SizedBox(height: 8),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Other · Anonymous User",
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                  '${widget.prompt.category} · ${widget.prompt.userName}',
+                  style: TextStyle(fontWeight: FontWeight.w400, fontSize: 12),
                 ),
               ),
 
               const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  widget.prompt.description,
+                  style: const TextStyle(color: Colors.grey, fontSize: 10),
+                ),
+              ),
 
-              // Prompt TextField (read-only)
-// Prompt TextField (editable)
+              const SizedBox(height: 4),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Prompt',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
+                  if (!_isPromptVisible)
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _isPromptVisible = true;
+                        });
+                      },
+                      child: const Text("View Prompt"),
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(fontSize: 10),
                       ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () {
-                          Clipboard.setData(
-                            ClipboardData(text: widget.prompt.content ?? ''),
-                          );
-                          showCustomSnackBar(context, 'Copied to clipboard');
-                        },
-                        icon: const Icon(Icons.copy,
-                            color: Colors.grey, size: 14),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Provider.of<PromptInputProvider>(context,
-                                  listen: false)
-                              .setInputContent(widget.prompt.content);
-                          print(
-                              'PromptInputProvider: setContent: ${widget.prompt.content}');
-                          Navigator.pop(context);
-                        },
-                        child: const Text("Add to chat input"),
-                        style: TextButton.styleFrom(
-                          textStyle: const TextStyle(fontSize: 10),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: isSaving ? null : updatePrompt,
-                        style: TextButton.styleFrom(
-                          textStyle: const TextStyle(
-                              fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                        child: isSaving
-                            ? const SizedBox(
-                                width: 12,
-                                height: 12,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : const Text("Save"),
-                      ),
-                    ],
-                  ),
-                  TextField(
-                    style: const TextStyle(fontSize: 12),
-                    controller: _promptController,
-
-                    readOnly: false,
-                    maxLines: 2, // Giới hạn hiển thị 2 dòng
-                    decoration: const InputDecoration(
-                      filled: true,
-                      fillColor: Color(0xFFF4F5F7), // Màu nền xám nhạt
-                      border: InputBorder.none, // Không có viền
-                      hintText: 'Enter prompt content here...',
-                      contentPadding: EdgeInsets.all(12),
                     ),
-                    onChanged: (newText) {
-                      // Cập nhật nếu cần
-                    },
-                  ),
+                  if (_isPromptVisible)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Prompt',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              onPressed: () {
+                                Clipboard.setData(
+                                  ClipboardData(
+                                      text: widget.prompt.content ?? ''),
+                                );
+                                showCustomSnackBar(
+                                    context, 'Copied to clipboard');
+                              },
+                              icon: const Icon(Icons.copy,
+                                  color: Colors.grey, size: 14),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Provider.of<PromptInputProvider>(context,
+                                        listen: false)
+                                    .setInputContent(widget.prompt.content);
+                                print(
+                                    'PromptInputProvider: setContent: ${widget.prompt.content}');
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Add to chat input"),
+                              style: TextButton.styleFrom(
+                                textStyle: const TextStyle(fontSize: 10),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          style: const TextStyle(fontSize: 12),
+                          controller: _promptController,
+                          readOnly: false,
+                          maxLines: 4,
+                          decoration: const InputDecoration(
+                            filled: true,
+                            fillColor: Color(0xFFF4F5F7),
+                            border: InputBorder.none,
+                            hintText: 'Enter prompt content here...',
+                            contentPadding: EdgeInsets.all(12),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
 
@@ -255,7 +280,25 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                   ),
                 ],
               ),
-
+              const SizedBox(height: 8),
+              ..._inputControllers.entries.map((entry) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: TextFormField(
+                    controller: entry.value,
+                    decoration: InputDecoration(
+                      // labelText: entry.key,
+                      hintText: entry.key,
+                      filled: true,
+                      fillColor: const Color(0xFFF4F5F7),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
               const SizedBox(height: 16),
 
               // Send button
@@ -271,13 +314,26 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(24),
                     onTap: () {
-                      final provider = Provider.of<PromptInputProvider>(context, listen: false);
-                      provider.sendPrompt(
-                        _promptController.text.trim(),
-                      );
+                      final provider = Provider.of<PromptInputProvider>(context,
+                          listen: false);
 
-                      print(
-                          'PromptInputProvider: setContent: ${widget.prompt.content}');
+                      String finalPrompt = _promptController.text.trim();
+
+                      _inputControllers.forEach((key, controller) {
+                        if (controller.text.isNotEmpty) {
+                          finalPrompt =
+                              finalPrompt.replaceAll('[$key]', controller.text);
+                        }
+                      });
+
+                      if (selectedLanguage != null &&
+                          selectedLanguage != 'Auto') {
+                        finalPrompt += '\n\nResponse in $selectedLanguage';
+                      }
+
+                      // Send the final prompt
+                      provider.sendPrompt(finalPrompt);
+
                       Navigator.pop(context);
                     },
                     child: const Center(
@@ -340,28 +396,6 @@ class _PromptBottomSheetState extends State<PromptBottomSheet> {
     }
 
     return items;
-  }
-
-  Future<void> updatePrompt() async {
-    setState(() {
-      isSaving = true;
-    });
-
-    final request = CreatePromptRequest(
-      title: widget.prompt.title,
-      content: _promptController.text.trim(),
-      isPublic: false,
-    );
-
-    try {
-      await PromptRepository().updatePrompt(widget.prompt.id, request);
-    } catch (e) {
-      print('Error updating prompt: $e');
-    } finally {
-      setState(() {
-        isSaving = false;
-      });
-    }
   }
 
   void showCustomSnackBar(BuildContext context, String message) {

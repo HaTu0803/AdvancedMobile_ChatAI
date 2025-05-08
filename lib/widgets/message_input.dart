@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:advancedmobile_chatai/data_app/model/jarvis/token_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/jarvis/token_repository.dart';
 import 'package:advancedmobile_chatai/providers/prompt_input.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/widgets/upload_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -33,6 +36,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
   UsageTokenResponse? _tokenData;
   bool _isLoadingToken = false;
   String _tokenError = '';
+  List<File> _selectedImages = [];
 
   @override
   void initState() {
@@ -50,6 +54,23 @@ class _MessageInputFieldState extends State<MessageInputField> {
     _controller.text = _promptInputProvider.content;
   }
 
+Future<void> _handleImageUpload() async {
+  final imagePath = await ImageUploader.pickImage(context);
+
+  if (imagePath != null) {
+    setState(() {
+      _selectedImages.add(File(imagePath)); // Thêm ảnh mới vào danh sách
+    });
+  }
+}
+
+  // Future<void> _handleImageUpload() async {
+  //   await ImageUploader.pickAndUploadImage(context, (imageFile) {
+  //     setState(() {
+  //       _selectedImage = imageFile; // Update the state with the selected image
+  //     });
+  //   });
+  // }
   @override
   void dispose() {
     _hideOverlay();
@@ -225,6 +246,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
           ),
           child: Column(
             children: [
+             
               Row(
                 children: [
                   Expanded(
@@ -249,6 +271,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                           contentPadding:
                               const EdgeInsets.symmetric(vertical: 12.0),
                         ),
+                        
                         enabled: !isOutOfTokens,
                         onChanged: (text) {
                           _promptInputProvider.setInputContent(text);
@@ -262,7 +285,63 @@ class _MessageInputFieldState extends State<MessageInputField> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+                            const SizedBox(height: 8),
+
+if (_selectedImages.isNotEmpty)
+  Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: _selectedImages.map((image) {
+              return Container(
+                margin: const EdgeInsets.only(right: 8.0),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.file(
+                        image,
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedImages.remove(image); // Xóa ảnh khi nhấn nút "x"
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    ],
+  ),
+
               Row(
                 children: [
                   Flexible(
@@ -279,7 +358,9 @@ class _MessageInputFieldState extends State<MessageInputField> {
                           );
                         }),
                         _buildActionButton(Icons.attach_file_outlined,
-                            onPressed: () {}),
+                            onPressed: () {
+                          _handleImageUpload();
+                        }),
                         _buildActionButton(
                           Icons.arrow_upward,
                           onPressed: (_isComposing && !isOutOfTokens)

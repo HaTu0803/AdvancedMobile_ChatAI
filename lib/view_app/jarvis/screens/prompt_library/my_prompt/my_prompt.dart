@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:advancedmobile_chatai/data_app/repository/jarvis/prompt_repository.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/create_prompt/create_prompt_screen.dart';
-import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/my_prompt/using_prompt.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/widgets/using_my_prompt.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
@@ -161,7 +161,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
                             ),
                             onDelete: () => _handleDeletePrompt(
                                 prompt), // Pass the whole PromptItemV2 object
-                            onUse: () => _showPromptBottomSheet(prompt),
+                            onUse: () => _showUsingMyPrompt(prompt),
                           );
                         },
                       ),
@@ -196,7 +196,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
     );
   }
 
-  void _showPromptBottomSheet(PromptItemV2 prompt) {
+  void _showUsingMyPrompt(PromptItemV2 prompt) {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     }
@@ -208,11 +208,10 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
         isScrollControlled: true,
-        builder: (context) => PromptBottomSheet(prompt: prompt),
+        builder: (context) => UsingMyPrompt(prompt: prompt),
       );
     });
   }
-
 
   Future<void> _handleDeletePrompt(PromptItemV2 prompt) async {
     showCustomDialog(
