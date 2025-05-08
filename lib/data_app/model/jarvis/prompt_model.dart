@@ -292,7 +292,7 @@ class GetPromptRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'q': query,
+      'query': query,
       'offset': offset,
       'limit': limit,
       'category': category,

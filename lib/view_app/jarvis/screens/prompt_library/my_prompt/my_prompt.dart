@@ -134,7 +134,7 @@ Future<void> _fetchPrompts({String query = ""}) async {
                     const SizedBox(height: 4),
                     CreatePromptScreen(
                       promptToEdit: promptToEdit,
-                      onSubmitSuccess: _fetchPrompts,
+                      onSubmitSuccess: () => _resetAndFetch(_currentQuery),
                       // Pass the prompt to edit here
                       // promptToEdit: promptToEdit,
                     ),
