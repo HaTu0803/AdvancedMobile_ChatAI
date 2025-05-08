@@ -21,6 +21,26 @@ class DisconnectBotIntegration {
   }
 }
 
+class TelegramBot {
+  String botToken;
+
+  TelegramBot({
+    required this.botToken,
+  });
+  
+  Map<String, dynamic> toJson() {
+    return {
+      'botToken': botToken,
+    };
+  }
+
+  factory TelegramBot.fromJson(Map<String, dynamic> json) {
+    return TelegramBot(
+      botToken: json['botToken'],
+    );
+  }
+}
+
 class SlackBot {
   String botToken;
   String clientId;

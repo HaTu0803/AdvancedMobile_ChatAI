@@ -210,31 +210,6 @@ class _KnowledgeBaseListScreenState extends State<KnowledgeBaseListScreen> {
                         },
                       ),
           ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: FilledButton.icon(
-                onPressed: () {
-                  // Handle create new knowledge base
-                },
-                icon: const Icon(Icons.add, size: 20),
-                label: const Text(
-                  'Create new knowledge base',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  minimumSize: const Size(double.infinity, 0),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
