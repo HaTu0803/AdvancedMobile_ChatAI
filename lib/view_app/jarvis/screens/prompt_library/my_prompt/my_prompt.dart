@@ -123,69 +123,63 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Search Bar
-         Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-  child: Container(
-    height: 40,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(4),
-      color: Colors.white,
-    ),
-    child: TextField(
-      controller: _searchController,
-      decoration: const InputDecoration(
-        isDense: true, 
-        hintText: 'Search...',
-        prefixIcon: Icon(Icons.search, color: AppColors.iconColorDark, size: 18),
-        border: InputBorder.none,
-        contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      ),
-      style: TextStyle(fontSize: 14),
-    ),
-  ),
-),
-
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                color: Colors.white,
+              ),
+              child: TextField(
+                controller: _searchController,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  hintText: 'Search...',
+                  prefixIcon: Icon(Icons.search,
+                      color: AppColors.iconColorDark, size: 18),
+                  border: InputBorder.none,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                ),
+                style: TextStyle(fontSize: 14),
+              ),
+            ),
+          ),
 
           // Prompt List
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _prompts.isEmpty
-                    ? const Center(child: Text("No prompts found"))
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4.0, vertical: 4.0),
-                        itemCount: _prompts.length,
-                        itemBuilder: (context, index) {
-                          // Cast the prompt to PromptItemV2
-                          final prompt = _prompts[index] as PromptItemV2;
-
-
-                          return ButtonAction(
-                            model: prompt,
-                            iconActions: [
-
-                              IconAction(
-                                icon: Icons.edit_outlined,
-                                onPressed: () => _openPromptDialog(
-                                  promptToEdit: prompt,
-                                ),
-                              ),
-                              IconAction(
-                                icon: Icons.delete_outlined,
-                                onPressed: () => _handleDeletePrompt(prompt),
-                              ),
-                              IconAction(
-                                icon: Icons.arrow_forward,
-                                onPressed: () => _showUsingMyPrompt(prompt),
-                              ),
-                            ],
-                            showIconActions: true,
-                            showContent: false,
-
-                          );
-                        },
-                      ),
+                ? const Center(child: Text("No prompts found"))
+                : ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+              itemCount: _prompts.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 8), // <-- Space between items
+              itemBuilder: (context, index) {
+                final prompt = _prompts[index] as PromptItemV2;
+                return ButtonAction(
+                  model: prompt,
+                  iconActions: [
+                    IconAction(
+                      icon: Icons.edit_outlined,
+                      onPressed: () => _openPromptDialog(promptToEdit: prompt),
+                    ),
+                    IconAction(
+                      icon: Icons.delete_outlined,
+                      onPressed: () => _handleDeletePrompt(prompt),
+                    ),
+                    IconAction(
+                      icon: Icons.arrow_forward,
+                      onPressed: () => _showUsingMyPrompt(prompt),
+                    ),
+                  ],
+                  showIconActions: true,
+                  showContent: false,
+                );
+              },
+            ),
           ),
 
           // Footer
@@ -241,7 +235,8 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
       message: Text.rich(
         TextSpan(
           children: [
-            const TextSpan(text: 'Are you sure you want to delete the prompt titled '),
+            const TextSpan(
+                text: 'Are you sure you want to delete the prompt titled '),
             TextSpan(
               text: '"${prompt.title}"',
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -287,6 +282,4 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
       setState(() => _isLoading = false);
     }
   }
-
-
 }

@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
-import '../../../../../providers/prompt_provider.dart';
 import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
+import '../../../../../providers/prompt_provider.dart';
 import '../../../widgets/using_public_prompt.dart';
 
 class PublicPromptsScreen extends StatefulWidget {
@@ -294,7 +294,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
             child: Row(
               children: [
                 Expanded(

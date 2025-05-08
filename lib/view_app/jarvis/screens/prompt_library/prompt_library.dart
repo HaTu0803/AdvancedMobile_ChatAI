@@ -1,5 +1,4 @@
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/public_prompt/public_prompt.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/util/themes/colors.dart';
@@ -82,7 +81,10 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Container(
+        color: Colors.white,
+        child: SafeArea(
+    child: Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -169,6 +171,8 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
             ),
           ],
         ),
+      ),
+    ),
       ),
     );
   }
