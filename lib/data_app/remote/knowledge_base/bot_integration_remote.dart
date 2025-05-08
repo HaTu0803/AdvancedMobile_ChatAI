@@ -102,18 +102,21 @@ class BotIntegrationApiClient {
     }
   }
 
-  Future<bool> publishTelegramBot(String assistantId) async {
+  Future<bool> publishTelegramBot(String assistantId, String botToken) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
     final url = Uri.parse(ApiBotIntegrationUrl.publishTelegramBot(assistantId));
     final headers = ApiHeaders.getAIChatHeaders("", token);
-    final response = await http.post(url, headers: headers);
+    final body = jsonEncode({'botToken': botToken});
+    debugPrint('Publish Telegram botToken: $botToken');
+    final response = await http.post(url, headers: headers, body: body);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return true;
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         method: 'POST',
+        body: body,
       );
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return true;
@@ -162,18 +165,32 @@ class BotIntegrationApiClient {
     }
   }
 
-  Future<bool> publishSlackBot(String assistantId) async {
+  Future<bool> publishSlackBot(
+    String assistantId,
+    String botToken,
+    String clientId,
+    String clientSecret,
+    String signingSecret,
+  ) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
     final url = Uri.parse(ApiBotIntegrationUrl.publishSlackBot(assistantId));
     final headers = ApiHeaders.getAIChatHeaders("", token);
-    final response = await http.post(url, headers: headers);
+    final body = jsonEncode({
+      'botToken': botToken,
+      'clientId': clientId,
+      'clientSecret': clientSecret,
+      'signingSecret': signingSecret,
+    });
+    debugPrint('Publish Slack bot: $body');
+    final response = await http.post(url, headers: headers, body: body);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return true;
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         method: 'POST',
+        body: body,
       );
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return true;
@@ -222,18 +239,30 @@ class BotIntegrationApiClient {
     }
   }
 
-  Future<bool> publishMessengerBot(String assistantId) async {
+  Future<bool> publishMessengerBot(
+    String assistantId,
+    String botToken,
+    String pageId,
+    String appSecret,
+  ) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
     final url = Uri.parse(ApiBotIntegrationUrl.publishMessengerBot(assistantId));
     final headers = ApiHeaders.getAIChatHeaders("", token);
-    final response = await http.post(url, headers: headers);
+    final body = jsonEncode({
+      'botToken': botToken,
+      'pageId': pageId,
+      'appSecret': appSecret,
+    });
+    debugPrint('Publish Messenger bot: $body');
+    final response = await http.post(url, headers: headers, body: body);
     if (response.statusCode == 200 || response.statusCode == 201) {
       return true;
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         method: 'POST',
+        body: body,
       );
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return true;

@@ -49,6 +49,14 @@ class _EditBotScreenState extends State<EditBotScreen> {
   };
   Map<String, dynamic> _platformStatus = {};
   bool _isLoadingConfig = false;
+  String? _telegramBotToken;
+  String? _slackBotToken;
+  String? _slackClientId;
+  String? _slackClientSecret;
+  String? _slackSigningSecret;
+  String? _messengerBotToken;
+  String? _messengerPageId;
+  String? _messengerAppSecret;
 
   @override
   void initState() {
@@ -1179,33 +1187,74 @@ class _EditBotScreenState extends State<EditBotScreen> {
               child: ElevatedButton(
                 onPressed: _platformChecked.values.any((v) => v)
                     ? () async {
-                        debugPrint('Platform checked: $_platformChecked');
-                        debugPrint('Platform status: $_platformStatus');
-                        // Xử lý publish cho từng nền tảng
                         if (_platformChecked['Telegram'] == true) {
-                          debugPrint('Publish TelegramBot with assistantId: \\${_currentAssistant.id}');
                           try {
-                            // Hiển thị loading nếu muốn
                             showDialog(
                               context: context,
                               barrierDismissible: false,
                               builder: (context) => const Center(child: CircularProgressIndicator()),
                             );
-                            await BotIntegrationRepository().publishTelegramBot(_currentAssistant.id);
-                            debugPrint('Publish Telegram bot: success');
-                            Navigator.pop(context); // Đóng loading
+                            await BotIntegrationRepository().publishTelegramBot(_currentAssistant.id, _telegramBotToken ?? '');
+                            Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Publish Telegram bot thành công!')),
                             );
                           } catch (e) {
-                            debugPrint('PublishTelegramBot Error: $e');
-                            Navigator.pop(context); // Đóng loading nếu lỗi
+                            Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Publish Telegram bot thất bại: $e')),
                             );
                           }
                         }
-                        // TODO: Xử lý publish cho Slack, Messenger nếu cần
+                        if (_platformChecked['Slack'] == true) {
+                          try {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const Center(child: CircularProgressIndicator()),
+                            );
+                            await BotIntegrationRepository().publishSlackBot(
+                              _currentAssistant.id,
+                              _slackBotToken ?? '',
+                              _slackClientId ?? '',
+                              _slackClientSecret ?? '',
+                              _slackSigningSecret ?? '',
+                            );
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Publish Slack bot thành công!')),
+                            );
+                          } catch (e) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Publish Slack bot thất bại: $e')),
+                            );
+                          }
+                        }
+                        if (_platformChecked['Messenger'] == true) {
+                          try {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const Center(child: CircularProgressIndicator()),
+                            );
+                            await BotIntegrationRepository().publishMessengerBot(
+                              _currentAssistant.id,
+                              _messengerBotToken ?? '',
+                              _messengerPageId ?? '',
+                              _messengerAppSecret ?? '',
+                            );
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Publish Messenger bot thành công!')),
+                            );
+                          } catch (e) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Publish Messenger bot thất bại: $e')),
+                            );
+                          }
+                        }
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -1511,6 +1560,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
                                       _tokenController,
                                       'Please enter bot token',
                                       icon: Icons.vpn_key,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _slackBotToken = val;
+                                        });
+                                      },
                                     ),
                                     const SizedBox(height: 12),
                                     _buildSlackTextField(
@@ -1518,6 +1572,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
                                       _clientIdController,
                                       'Please enter client ID',
                                       icon: Icons.perm_identity,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _slackClientId = val;
+                                        });
+                                      },
                                     ),
                                     const SizedBox(height: 12),
                                     _buildSlackTextField(
@@ -1525,6 +1584,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
                                       _clientSecretController,
                                       'Please enter client secret',
                                       icon: Icons.lock_outline,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _slackClientSecret = val;
+                                        });
+                                      },
                                     ),
                                     const SizedBox(height: 12),
                                     _buildSlackTextField(
@@ -1532,6 +1596,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
                                       _signingSecretController,
                                       'Please enter signing secret',
                                       icon: Icons.security,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _slackSigningSecret = val;
+                                        });
+                                      },
                                     ),
                                   ],
                                 ),
@@ -1649,9 +1718,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
     TextEditingController controller,
     String errorText, {
     IconData? icon,
+    void Function(String)? onChanged,
   }) {
     return TextFormField(
       controller: controller,
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: icon != null ? Icon(icon, size: 20) : null,
@@ -1815,6 +1886,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
                                       _pageAccessTokenController,
                                       'Please enter Bot Token',
                                       icon: Icons.vpn_key,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _messengerBotToken = val;
+                                        });
+                                      },
                                     ),
                                     const SizedBox(height: 12),
                                     _buildMessengerTextField(
@@ -1822,6 +1898,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
                                       _pageIdController,
                                       'Please enter Facebook Page ID',
                                       icon: Icons.pages,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _messengerPageId = val;
+                                        });
+                                      },
                                     ),
                                     const SizedBox(height: 12),
                                     _buildMessengerTextField(
@@ -1829,6 +1910,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
                                       _appSecretController,
                                       'Please enter Facebook App Secret',
                                       icon: Icons.lock_outline,
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _messengerAppSecret = val;
+                                        });
+                                      },
                                     ),
                                   ],
                                 ),
@@ -1908,9 +1994,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
     TextEditingController controller,
     String errorText, {
     IconData? icon,
+    void Function(String)? onChanged,
   }) {
     return TextFormField(
       controller: controller,
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: icon != null ? Icon(icon, size: 20) : null,
@@ -1939,9 +2027,7 @@ class _EditBotScreenState extends State<EditBotScreen> {
                 final request = TelegramBot(
                   botToken: _tokenController.text,
                 );
-                debugPrint('Verify Telegram request: \\${request.toJson()}');
                 final result = await BotIntegrationRepository().verifyTelegramBotConfigure(request);
-                debugPrint('Verify Telegram result: $result');
                 if (result) {
                   setState(() {
                     isVerified = true;
@@ -1949,7 +2035,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
                   this.setState(() {
                     _platformStatus['Telegram'] = {'status': 'Verified'};
                   });
-                  debugPrint('Platform status after verify: $_platformStatus');
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Telegram bot verified successfully')),
                   );
@@ -2078,6 +2163,11 @@ class _EditBotScreenState extends State<EditBotScreen> {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: _tokenController,
+                              onChanged: (val) {
+                                setState(() {
+                                  _telegramBotToken = val;
+                                });
+                              },
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),

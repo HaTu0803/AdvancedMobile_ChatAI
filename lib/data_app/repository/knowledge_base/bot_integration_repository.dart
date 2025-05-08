@@ -35,9 +35,9 @@ class BotIntegrationRepository {
     }
   }
 
-  Future<bool> publishTelegramBot(String assistantId) async {
+  Future<bool> publishTelegramBot(String assistantId, String botToken) async {
     try {
-      final response = await BotIntegrationApi.publishTelegramBot(assistantId);
+      final response = await BotIntegrationApi.publishTelegramBot(assistantId, botToken);
       return response;
     } catch (e) {
       debugPrint("PublishTelegramBot Error: $e");
@@ -55,9 +55,21 @@ class BotIntegrationRepository {
     }
   }
 
-  Future<bool> publishSlackBot(String assistantId) async {
+  Future<bool> publishSlackBot(
+    String assistantId,
+    String botToken,
+    String clientId,
+    String clientSecret,
+    String signingSecret,
+  ) async {
     try {
-      final response = await BotIntegrationApi.publishSlackBot(assistantId);
+      final response = await BotIntegrationApi.publishSlackBot(
+        assistantId,
+        botToken,
+        clientId,
+        clientSecret,
+        signingSecret,
+      );
       return response;
     } catch (e) {
       debugPrint("PublishSlackBot Error: $e");
@@ -75,9 +87,19 @@ class BotIntegrationRepository {
     }
   }
 
-  Future<bool> publishMessengerBot(String assistantId) async {
+  Future<bool> publishMessengerBot(
+    String assistantId,
+    String botToken,
+    String pageId,
+    String appSecret,
+  ) async {
     try {
-      final response = await BotIntegrationApi.publishMessengerBot(assistantId);
+      final response = await BotIntegrationApi.publishMessengerBot(
+        assistantId,
+        botToken,
+        pageId,
+        appSecret,
+      );
       return response;
     } catch (e) {
       debugPrint("PublishMessengerBot Error: $e");
