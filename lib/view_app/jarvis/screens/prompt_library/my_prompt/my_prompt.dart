@@ -216,6 +216,8 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
           Expanded(
             child: _prompts.isEmpty && _isLoading
                 ? const Center(child: CircularProgressIndicator())
+                  : _prompts.isEmpty
+                    ? _buildEmptyState() 
                 : ListView.separated(
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(
