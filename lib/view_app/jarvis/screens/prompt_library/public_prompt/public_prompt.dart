@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
+import '../../../widgets/button_action.dart';
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
 import '../../../../../providers/prompt_provider.dart';
@@ -159,9 +159,9 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   }
 
   void _showPromptDetails(
-      BuildContext context, Prompt prompt, Function onToggleFavorite) {
+      BuildContext context, Prompt prompt, Function onToggleFavorite, int index) {
     final buttonColor =
-        const Color(0xFF7B68EE); // Use the same color as Public Prompts
+        const Color(0xFF7B68EE);
 
     showDialog(
       context: context,
@@ -180,14 +180,13 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                   const Spacer(),
                   IconButton(
                     icon: Icon(
-                      Icons.star,
-                      color: prompt.isFavorite ? Colors.yellow : Colors.grey,
+                      prompt.isFavorite ? Icons.star : Icons.star_border,
+                      color: prompt.isFavorite ? Colors.grey : Colors.grey,
                     ),
                     onPressed: () {
-                      setState(() {
-                        prompt.isFavorite = !prompt.isFavorite;
-                      });
-                      onToggleFavorite();
+                      Navigator.of(context).pop(); // Đóng dialog để cập nhật lại UI
+                      _toggleFavorite(index); // Cập nhật trạng thái toàn cục
+                      // Có thể mở lại dialog nếu muốn, hoặc để user tự mở lại
                     },
                   ),
                 ],
@@ -319,15 +318,26 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                     controller: _searchController,
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
-                      hintText: 'Search...',
-                      prefixIcon:
-                          Icon(Icons.search, color: Colors.grey.shade500),
+                      hintText: 'Search prompts...',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
                       ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                      ),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surface,
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8, vertical: 4
+                      ),
                     ),
                   ),
                 ),
@@ -339,8 +349,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                   ),
                   child: IconButton(
                     icon: Icon(
-                      Icons.star,
-                      color: _isStarred ? Colors.yellow : Colors.grey,
+                      _isStarred ? Icons.star : Icons.star_border,
+                      color: _isStarred ? Colors.grey : Colors.grey,
                     ),
                     onPressed: () {
                       setState(() {
@@ -374,21 +384,28 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                   );
                 }
                 final prompt = _filteredPrompts[index];
-                return PromptItem(
-                  id: prompt.id,
-                  createdAt: prompt.createdAt.toString(),
-                  updatedAt: prompt.updatedAt.toString(),
-                  category: prompt.category,
-                  content: prompt.content,
-                  description: prompt.description,
-                  isPublic: prompt.isPublic,
-                  language: prompt.language,
-                  title: prompt.title,
-                  userId: prompt.userId,
-                  userName: prompt.userName,
-                  isFavorite: prompt.isFavorite,
-                  onToggleFavorite: () => _toggleFavorite(index),
-                  showDetails: _showPromptDetails,
+                return ButtonAction(
+                  model: prompt,
+                  iconActions: [
+                    IconAction(
+                      icon: prompt.isFavorite ? Icons.star : Icons.star_border,
+                      onPressed: () => _toggleFavorite(index),
+                      style: IconButtonStyle(
+                        iconColor: Colors.grey,
+                      ),
+                    ),
+                    IconAction(
+                      icon: Icons.info_outline,
+                      onPressed: () => _showPromptDetails(context, prompt, () => _toggleFavorite(index), index), // truyền index
+                    ),
+                    IconAction(
+                      icon: Icons.arrow_forward, // Icon forward nằm bên phải
+                      onPressed: () => _showUsingMyPrompt(prompt),
+                      style: IconButtonStyle(
+                        iconColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -437,32 +454,54 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   Widget _buildCategoriesList() {
     return SizedBox(
       height: 50,
-      child: ListView(
+      child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        children: _categories
-            .map((category) => _buildCategoryItem(category))
-            .toList(),
+        itemCount: _categories.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          return ChoiceChip(
+            label: Text(
+              category.name,
+              style: TextStyle(
+                color: category.isSelected ? Colors.white : Colors.black87,
+                fontWeight: category.isSelected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 15,
+              ),
+            ),
+            selected: category.isSelected,
+            selectedColor: const Color(0xFF7B68EE),
+            backgroundColor: const Color(0xFFF5F5F5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+              side: BorderSide(
+                color: category.isSelected ? const Color(0xFF7B68EE) : Colors.grey.shade300,
+                width: 1.2,
+              ),
+            ),
+            elevation: category.isSelected ? 4 : 0,
+            shadowColor: const Color(0xFF7B68EE).withOpacity(0.2),
+            onSelected: (_) => _selectCategory(category.name),
+            showCheckmark: false,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          );
+        },
       ),
     );
   }
 }
 
-// Hàm để xây dựng các PromptItem vào một Widget
 Widget? buildPromptItem(PromptItem? promptItem) {
   if (promptItem == null) {
     return null;
   }
-
   return promptItem;
 }
 
-// Widget để hiển thị danh sách PromptItem
 class PromptList extends StatelessWidget {
   final List<PromptItem> promptItems;
-
   PromptList({required this.promptItems});
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
