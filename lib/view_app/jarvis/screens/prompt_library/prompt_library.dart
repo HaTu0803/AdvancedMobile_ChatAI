@@ -112,39 +112,38 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Row(
                 children: [
-                  ..._tabs.map((tab) {
-                    final isSelected = tab == _selectedTab;
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 4.0),
-                      child: InkWell(
-                        onTap: () => _selectTab(tab),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Theme.of(context).primaryColor
-                                : AppColors.categoryGrey,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            tab,
-                            // style: TextStyle(
-                            //   color: isSelected ? Colors.white : Colors.black,
-                            //   fontWeight: FontWeight.w500,
-                            // ),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : Colors.black,
+                  // Phần Tabs
+                  Expanded(
+                    child: Row(
+                      children: _tabs.map((tab) {
+                        final isSelected = tab == _selectedTab;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 4.0),
+                          child: InkWell(
+                            onTap: () => _selectTab(tab),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? Theme.of(context).primaryColor
+                                    : AppColors.categoryGrey,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                tab,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: isSelected ? Colors.white : Colors.black,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  }),
-                  const Spacer(),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: IconButton(
@@ -157,11 +156,11 @@ class _PromptLibraryScreenState extends State<PromptLibraryScreen> {
                         _openCreatePromptModal(context);
                       },
                     ),
-                  )
-
+                  ),
                 ],
               ),
             ),
+
 
             // Tab Content
             Expanded(

@@ -22,12 +22,12 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
   Timer? _debounce;
   List<PromptItemV2> _prompts = [];
   bool _isLoading = false;
-bool _hasMore = true;
+  bool _hasMore = true;
   int _offset = 0;
   final int _limit = 10;
   String _currentQuery = "";
-   final ScrollController _scrollController = ScrollController();
-   @override
+  final ScrollController _scrollController = ScrollController();
+  @override
   void initState() {
     super.initState();
     _fetchPrompts();
@@ -63,33 +63,37 @@ bool _hasMore = true;
     _fetchPrompts(query: query);
   }
 
-Future<void> _fetchPrompts({String query = ""}) async {
-  if (!_hasMore || _isLoading) return;
+  Future<void> _fetchPrompts({String query = ""}) async {
+    if (!_hasMore || _isLoading) return;
 
-  setState(() => _isLoading = true);
+    setState(() => _isLoading = true);
 
-  final params = GetPromptRequest(
-    query: query,
-    offset: _offset,
-    limit: _limit,
-    isPublic: false,
-  );
+    final params = GetPromptRequest(
+      query: query,
+      offset: _offset,
+      limit: _limit,
+      isPublic: false,
+    );
 
-  try {
-    final response = await PromptRepository().getPrompt(params);
-    final newItems = response.items;
+    try {
+      final response = await PromptRepository().getPrompt(params);
+      final newItems = response.items;
 
-    setState(() {
-      _prompts.addAll(newItems);
-      _offset += _limit;
-      _hasMore = response.hasNext;
-    });
-  } catch (e) {
-    debugPrint('Failed to fetch prompts: $e');
-  } finally {
-    setState(() => _isLoading = false);
+      setState(() {
+        _prompts.addAll(newItems);
+        _offset += _limit;
+        _hasMore = response.hasNext;
+      });
+      if (widget.onRefresh != null) {
+        widget.onRefresh!();
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch prompts: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
-}
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -150,72 +154,85 @@ Future<void> _fetchPrompts({String query = ""}) async {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: Colors.white,
-              ),
-              child: TextField(
-                controller: _searchController,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  hintText: 'Search...',
-                  prefixIcon: Icon(Icons.search,
-                      color: AppColors.iconColorDark, size: 18),
-                  border: InputBorder.none,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 42,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search prompts...',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon:
+                        Icon(Icons.search, color: theme.colorScheme.primary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: theme.colorScheme.primary),
+                    ),
+                    filled: true,
+                    fillColor: theme.colorScheme.surface,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
                 ),
-                style: TextStyle(fontSize: 14),
-              ),
-            ),
+              )
+            ],
           ),
-
+          const SizedBox(height: 8),
           // Prompt List
-          Expanded(
+     Expanded(
             child: _prompts.isEmpty && _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.separated(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+      controller: _scrollController,
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
               itemCount: _prompts.length + (_hasMore ? 1 : 0),
-              separatorBuilder: (context, index) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
                 if (index >= _prompts.length) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+          return const Center(child: CircularProgressIndicator());
+        }
 
-                final prompt = _prompts[index];
-                return ButtonAction(
-                  model: prompt,
-                  iconActions: [
-                    IconAction(
-                      icon: Icons.edit_outlined,
-                      onPressed: () => _openPromptDialog(promptToEdit: prompt),
-                    ),
-                    IconAction(
-                      icon: Icons.delete_outlined,
-                      onPressed: () => _handleDeletePrompt(prompt),
-                    ),
-                    IconAction(
-                      icon: Icons.arrow_forward,
-                      onPressed: () => _showUsingMyPrompt(prompt),
-                    ),
-                  ],
-                  showIconActions: true,
-                  showContent: false,
-                );
-              },
+        final prompt = _prompts[index];
+        return ButtonAction(
+          model: prompt,
+          iconActions: [
+            IconAction(
+              icon: Icons.edit_outlined,
+              onPressed: () => _openPromptDialog(promptToEdit: prompt),
             ),
-          ),
+            IconAction(
+              icon: Icons.delete_outlined,
+              onPressed: () => _handleDeletePrompt(prompt),
+            ),
+            IconAction(
+              icon: Icons.arrow_forward,
+              onPressed: () => _showUsingMyPrompt(prompt),
+            ),
+          ],
+          showIconActions: true,
+          showContent: false,
+        );
+      },
+  ),
+),
 
 
           // Footer
@@ -225,7 +242,9 @@ Future<void> _fetchPrompts({String query = ""}) async {
               child: RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textGray,
+                      ),
                   children: [
                     const TextSpan(text: 'Find more prompts in '),
                     TextSpan(
