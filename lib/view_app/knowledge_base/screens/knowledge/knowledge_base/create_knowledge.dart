@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../data_app/model/knowledge_base/knowledge_model.dart';
 import '../../../../../data_app/repository/knowledge_base/knowledge_repository.dart';
+import '../../../../../widgets/custom_form_filed.dart';
 
 class CreateAKnowledgeBaseScreen extends StatefulWidget {
   final bool isUpdate;
@@ -80,7 +81,8 @@ class _CreateAKnowledgeBaseScreenState
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFormField(
+
+                CustomFormField(
                   label: 'Name',
                   controller: _nameController,
                   hintText: 'Enter a name for your knowledge base...',
@@ -96,7 +98,8 @@ class _CreateAKnowledgeBaseScreenState
                   currentLength: _nameCharCount,
                 ),
                 const SizedBox(height: 8),
-                _buildFormField(
+
+                CustomFormField(
                   label: 'Description',
                   controller: _descriptionController,
                   hintText: 'Enter a description for your knowledge base...',
@@ -112,27 +115,34 @@ class _CreateAKnowledgeBaseScreenState
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      // OutlinedButton(
+                      //   onPressed: () => Navigator.pop(context),
+                      //   style: OutlinedButton.styleFrom(
+                      //     padding: const EdgeInsets.symmetric(
+                      //         horizontal: 16, vertical: 8),
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(12),
+                      //     ),
+                      //   ),
+                      //   child: const Text('Cancel'),
+                      // ),
                       OutlinedButton(
                         onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
                         child: const Text('Cancel'),
                       ),
                       const SizedBox(width: 12),
-                      FilledButton(
-                        onPressed: _isLoading ? null : _submitForm,
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                      // FilledButton(
+                      //   onPressed: _isLoading ? null : _submitForm,
+                      //   style: FilledButton.styleFrom(
+                      //     padding: const EdgeInsets.symmetric(
+                      //         horizontal: 16, vertical: 8),
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(12),
+                      //     ),
+                      //   ),
+          FilledButton(
+              onPressed: _isLoading ? null : _submitForm,
+
                         child: _isLoading
                             ? const SizedBox(
                                 height: 20,
@@ -143,8 +153,8 @@ class _CreateAKnowledgeBaseScreenState
                                 ),
                               )
                             : Text(widget.isUpdate
-                                ? 'Update Knowledge Base'
-                                : 'Create Knowledge Base'),
+                                ? 'Update'
+                                : 'Create'),
                       ),
                     ],
                   ),

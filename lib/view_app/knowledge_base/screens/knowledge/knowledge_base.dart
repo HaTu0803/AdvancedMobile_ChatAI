@@ -117,7 +117,6 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(
           "Knowledge Base",
           style: Theme.of(context).textTheme.headlineMedium,
