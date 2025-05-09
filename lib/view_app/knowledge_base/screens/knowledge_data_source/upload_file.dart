@@ -61,14 +61,14 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                     alignment: Alignment.center,
                     child: _isUploading
                         ? const CircularProgressIndicator()
-                        : const Column(
+                        :  Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.upload_file, size: 40, color: Colors.blue),
-                        SizedBox(height: 8),
-                        Text('Click or drag files to upload'),
-                        SizedBox(height: 4),
-                        Text(
+                        Icon(Icons.upload_file, size: 40, color: Theme.of(context).primaryColor),
+                        const SizedBox(height: 8),
+                        const Text('Click or drag files to upload'),
+                        const SizedBox(height: 4),
+                        const Text(
                           'Supported formats: .c, .cpp, .docx, .html, ...',
                           style: TextStyle(fontSize: 12, color: Colors.grey),
                           textAlign: TextAlign.center,

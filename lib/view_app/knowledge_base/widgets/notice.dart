@@ -1,30 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PageLimitNotice extends StatelessWidget {
-  const PageLimitNotice({super.key});
+  final String? helpUrl;
+
+  const PageLimitNotice({super.key, this.helpUrl});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(
+        vertical: 8,
+        horizontal: 8,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F8FF), // light blue background
-        border: Border.all(color: const Color(0xFF99C2FF)), // light blue border
+        color: Theme.of(context).colorScheme.primaryContainer,
+        border: Border.all(color: Theme.of(context).colorScheme.primary),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Current Limitation:',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+          Row(
+            children: [
+              const Text(
+                'Current Limitation:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              InkWell(
+                onTap: () async {
+                  final Uri url = Uri.parse(helpUrl ?? '');
+                  if (await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                    debugPrint("Navigated successfully");
+                  } else {
+                    debugPrint("Could not launch $url");
+                  }
+                },
+                child: Icon(
+                  Icons.help_outline,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 16,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 8),
-          BulletPoint(text: 'You can load up to 64 pages at a time'),
-          BulletPoint(text: 'Need more? Contact us at myjarvischat@gmail.com'),
+          const BulletPoint(text: 'You can load up to 64 pages at a time'),
+          const BulletPoint(text: 'Need more? Contact us at hello@jarvis.cx'),
         ],
       ),
     );
@@ -42,11 +66,11 @@ class BulletPoint extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('• ', style: TextStyle(fontSize: 14)),
+          const Text('• ', style: TextStyle(fontSize: 14, color: Colors.black)),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 12),
             ),
           ),
         ],
