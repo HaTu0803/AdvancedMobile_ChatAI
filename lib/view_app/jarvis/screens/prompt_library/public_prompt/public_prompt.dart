@@ -18,23 +18,19 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   String _selectedCategory = 'All';
-  List<Prompt> _filteredPrompts = [];
+  List<Prompt> _allPrompts = []; 
+  List<Prompt> _filteredPrompts = []; 
   String _searchQuery = '';
   bool _isStarred = false;
 
   late List<PromptCategory> _categories = [];
-
   int _itemsPerPage = 10;
-  int _offset = 0;
-  bool _isLoading = false;
-  bool _hasMore = true;
+  int _currentMax = 10;
 
   @override
   void initState() {
     super.initState();
-    _fetchCategories();
-    _fetchPrompts(reset: true);
-
+    _fetchPromptsFromApi();
     _scrollController.addListener(_onScroll);
   }
 
@@ -45,68 +41,37 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
     super.dispose();
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      _fetchPrompts();
-    }
-  }
-
-  Future<void> _fetchCategories() async {
-    final promptProvider = Provider.of<PromptProvider>(context, listen: false);
-    await promptProvider.fetchCategories();
-    setState(() {
-      _categories = promptProvider.categories;
-    });
-  }
-
-  Future<void> _fetchPrompts({bool reset = false}) async {
-    if (_isLoading || !_hasMore) return;
-    setState(() => _isLoading = true);
-
-    if (reset) {
-      _offset = 0;
-      _filteredPrompts.clear();
-      _hasMore = true;
-    }
-
-    final params = GetPromptRequest(
-      query: _searchQuery,
-      offset: _offset,
-      limit: _itemsPerPage,
-      isPublic: true,
-      category: _selectedCategory == 'All' ? null : _selectedCategory,
-    );
-
+  Future<void> _fetchPromptsFromApi() async {
     try {
-      final response = await PromptRepository().getPrompt(params);
-      var newItems = response.items.map((data) => Prompt(
-        id: data.id,
-        title: data.title ?? '',
-        description: data.description ?? '',
-        category: data.category ?? '',
-        isFavorite: data.isFavorite ?? false,
-        createdAt: DateTime.parse(data.createdAt),
-        updatedAt: DateTime.parse(data.updatedAt),
-        content: data.content ?? '',
-        isPublic: data.isPublic ?? false,
-        language: data.language ?? '',
-        userId: data.userId ?? '',
-        userName: data.userName ?? '',
-      )).toList();
+      final promptProvider =
+          Provider.of<PromptProvider>(context, listen: false);
+      await Future.wait([
+        promptProvider.fetchPrompts(),
+        promptProvider.fetchCategories(),
+      ]);
 
-      // Nếu API không hỗ trợ lọc favorite, lọc ở đây:
-      if (_isStarred) {
-        newItems = newItems.where((item) => item.isFavorite == true).toList();
-      }
+      final prompts = promptProvider.prompts?.items ?? [];
 
       setState(() {
-        if (reset) {
-          _filteredPrompts = newItems;
-        } else {
-          _filteredPrompts.addAll(newItems);
-        }
-        _offset += _itemsPerPage;
-        _hasMore = response.hasNext;
+        _allPrompts = prompts
+            .map((data) => Prompt(
+                  id: data.id,
+                  title: data.title ?? '',
+                  description: data.description ?? '',
+                  category: data.category ?? '',
+                  isFavorite: data.isFavorite ?? false,
+                  createdAt: DateTime.parse(data.createdAt),
+                  updatedAt: DateTime.parse(data.updatedAt),
+                  content: data.content ?? '',
+                  isPublic: data.isPublic ?? false,
+                  language: data.language ?? '',
+                  userId: data.userId ?? '',
+                  userName: data.userName ?? '',
+                ))
+            .toList();
+
+        _categories = promptProvider.categories;
+        _filterPrompts(reset: true);
       });
     } catch (e) {
       if (mounted) {
@@ -114,9 +79,42 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
           SnackBar(content: Text('Error fetching prompts: $e')),
         );
       }
-    } finally {
-      setState(() => _isLoading = false);
     }
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 10) {
+      if (_currentMax < _filteredPrompts.length) {
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            setState(() {
+              _currentMax = (_currentMax + _itemsPerPage).clamp(0, _filteredPrompts.length);
+            });
+          }
+        });
+      }
+    }
+  }
+
+  void _filterPrompts({bool reset = false}) {
+    List<Prompt> filtered = _allPrompts.where((prompt) {
+      final matchesCategory = _selectedCategory == 'All' ||
+          prompt.category == _selectedCategory;
+      final matchesSearch =
+          prompt.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          prompt.description.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesFavorite = !_isStarred || prompt.isFavorite;
+      return matchesCategory && matchesSearch && matchesFavorite;
+    }).toList();
+
+    setState(() {
+      _filteredPrompts = filtered;
+      if (reset) {
+        _currentMax = _itemsPerPage.clamp(0, _filteredPrompts.length);
+      } else {
+        _currentMax = _currentMax.clamp(0, _filteredPrompts.length);
+      }
+    });
   }
 
   void _selectCategory(String category) {
@@ -126,39 +124,44 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         cat.isSelected = cat.name == category;
       }
     });
-    _fetchPrompts(reset: true);
+    _filterPrompts(reset: true);
+  }
+
+  void _toggleFavorite(int index) async {
+    final promptIndex = _allPrompts.indexOf(_filteredPrompts[index]);
+    if (promptIndex != -1) {
+      final prompt = _allPrompts[promptIndex];
+      try {
+        if (!prompt.isFavorite) {
+          await PromptRepository().addPromptToFavorites(prompt.id);
+        } else {
+          await PromptRepository().removePromptFromFavorites(prompt.id);
+        }
+        setState(() {
+          _allPrompts[promptIndex].isFavorite = !_allPrompts[promptIndex].isFavorite;
+        });
+        _filterPrompts();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error updating favorite status: $e')),
+          );
+        }
+      }
+    }
   }
 
   void _onSearchChanged(String query) {
     setState(() {
       _searchQuery = query;
     });
-    _fetchPrompts(reset: true);
-  }
-
-  void _toggleFavorite(int index) async {
-    final prompt = _filteredPrompts[index];
-    try {
-      if (!prompt.isFavorite) {
-        await PromptRepository().addPromptToFavorites(prompt.id);
-      } else {
-        await PromptRepository().removePromptFromFavorites(prompt.id);
-      }
-      setState(() {
-        _filteredPrompts[index].isFavorite = !_filteredPrompts[index].isFavorite;
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating favorite status: $e')),
-        );
-      }
-    }
+    _filterPrompts(reset: true);
   }
 
   void _showPromptDetails(
       BuildContext context, Prompt prompt, Function onToggleFavorite) {
-    final buttonColor = const Color(0xFF7B68EE);
+    final buttonColor =
+        const Color(0xFF7B68EE); // Use the same color as Public Prompts
 
     showDialog(
       context: context,
@@ -173,6 +176,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+
                   const Spacer(),
                   IconButton(
                     icon: Icon(
@@ -231,7 +235,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                   ),
                   const SizedBox(height: 4),
                   SizedBox(
-                    width: double.infinity,
+                    width: double.infinity, // Ensures consistent width
                     child: Container(
                       height: 120,
                       padding: const EdgeInsets.all(8.0),
@@ -262,7 +266,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _showUsingMyPrompt(prompt);
+                    _showUsingMyPrompt(
+                      prompt);
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
@@ -282,7 +287,6 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
       },
     );
   }
-
   void _showUsingMyPrompt(Prompt prompt) {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
@@ -341,8 +345,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                     onPressed: () {
                       setState(() {
                         _isStarred = !_isStarred;
-                        _fetchPrompts(reset: true);
                       });
+                      _filterPrompts(reset: true);
                     },
                   ),
                 ),
@@ -356,10 +360,12 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             child: ListView.separated(
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: _filteredPrompts.length + (_hasMore ? 1 : 0),
+              itemCount: (_currentMax < _filteredPrompts.length)
+                  ? _currentMax + 1
+                  : _filteredPrompts.length,
               separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
-                if (index >= _filteredPrompts.length) {
+                if (index == _currentMax && _currentMax < _filteredPrompts.length) {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(16.0),
@@ -438,6 +444,32 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             .map((category) => _buildCategoryItem(category))
             .toList(),
       ),
+    );
+  }
+}
+
+// Hàm để xây dựng các PromptItem vào một Widget
+Widget? buildPromptItem(PromptItem? promptItem) {
+  if (promptItem == null) {
+    return null;
+  }
+
+  return promptItem;
+}
+
+// Widget để hiển thị danh sách PromptItem
+class PromptList extends StatelessWidget {
+  final List<PromptItem> promptItems;
+
+  PromptList({required this.promptItems});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: promptItems.length,
+      itemBuilder: (context, index) {
+        return buildPromptItem(promptItems[index]) ?? Container();
+      },
     );
   }
 }
