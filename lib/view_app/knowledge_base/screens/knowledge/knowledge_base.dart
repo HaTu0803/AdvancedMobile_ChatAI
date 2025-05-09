@@ -5,6 +5,7 @@ import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge/
 import 'package:flutter/material.dart';
 
 import '../../../../widgets/dialog.dart';
+import '../../widgets/get_knowledge.dart';
 import 'units.dart';
 
 class KnowledgeBaseScreen extends StatefulWidget {
@@ -74,71 +75,70 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        backgroundColor: Colors.white,
+        title: Text(
           "Knowledge Base",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-          ),
+          style:  Theme.of(context).textTheme.headlineMedium,
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                fixedSize: const Size(4, 4),
-                padding: EdgeInsets.zero,
-                elevation: 0,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: IconButton(
+              icon: Icon(
+                Icons.add_box,
+                size: 30,
+                color:  Theme.of(context).primaryColor,
               ),
               onPressed: () {
                 _openCreateKnowledgeModal(context);
               },
-              child: Icon(
-                Icons.add,
-                color: Theme.of(context).colorScheme.onPrimary,
-                size: 22,
-              ),
             ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Dòng search + nút tạo
-                Row(
-                  children: [
-                    // Ô tìm kiếm
-                    Expanded(
-                      child: TextField(
-                        onChanged: _onSearchChanged,
-                        decoration: InputDecoration(
-                          hintText: 'Search Knowledge Base',
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          isDense: true,
-                        ),
-                      ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+              child: Container(
+                height: 42,
+                child: TextField(
+                  onChanged: _onSearchChanged,
+                  decoration: InputDecoration(
+                    hintText: 'Search Knowledge Base',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.search, color:  Theme.of(context).colorScheme.primary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
                     ),
-                  ],
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color:  Theme.of(context).colorScheme.primary),
+                    ),
+                    filled: true,
+                    fillColor:  Theme.of(context).colorScheme.surface,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
+
+
           Expanded(
-            child: isLoading
+            child: knowledges.isEmpty && isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : knowledges.isEmpty
                     ? _buildEmptyState() // Hiển thị empty state nếu không có knowledges
@@ -150,110 +150,42 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                           final knowledge = knowledges[index];
 
                           return
-                            InkWell(
-                              onTap: () {
+                            ListWidget(
+                              model: knowledge,
+                              showContent: true,
+                              showIconActions: true,
+                              onPressed: () {
                                 _showKnowledgeDetailBottomSheet(
                                     context,
                                     knowledge.id,
                                     knowledge.knowledgeName);
                               },
-                              borderRadius: BorderRadius.circular(12),
-                                child: Container(
-                            margin: const EdgeInsets.all(8),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 4,
-                                  spreadRadius: 1,
-                                  offset: const Offset(0, 2),
+                              iconActions: [
+                                // IconAction(
+                                //   icon: Icons.edit_outlined,
+                                //   onPressed: () {
+                                //     // _openEditBotModal(context, knowledge);
+                                //   },
+                                // ),
+                                IconAction(
+                                  icon: Icons.delete_outline,
+                                  onPressed: () {
+                                    _handleDeleteKnowledge(
+                                        knowledge.id, knowledge.knowledgeName);
+                                  },
+                                ),
+                                IconAction(
+                                  icon: Icons.arrow_forward,
+                                  onPressed: () {
+                                    _showKnowledgeDetailBottomSheet(
+                                        context,
+                                        knowledge.id,
+                                        knowledge.knowledgeName);
+                                  },
                                 ),
                               ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.storage,
-                                        size: 20, color: Colors.blue),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        knowledge.knowledgeName,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        knowledge.description?.isNotEmpty ==
-                                                true
-                                            ? knowledge.description!
-                                            : 'No description available',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                            color: Colors.grey, fontSize: 12),
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        // IconButton(
-                                        //   icon: const Icon(Icons.edit_outlined,
-                                        //       size: 20, color: Colors.grey),
-                                        //   padding: EdgeInsets.zero,
-                                        //   constraints: const BoxConstraints(),
-                                        //
-                                        //   onPressed: () {
-                                        //     // _openEditBotModal(
-                                        //     //     context, assistant);
-                                        //   },
-                                        // ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete_outline,
-                                              size: 20, color: Colors.grey),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                          onPressed: () {
-                                            _handleDeleteKnowledge(knowledge.id,
-                                                knowledge.knowledgeName);
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.arrow_forward,
-                                              size: 20, color: Colors.grey),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                          onPressed: () {
-                                            _showKnowledgeDetailBottomSheet(
-                                                context,
-                                                knowledge.id,
-                                                knowledge.knowledgeName);
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
                             );
+
                         }),
           ),
         ],
@@ -284,7 +216,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                       children: [
                         Text(
                           'Create a Knowledge Base',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         IconButton(
                           icon: const Icon(Icons.close),

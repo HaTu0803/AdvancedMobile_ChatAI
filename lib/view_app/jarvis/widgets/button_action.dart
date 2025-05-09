@@ -38,10 +38,12 @@ class ButtonAction extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      model.title ?? 'No Title',
-                      style: Theme.of(context).textTheme.titleMedium,
-                      overflow: TextOverflow.ellipsis,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(
+                        model.title ?? 'No Title',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ),
                   ),
                   if (showIconActions && iconActions.isNotEmpty)

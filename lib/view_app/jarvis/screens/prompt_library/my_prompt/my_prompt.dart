@@ -7,8 +7,8 @@ import 'package:advancedmobile_chatai/view_app/jarvis/widgets/using_my_prompt.da
 import 'package:flutter/material.dart';
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
-import '../../../../../widgets/button_action.dart';
 import '../../../../../widgets/dialog.dart';
+import '../../../widgets/button_action.dart';
 
 class MyPromptScreen extends StatefulWidget {
   const MyPromptScreen({super.key});
@@ -52,7 +52,6 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
     });
   }
 
-  
   void _resetAndFetch(String query) {
     setState(() {
       _offset = 0;
@@ -84,14 +83,31 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
         _offset += _limit;
         _hasMore = response.hasNext;
       });
-      if (widget.onRefresh != null) {
-        widget.onRefresh!();
-      }
     } catch (e) {
       debugPrint('Failed to fetch prompts: $e');
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            "images/no_found.png",
+            width: 300,
+            height: 300,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "No found",
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -197,43 +213,46 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
           ),
           const SizedBox(height: 8),
           // Prompt List
-     Expanded(
+          Expanded(
             child: _prompts.isEmpty && _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.separated(
-      controller: _scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-              itemCount: _prompts.length + (_hasMore ? 1 : 0),
-      separatorBuilder: (context, index) => const SizedBox(height: 8),
-      itemBuilder: (context, index) {
-                if (index >= _prompts.length) {
-          return const Center(child: CircularProgressIndicator());
-        }
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 4.0, vertical: 4.0),
+                    itemCount: _prompts.length + (_hasMore ? 1 : 0),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      if (index >= _prompts.length) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-        final prompt = _prompts[index];
-        return ButtonAction(
-          model: prompt,
-          iconActions: [
-            IconAction(
-              icon: Icons.edit_outlined,
-              onPressed: () => _openPromptDialog(promptToEdit: prompt),
-            ),
-            IconAction(
-              icon: Icons.delete_outlined,
-              onPressed: () => _handleDeletePrompt(prompt),
-            ),
-            IconAction(
-              icon: Icons.arrow_forward,
-              onPressed: () => _showUsingMyPrompt(prompt),
-            ),
-          ],
-          showIconActions: true,
-          showContent: false,
-        );
-      },
-  ),
-),
-
+                      final prompt = _prompts[index];
+                      return ButtonAction(
+                        onPressed: () => _showUsingMyPrompt(prompt),
+                        model: prompt,
+                        iconActions: [
+                          IconAction(
+                            icon: Icons.edit_outlined,
+                            onPressed: () =>
+                                _openPromptDialog(promptToEdit: prompt),
+                          ),
+                          IconAction(
+                            icon: Icons.delete_outlined,
+                            onPressed: () => _handleDeletePrompt(prompt),
+                          ),
+                          IconAction(
+                            icon: Icons.arrow_forward,
+                            onPressed: () => _showUsingMyPrompt(prompt),
+                          ),
+                        ],
+                        showIconActions: true,
+                        showContent: false,
+                      );
+                    },
+                  ),
+          ),
 
           // Footer
           Padding(
