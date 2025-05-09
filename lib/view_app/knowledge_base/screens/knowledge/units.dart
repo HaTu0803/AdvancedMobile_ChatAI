@@ -6,6 +6,8 @@ import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_website.dart';
 import 'package:flutter/material.dart';
 
+import '../knowledge_data_source/upload_confluence.dart';
+
 class KnowledgeUnitScreen extends StatefulWidget {
   final String id;
   final String knowledgeName;
@@ -22,10 +24,30 @@ class KnowledgeUnitScreen extends StatefulWidget {
 class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
   String searchQuery = '';
   List<UnitsOfKnowledgeResponse> units = [];
-  bool isLoading = false;
+  bool _isLoading = false;
+  bool _hasMore = true;
+  int _offset = 0;
+  final int _limit = 10;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKnowledgeUnits();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        _hasMore) {
+      _fetchKnowledgeUnits();
+    }
+  }
 
   Future<void> _fetchKnowledgeUnits() async {
-    setState(() => isLoading = true);
+    setState(() => _isLoading = true);
 
     final params = BaseQueryParams(
       q: searchQuery,
@@ -36,24 +58,31 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
     try {
       final response =
           await KnowledgeRepository().getUnitsOfKnowledge(widget.id, params);
-      setState(() => units = response.data);
+      setState(() {
+        units.addAll(response.data);
+        _hasMore = response.meta.hasNext;
+        if (_hasMore) {
+          _offset += _limit;
+        }
+          });
     } catch (e) {
       debugPrint('Error loading units: $e');
     } finally {
-      setState(() => isLoading = false);
+      setState(() => _isLoading = false);
     }
   }
 
+
   void _onSearchChanged(String value) {
-    setState(() => searchQuery = value);
+    setState(() {
+      searchQuery = value;
+      units.clear();
+      _offset = 0;
+      _hasMore = true;
+    });
     _fetchKnowledgeUnits();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchKnowledgeUnits();
-  }
 
   Widget _buildEmptyState() {
     return Center(
@@ -95,6 +124,8 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
               child: Row(
                 children: [
                   Expanded(
+              child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
                     child: Text(
                       widget.knowledgeName,
                       style: const TextStyle(
@@ -105,6 +136,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                           TextOverflow.ellipsis, // Hiển thị ba chấm khi quá dài
                       maxLines: 1, // Chỉ hiển thị 1 dòng
                     ),
+                  ),
                   ),
                   IconButton(
                     icon: const Icon(
@@ -121,18 +153,38 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
             ),
             Padding(
               padding: const EdgeInsets.all(8),
-              child: Row(
+              child: Row( // <-- THÊM Row ở đây
                 children: [
                   Expanded(
-                    child: TextField(
-                      onChanged: _onSearchChanged,
-                      decoration: InputDecoration(
-                        hintText: 'Search Knowledge Units ...',
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      height: 42,
+                      child: TextField(
+                        onChanged: _onSearchChanged,
+                        decoration: InputDecoration(
+                          hintText: 'Search Knowledge Base',
+                          hintStyle: TextStyle(color: Colors.grey[400]),
+                          prefixIcon: Icon(Icons.search,
+                              color: Theme.of(context).colorScheme.primary),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.primary),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
                         ),
-                        isDense: true,
                       ),
                     ),
                   ),
@@ -141,9 +193,9 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      fixedSize: const Size(44, 44),
+                      fixedSize: const Size(30, 30),
                       padding: EdgeInsets.zero,
                       elevation: 0,
                     ),
@@ -153,23 +205,32 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                     child: Icon(
                       Icons.add,
                       color: Theme.of(context).colorScheme.onPrimary,
-                      size: 22,
+                      size: 24,
                     ),
                   ),
                 ],
               ),
             ),
+
+            // Danh sách các đơn vị kiến thức
+
             Expanded(
-              child: isLoading
+              child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : units.isEmpty
                       ? _buildEmptyState()
                       : ListView.builder(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 8),
-                          itemCount: units.length,
-                          itemBuilder: (context, index) {
-                            final unit = units[index];
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                itemCount: units.length + (_hasMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == units.length) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  final unit = units[index];
                             return Container(
                               margin: const EdgeInsets.symmetric(vertical: 8),
                               padding: const EdgeInsets.all(16),
@@ -270,7 +331,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,
+              width: MediaQuery.of(context).size.width * 0.95,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: SingleChildScrollView(
                 child: Column(
@@ -299,8 +360,6 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                       subtitle: 'Upload pdf, docx, ...',
                       imagePath: 'images/file.png',
                       onTap: () {
-                        // TODO: Open local file upload screen
-                        Navigator.pop(context);
                         showDialog(
                           context: context,
                           builder: (context) =>
@@ -316,28 +375,29 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                       imagePath: 'images/web.png',
                       onTap: () {
                         // TODO: Open website connect screen
-                        Navigator.pop(context);
                         _openUploadWebsite(context);
                       },
                     ),
+                    const SizedBox(height: 8),
+
                     _buildSourceItem(
                       context,
                       title: 'Slack',
                       subtitle: 'Connect to Slack Workspace',
                       imagePath: 'images/slack.png',
                       onTap: () {
-                        Navigator.pop(context);
                         _openUploadSlack(context);
                       },
                     ),
+                    const SizedBox(height: 8),
+
                     _buildSourceItem(
                       context,
                       title: 'Confluence',
                       subtitle: 'Connect to Confluence',
                       imagePath: 'images/confluence.png',
                       onTap: () {
-                        Navigator.pop(context);
-                        _openUploadSlack(context);
+                        _openUploadConfluence(context);
                       },
                     ),
                     const Divider(height: 32),
@@ -369,17 +429,17 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 240, 248, 255),
                 borderRadius: BorderRadius.circular(
@@ -424,15 +484,15 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
       opacity: 0.5,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 240, 248, 255),
                 borderRadius: BorderRadius.circular(
@@ -475,14 +535,14 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
       builder: (context) {
         return Center(
           child: Dialog(
+
             insetPadding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Container(
-              width:
-                  MediaQuery.of(context).size.width, // Full width of the screen
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              width: MediaQuery.of(context).size.width * 0.9,// Full width of the screen
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -502,7 +562,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     AddWebSiteScreen(
                       onSuccess: () {
                         _fetchKnowledgeUnits();
@@ -530,8 +590,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Container(
-              width:
-                  MediaQuery.of(context).size.width, // Full width of the screen
+              width: MediaQuery.of(context).size.width * 0.9,// Full width of the screen
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(
@@ -554,6 +613,54 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                     ),
                     const SizedBox(height: 16),
                     UploadSlackScreen(
+                      onSuccess: () {
+                        _fetchKnowledgeUnits();
+                      },
+                      id: widget.id,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+  void _openUploadConfluence(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: Dialog(
+            insetPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.9, // Full width of the screen
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Import Confluence Source',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    UploadConfluenceScreen(
                       onSuccess: () {
                         _fetchKnowledgeUnits();
                       },

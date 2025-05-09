@@ -3,6 +3,8 @@ import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowled
 import 'package:advancedmobile_chatai/view_app/knowledge_base/widgets/notice.dart';
 import 'package:flutter/material.dart';
 
+import '../../widgets/custom_text_form.dart';
+
 class AddWebSiteScreen extends StatefulWidget {
   final VoidCallback? onSuccess;
   final String id;
@@ -63,28 +65,29 @@ class _AddWebSiteScreenState extends State<AddWebSiteScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(4.0),
+          padding: const EdgeInsets.all(0.0),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFormField(
+
+                CustomTextFormField(
                   label: 'Name',
                   controller: _nameController,
-                  hintText: 'Enter knowledge unit name...',
+                  hintText: 'Enter a name for your knowledge base...',
                   isRequired: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter knowledge unit name';
+                      return 'Please enter a name for your Knowledge Base';
                     }
                     return null;
                   },
                   maxLines: 1,
                 ),
                 const SizedBox(height: 8),
-                _buildFormField(
+                CustomTextFormField(
                   label: 'Web URL',
                   controller: _webUrlController,
                   hintText: 'https://example.com',
@@ -101,11 +104,10 @@ class _AddWebSiteScreenState extends State<AddWebSiteScreen> {
 
                     return null;
                   },
-
                   maxLines: 1,
                 ),
                 const SizedBox(height: 16),
-                const PageLimitNotice(),
+                PageLimitNotice(),
                 const SizedBox(height: 16),
                 Padding(
                   padding:
@@ -189,7 +191,12 @@ class _AddWebSiteScreenState extends State<AddWebSiteScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        Stack(
+    Container(
+    constraints: (maxLines ?? 1) == 1
+    ? const BoxConstraints(maxHeight: 40)
+        : null,
+
+    child:    Stack(
           children: [
             TextFormField(
               controller: controller,
@@ -201,11 +208,14 @@ class _AddWebSiteScreenState extends State<AddWebSiteScreen> {
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 0,
+                ),
               ),
               maxLines: maxLines,
               maxLength: maxLength,
+
               buildCounter: (_,
                       {required currentLength,
                       required isFocused,
@@ -226,7 +236,9 @@ class _AddWebSiteScreenState extends State<AddWebSiteScreen> {
                 ),
               ),
           ],
+
         ),
+      ),
       ],
     );
   }

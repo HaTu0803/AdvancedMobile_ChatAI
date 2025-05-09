@@ -3,6 +3,8 @@ import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowled
 import 'package:advancedmobile_chatai/view_app/knowledge_base/widgets/notice.dart';
 import 'package:flutter/material.dart';
 
+import '../../widgets/custom_text_form.dart';
+
 class UploadConfluenceScreen extends StatefulWidget {
   final VoidCallback? onSuccess;
   final String id;
@@ -83,7 +85,7 @@ class _UploadConfluenceScreenState extends State<UploadConfluenceScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFormField(
+                CustomTextFormField(
                   label: 'Name',
                   controller: _nameController,
                   hintText: 'Enter knowledge unit name...',
@@ -97,7 +99,8 @@ class _UploadConfluenceScreenState extends State<UploadConfluenceScreen> {
                   maxLines: 1,
                 ),
                 const SizedBox(height: 8),
-                _buildFormField(
+
+                CustomTextFormField(
                   label: 'Wiki Page URL',
                   controller: _wikiPageUrl,
                   hintText: 'https://example.com',
@@ -117,7 +120,8 @@ class _UploadConfluenceScreenState extends State<UploadConfluenceScreen> {
                   maxLines: 1,
                 ),
                 const SizedBox(height: 8),
-                _buildFormField(
+
+                CustomTextFormField(
                   label: 'Confluence Username',
                   controller: _confluenceUsername,
                   hintText: 'Enter your Confluence username...',
@@ -131,7 +135,8 @@ class _UploadConfluenceScreenState extends State<UploadConfluenceScreen> {
                   maxLines: 1,
                 ),
                 const SizedBox(height: 8),
-                _buildFormField(
+
+                CustomTextFormField(
                   label: 'Confluence Access Token',
                   controller: _confluenceAccessToken,
                   hintText: 'Enter your Confluence access token...',
@@ -145,7 +150,8 @@ class _UploadConfluenceScreenState extends State<UploadConfluenceScreen> {
                   maxLines: 1,
                 ),
                 const SizedBox(height: 16),
-                const PageLimitNotice(),
+                const PageLimitNotice(
+                    helpUrl: 'https://jarvis.cx/help/knowledge-base/connectors/confluence/'),
                 const SizedBox(height: 16),
                 Padding(
                   padding:

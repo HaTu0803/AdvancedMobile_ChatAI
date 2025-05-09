@@ -120,7 +120,8 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                   maxLines: 1,
                 ),
                 const SizedBox(height: 16),
-                const PageLimitNotice(),
+                const PageLimitNotice(
+                  helpUrl: 'https://jarvis.cx/help/knowledge-base/connectors/slack'),
                 const SizedBox(height: 16),
                 Padding(
                   padding:
@@ -204,47 +205,58 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        Stack(
-          children: [
-            TextFormField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: hintText,
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
+        Container(
+          constraints: (maxLines ?? 1) == 1
+              ? const BoxConstraints(maxHeight: 40)
+              : null,
+
+          child:    Stack(
+            children: [
+              TextFormField(
+                controller: controller,
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 0,
+                  ),
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              ),
-              maxLines: maxLines,
-              maxLength: maxLength,
-              buildCounter: (_,
-                      {required currentLength,
+                maxLines: maxLines,
+                maxLength: maxLength,
+
+                buildCounter: (_,
+                    {required currentLength,
                       required isFocused,
                       maxLength}) =>
-                  null,
-              validator: validator,
-            ),
-            if (maxLength != null && currentLength != null)
-              Positioned(
-                right: 8,
-                bottom: 4,
-                child: Text(
-                  '$currentLength/$maxLength',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelSmall
-                      ?.copyWith(color: Colors.grey),
-                ),
+                null,
+                validator: validator,
               ),
-          ],
+              if (maxLength != null && currentLength != null)
+                Positioned(
+                  right: 8,
+                  bottom: 4,
+                  child: Text(
+                    '$currentLength/$maxLength',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(color: Colors.grey),
+                  ),
+                ),
+            ],
+
+          ),
         ),
       ],
     );
   }
+
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {

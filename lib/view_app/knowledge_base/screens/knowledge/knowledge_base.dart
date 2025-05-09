@@ -21,34 +21,72 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
   String? _order;
   String? _orderField;
   List<KnowledgeResponse> knowledges = [];
-  bool isLoading = false;
+  bool _isLoading = false;
+  final ScrollController _scrollController = ScrollController();
+  bool _hasMore = true;
+  int _offset = 0;
+  final int _limit = 10;
+  @override
+  void initState() {
+    super.initState();
+    _fetchKnowledge();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   Future<void> _fetchKnowledge() async {
-    setState(() => isLoading = true);
+    if (_isLoading || !_hasMore) return;
+
+    setState(() => _isLoading = true);
 
     final params = BaseQueryParams(
       q: searchQuery,
-      limit: 50,
+      limit: _limit,
+      offset: _offset,
     );
 
     try {
       final response = await KnowledgeRepository().getKnowledges(params);
-      setState(() => knowledges = response.data);
+      setState(() {
+        knowledges.addAll(response.data);
+        _hasMore = response.meta.hasNext;
+        if (_hasMore) {
+          _offset += _limit;
+        }
+      });
+      print('Fetched knowledges: ${response.data.length}');
+      print('Has more: ${response.meta.hasNext}');
+      print('Offset: $_offset');
+      print('Limit: $_limit');
+      print('Total size: ${response}');
     } catch (e) {
       debugPrint('Error loading knowledges: $e');
     } finally {
-      setState(() => isLoading = false);
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        _hasMore) {
+      _fetchKnowledge();
     }
   }
 
   void _onSearchChanged(String value) {
-    setState(() => searchQuery = value);
-    _fetchKnowledge();
-  }
-
-  @override
-  void initState() {
-    super.initState();
+    setState(() {
+      searchQuery = value;
+      knowledges.clear();
+      _offset = 0;
+      _hasMore = true;
+    });
     _fetchKnowledge();
   }
 
@@ -79,10 +117,9 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(
           "Knowledge Base",
-          style:  Theme.of(context).textTheme.headlineMedium,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
         actions: [
           ClipRRect(
@@ -91,7 +128,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
               icon: Icon(
                 Icons.add_box,
                 size: 30,
-                color:  Theme.of(context).primaryColor,
+                color: Theme.of(context).primaryColor,
               ),
               onPressed: () {
                 _openCreateKnowledgeModal(context);
@@ -100,93 +137,92 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
           ),
         ],
       ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-              child: Container(
-                height: 42,
-                child: TextField(
-                  onChanged: _onSearchChanged,
-                  decoration: InputDecoration(
-                    hintText: 'Search Knowledge Base',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
-                    prefixIcon: Icon(Icons.search, color:  Theme.of(context).colorScheme.primary),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color:  Theme.of(context).colorScheme.primary),
-                    ),
-                    filled: true,
-                    fillColor:  Theme.of(context).colorScheme.surface,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            child: Container(
+              height: 42,
+              child: TextField(
+                onChanged: _onSearchChanged,
+                decoration: InputDecoration(
+                  hintText: 'Search Knowledge Base',
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  prefixIcon: Icon(Icons.search,
+                      color: Theme.of(context).colorScheme.primary),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surface,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
                   ),
                 ),
               ),
             ),
-
-
+          ),
           Expanded(
-            child: knowledges.isEmpty && isLoading
+            child: knowledges.isEmpty && _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : knowledges.isEmpty
-                    ? _buildEmptyState() // Hiển thị empty state nếu không có knowledges
+                    ? _buildEmptyState()
                     : ListView.builder(
+                        controller: _scrollController,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 4.0, vertical: 8.0),
-                        itemCount: knowledges.length,
+                        itemCount: knowledges.length + 1,
                         itemBuilder: (context, index) {
+                          if (index == knowledges.length) {
+                            return _isLoading
+                                ? const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Center(
+                                        child: CircularProgressIndicator()),
+                                  )
+                                : const SizedBox.shrink();
+                          }
+
                           final knowledge = knowledges[index];
-
-                          return
-                            ListWidget(
-                              model: knowledge,
-                              showContent: true,
-                              showIconActions: true,
-                              onPressed: () {
-                                _showKnowledgeDetailBottomSheet(
-                                    context,
-                                    knowledge.id,
-                                    knowledge.knowledgeName);
-                              },
-                              iconActions: [
-                                // IconAction(
-                                //   icon: Icons.edit_outlined,
-                                //   onPressed: () {
-                                //     // _openEditBotModal(context, knowledge);
-                                //   },
-                                // ),
-                                IconAction(
-                                  icon: Icons.delete_outline,
-                                  onPressed: () {
-                                    _handleDeleteKnowledge(
-                                        knowledge.id, knowledge.knowledgeName);
-                                  },
-                                ),
-                                IconAction(
-                                  icon: Icons.arrow_forward,
-                                  onPressed: () {
-                                    _showKnowledgeDetailBottomSheet(
-                                        context,
-                                        knowledge.id,
-                                        knowledge.knowledgeName);
-                                  },
-                                ),
-                              ],
-                            );
-
-                        }),
+                          return ListWidget(
+                            model: knowledge,
+                            showContent: true,
+                            showIconActions: true,
+                            onPressed: () {
+                              _showKnowledgeDetailBottomSheet(context,
+                                  knowledge.id, knowledge.knowledgeName);
+                            },
+                            iconActions: [
+                              IconAction(
+                                icon: Icons.delete_outline,
+                                onPressed: () {
+                                  _handleDeleteKnowledge(
+                                      knowledge.id, knowledge.knowledgeName);
+                                },
+                              ),
+                              IconAction(
+                                icon: Icons.arrow_forward,
+                                onPressed: () {
+                                  _showKnowledgeDetailBottomSheet(context,
+                                      knowledge.id, knowledge.knowledgeName);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
           ),
         ],
       ),
@@ -306,7 +342,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
               text: '$knowledgeName',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.red, 
+                color: Colors.red,
               ),
             ),
             const TextSpan(text: '?'),
