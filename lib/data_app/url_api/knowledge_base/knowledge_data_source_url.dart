@@ -8,4 +8,13 @@ class ApiKnowledgeDataSourceUrl {
   static String uploadSlack(String id) => '$baseUrl/$id/slack';
   static String uploadConfluence(String id) => '$baseUrl/$id/confluence';
   static String uploadWeb(String id) => '$baseUrl/$id/web';
+
+  static String getDataSources(String id, String query) =>
+      '$baseUrl/$id/datasources${query.isNotEmpty ? '?$query' : ''}';
+  static String uploadFile() =>
+      '$baseUrl/files';
+  static String importDataSource(String id) =>
+      '$baseUrl/$id/datasources';
+  static String deleteDataSource(String id, String dataSourceId) =>
+      '$baseUrl/$id/datasources/$dataSourceId';
 }

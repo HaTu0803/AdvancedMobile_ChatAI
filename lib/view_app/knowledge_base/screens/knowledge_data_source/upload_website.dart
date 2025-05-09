@@ -1,5 +1,5 @@
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model.dart';
-import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository%20copy.dart';
+import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/widgets/notice.dart';
 import 'package:flutter/material.dart';
 

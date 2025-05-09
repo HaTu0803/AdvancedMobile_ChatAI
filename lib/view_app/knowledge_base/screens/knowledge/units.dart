@@ -51,8 +51,8 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
 
     final params = BaseQueryParams(
       q: searchQuery,
-      limit: 50,
-      offset: 0,
+      limit: _limit,
+      offset: _offset,
     );
 
     try {
