@@ -5,12 +5,14 @@ class ButtonAction extends StatelessWidget {
   final List<IconAction> iconActions;
   final bool showIconActions;
   final bool showContent;
+  final VoidCallback? onPressed;
 
   ButtonAction({
     required this.model,
     required this.iconActions,
     this.showIconActions = true,
     this.showContent = true,
+    this.onPressed,
   });
 
   @override
@@ -22,7 +24,11 @@ class ButtonAction extends StatelessWidget {
       ),
       elevation: 0.5,
       child: InkWell(
-        onTap: iconActions.isNotEmpty ? iconActions[0].onPressed : null,
+        onTap: () {
+          if (onPressed != null) {
+            onPressed!();
+          }
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           child: Column(
