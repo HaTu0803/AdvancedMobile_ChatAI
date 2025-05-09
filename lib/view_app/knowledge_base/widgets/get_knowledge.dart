@@ -1,28 +1,34 @@
 import 'package:flutter/material.dart';
 
-class ButtonAction extends StatelessWidget {
+class ListWidget extends StatelessWidget {
   final dynamic model;
   final List<IconAction> iconActions;
   final bool showIconActions;
   final bool showContent;
+  final VoidCallback? onPressed;
 
-  ButtonAction({
+  ListWidget({
     required this.model,
     required this.iconActions,
     this.showIconActions = true,
     this.showContent = true,
+    this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
       elevation: 0.5,
       child: InkWell(
-        onTap: iconActions.isNotEmpty ? iconActions[0].onPressed : null,
+        onTap: () {
+          if (onPressed != null) {
+            onPressed!();
+          }
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
           child: Column(
@@ -31,13 +37,18 @@ class ButtonAction extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      model.title ?? 'No Title',
-                      style: Theme.of(context).textTheme.titleMedium,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                   Icon(Icons.storage,
+                      size: 16, color: Theme.of(context).primaryColor),
+                  const SizedBox(width: 8),
+                 Expanded(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Text(
+          model.knowledgeName,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      ),
+    ),
                   if (showIconActions && iconActions.isNotEmpty)
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -67,6 +78,37 @@ class ButtonAction extends StatelessWidget {
                       ?.copyWith(color: Colors.grey),
                   overflow: TextOverflow.ellipsis,
                 ),
+
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '${model.numUnits} units',
+                        style: TextStyle(color: Colors.green),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '${model.totalSize} B',
+                        style: TextStyle(color: Colors.purple),
+                      ),
+                    ),
+                  ],
+                ),
+
+
               ],
             ],
           ),
