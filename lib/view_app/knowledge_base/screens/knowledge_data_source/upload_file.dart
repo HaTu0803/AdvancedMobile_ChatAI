@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
@@ -16,8 +17,9 @@ class ImportLocalFilesDialog extends StatefulWidget {
 
 class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
   bool _isUploading = false;
-  File? _selectedFile;
   bool _isHovered = false;
+  File? _selectedFile;
+  FileModel? _fileModel;
 
   @override
   Widget build(BuildContext context) {
@@ -62,28 +64,25 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                     alignment: Alignment.center,
                     child: _isUploading
                         ? const CircularProgressIndicator()
-                        :  Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.upload_file, size: 40, color: Theme.of(context).primaryColor),
-                        const SizedBox(height: 8),
-                        const Text('Click or drag files to upload'),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Supported formats: .c, .cpp, .docx, .html, ...',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.upload_file, size: 40, color: Theme.of(context).primaryColor),
+                              const SizedBox(height: 8),
+                              const Text('Click or drag files to upload'),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Supported formats: .c, .cpp, .docx, .html, ...',
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                   ),
                 ),
               ),
             ),
-
-
-            // Hiển thị thông tin file đã chọn
-            if (_selectedFile != null) ...[
+            if (_fileModel != null) ...[
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
@@ -97,7 +96,7 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        _selectedFile!.path.split('/').last,
+                        _fileModel!.name ?? 'File name',
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 14),
                       ),
@@ -106,7 +105,8 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                       icon: const Icon(Icons.delete_outline_sharp, color: Colors.grey),
                       onPressed: () {
                         setState(() {
-                          _selectedFile = null; // Xóa file đã chọn
+                          _fileModel = null;
+                          _selectedFile = null;
                         });
                       },
                     ),
@@ -114,7 +114,6 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                 ),
               ),
             ],
-
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -124,9 +123,7 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
                   child: const Text('Back'),
                 ),
                 FilledButton(
-                  onPressed: _selectedFile != null && !_isUploading
-                      ? () => _uploadFile(_selectedFile!)
-                      : null,
+                  onPressed: _fileModel != null && !_isUploading ? importDataSource : null,
                   child: const Text('Import'),
                 ),
               ],
@@ -156,21 +153,63 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
       ],
     );
 
-    if (result != null && result.files.isNotEmpty) {
-      final platformFile = result.files.first;
-      setState(() {
-        _selectedFile = File(platformFile.path!);
-      });
+    if (result == null || result.files.isEmpty || result.files.first.path == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng chọn file')),
+      );
+      return;
+    }
+
+    final pickedFile = File(result.files.first.path!);
+
+    setState(() {
+      _selectedFile = pickedFile;
+      _isUploading = true;
+    });
+
+    try {
+      final response = await KnowledgeDataRepository().uploadFile(_selectedFile!);
+
+      if (response.files.isNotEmpty) {
+        setState(() {
+          _fileModel = response.files.first;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi tải file: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
-  Future<void> _uploadFile(File file) async {
+  Future<void> importDataSource() async {
+    if (_fileModel == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng chọn file trước khi tải lên')),
+      );
+      return;
+    }
+
     setState(() {
       _isUploading = true;
     });
 
     try {
-      await KnowledgeDataRepository().uploadLocalFile(widget.id, file);
+      final dataSource = DataSource(
+        type: 'local_file',
+        name: _fileModel!.name,
+        credentials: Credentials(file: _fileModel!.id),
+      );
+
+      final dataSourceRequest = DataSourceRequest(datasources: [dataSource]);
+
+      await KnowledgeDataRepository().importDataSource(widget.id, dataSourceRequest);
 
       if (mounted) {
         Navigator.pop(context);
@@ -179,11 +218,9 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
         );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi tải file: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi tải file: $e')),
+      );
     } finally {
       if (mounted) {
         setState(() {

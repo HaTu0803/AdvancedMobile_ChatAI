@@ -232,14 +232,14 @@ class FileModel {
 }
 
 class DataSourceResponse {
-  final List<KnowledgeDataSource> datasources;
+  final List<KnowledgeDataSource> data;
   final Meta meta;
 
-  DataSourceResponse({required this.datasources, required this.meta});
+  DataSourceResponse({required this.data, required this.meta});
 
   factory DataSourceResponse.fromJson(Map<String, dynamic> json) {
     return DataSourceResponse(
-      datasources: (json['data'] as List)
+      data: (json['data'] as List)
           .map((e) => KnowledgeDataSource.fromJson(e))
           .toList(),
       meta: Meta.fromJson(json['meta']),

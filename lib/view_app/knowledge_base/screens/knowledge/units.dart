@@ -1,6 +1,6 @@
 import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
-import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_model.dart';
-import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_repository.dart';
+import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model.dart';
+import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_file.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_slack.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_website.dart';
@@ -23,7 +23,7 @@ class KnowledgeUnitScreen extends StatefulWidget {
 
 class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
   String searchQuery = '';
-  List<UnitsOfKnowledgeResponse> units = [];
+  List<KnowledgeDataSource> units = [];
   bool _isLoading = false;
   bool _hasMore = true;
   int _offset = 0;
@@ -57,7 +57,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
 
     try {
       final response =
-          await KnowledgeRepository().getUnitsOfKnowledge(widget.id, params);
+          await KnowledgeDataRepository().getDataSources(widget.id, params);
       setState(() {
         units.addAll(response.data);
         _hasMore = response.meta.hasNext;
@@ -250,7 +250,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                 children: [
                                   // Ảnh bên trái
                                   Image.asset(
-                                    unit.imagePath ?? 'images/file.png',
+                                     'images/file.png',
                                     width: 40,
                                     height: 40,
                                     fit: BoxFit.contain,

@@ -262,52 +262,64 @@ class KnowledgeDataApiClient {
     throw Exception('Đã xảy ra lỗi: $e');
   }
 }
-  Future<FileModelResponse> uploadFile(File file) async {
-    try {
-      await BasePreferences.init();
-      String token = await BasePreferences().getTokenPreferred('access_token');
+Future<FileModelResponse> uploadFile(File file) async {
+  try {
+    await BasePreferences.init();
+    String token = await BasePreferences().getTokenPreferred('access_token');
 
-      final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadFile());
+    final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadFile());
+    final header = ApiHeaders.getHeadersWithFile("", token);
 
-      var request = http.MultipartRequest('POST', url);
-      request.headers.addAll(ApiHeaders.getHeadersWithFile("", token));
+    var request = http.MultipartRequest('POST', url);
+    request.headers.addAll(header);
 
-      request.files.add(
-        await http.MultipartFile.fromPath('files', file.path),
+    // ✅ Chỉ thêm một MultipartFile duy nhất
+    final multipartFile = await http.MultipartFile.fromPath(
+      'files', // 👈 tên trường phải đúng theo API yêu cầu
+      file.path,
+      filename: file.path.split('/').last,
+    );
+    request.files.add(multipartFile);
+
+    print("File path: ${file.path}");
+    print("File exists: ${await file.exists()}");
+    print("File length: ${await file.length()} bytes");
+    print("Multipart file name: ${multipartFile.filename}");
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print("response.statusCode: ${response.statusCode}");
+    print("response.body: ${response.body}");
+final decoded = jsonDecode(response.body);
+print(decoded); 
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return FileModelResponse.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshTokenMultipart(
+        url: url,
+        headers: request.headers,
+        filePath: file.path,
       );
 
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return FileModelResponse.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 401) {
-        final retryResponse = await retryWithRefreshTokenMultipart(
-          url: url,
-          headers: request.headers,
-          filePath: file.path,
-        );
-
-        if (retryResponse.statusCode == 200 ||
-            retryResponse.statusCode == 201) {
-          return FileModelResponse.fromJson(jsonDecode(retryResponse.body));
-        } else {
-          await AuthRepository().logOut();
-          navigatorKey.currentState?.pushNamedAndRemoveUntil(
-            AppRoutes.login,
-            (route) => true,
-          );
-          throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-        }
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+        return FileModelResponse.fromJson(jsonDecode(retryResponse.body));
       } else {
-        handleErrorResponse(response);
-
-        throw Exception('Failed to upload file due to an error response');
+        await AuthRepository().logOut();
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          AppRoutes.login,
+          (route) => true,
+        );
+        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
-    } catch (e) {
-      throw Exception('Đã xảy ra lỗi: $e');
+    } else {
+      handleErrorResponse(response);
+      throw Exception('Failed to upload file due to an error response');
     }
+  } catch (e) {
+    throw Exception('Đã xảy ra lỗi: $e');
   }
+}
 
  
   Future<DataSourceResponse> importDataSource(String id, DataSourceRequest request) async {
