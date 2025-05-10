@@ -367,13 +367,12 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
           _buildCategoriesList(),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView.separated(
+            child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               itemCount: (_currentMax < _filteredPrompts.length)
                   ? _currentMax + 1
                   : _filteredPrompts.length,
-              separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
                 if (index == _currentMax && _currentMax < _filteredPrompts.length) {
                   return const Center(
@@ -396,10 +395,10 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                     ),
                     IconAction(
                       icon: Icons.info_outline,
-                      onPressed: () => _showPromptDetails(context, prompt, () => _toggleFavorite(index), index), // truyền index
+                      onPressed: () => _showPromptDetails(context, prompt, () => _toggleFavorite(index), index),
                     ),
                     IconAction(
-                      icon: Icons.arrow_forward, // Icon forward nằm bên phải
+                      icon: Icons.arrow_forward,
                       onPressed: () => _showUsingMyPrompt(prompt),
                       style: IconButtonStyle(
                         iconColor: Theme.of(context).colorScheme.primary,
