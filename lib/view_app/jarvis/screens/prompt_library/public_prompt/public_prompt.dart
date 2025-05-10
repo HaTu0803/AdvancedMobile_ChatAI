@@ -22,6 +22,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   List<Prompt> _filteredPrompts = []; 
   String _searchQuery = '';
   bool _isStarred = false;
+  bool _isLoading = false;
 
   late List<PromptCategory> _categories = [];
   int _itemsPerPage = 10;
@@ -42,6 +43,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   }
 
   Future<void> _fetchPromptsFromApi() async {
+    setState(() => _isLoading = true);
+
     try {
       final promptProvider =
           Provider.of<PromptProvider>(context, listen: false);
@@ -80,6 +83,8 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         );
       }
     }
+    setState(() => _isLoading = false);
+
   }
 
   void _onScroll() {
@@ -314,6 +319,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             child: Row(
               children: [
                 Expanded(
+
                   child: TextField(
                     controller: _searchController,
                     onChanged: _onSearchChanged,
@@ -367,7 +373,9 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
           _buildCategoriesList(),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView.builder(
+            child: _allPrompts.isEmpty && _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                :ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               itemCount: (_currentMax < _filteredPrompts.length)
