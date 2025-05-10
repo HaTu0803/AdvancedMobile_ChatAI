@@ -1,6 +1,9 @@
+import 'package:advancedmobile_chatai/view_app/knowledge_base/widgets/custom_text_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:advancedmobile_chatai/core/util/themes/colors.dart';
+
+import '../../../../data_app/model/jarvis/ai_email_model.dart';
+import '../../../../data_app/repository/jarvis/ai_email_repository.dart';
 
 class EmailComposeScreen extends StatefulWidget {
   const EmailComposeScreen({super.key});
@@ -10,323 +13,374 @@ class EmailComposeScreen extends StatefulWidget {
 }
 
 class _EmailComposeScreenState extends State<EmailComposeScreen> {
-  bool _isIdeasExpanded = false;
-  final TextEditingController _replyController = TextEditingController();
-  final List<String> _replyIdeas = [
-    "Thank you for your email. I appreciate your message.",
-    "I'll get back to you as soon as possible.",
-    "Let's schedule a meeting to discuss this further.",
-    "I'm happy to help with your request.",
-  ];
-
+  final TextEditingController _senderNameController = TextEditingController();
+  final TextEditingController _receiverEmailController =
+      TextEditingController();
+  final TextEditingController _subjectController = TextEditingController();
+  final TextEditingController _emailBodyController = TextEditingController();
+  final TextEditingController _languageController = TextEditingController();
+  final TextEditingController _actionController = TextEditingController();
+  // final List<String> _replyIdeas = [
+  //   "Thank you for your email. I appreciate your message.",
+  //   "I'll get back to you as soon as possible.",
+  //   "Let's schedule a meeting to discuss this further.",
+  //   "I'm happy to help with your request.",
+  // ];
+  String? _chosenIdea;
   @override
   void dispose() {
-    _replyController.dispose();
+    _senderNameController.dispose();
+    _actionController.dispose();
+    _receiverEmailController.dispose();
+    _subjectController.dispose();
+    _emailBodyController.dispose();
+    _languageController.dispose();
     super.dispose();
   }
+
+  @override
+  void initState() {
+    super.initState();
+    
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Compose Email'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        title: Text(
+                  'Compose Email',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
       ),
-      body: Column(
-        children: [
-          // Part 1: Received Email Content
-          Expanded(
-            flex: 2,
-            child: Container(
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey[300]!,
-                    width: 1,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomTextFormField(
+              label: "From",
+              controller: _senderNameController,
+              hintText: "Enter your email address",
+              isRequired: true,
+              maxLines: 1,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your email address';
+                }
+               
+                return null;
+              },
+            ),
+            const SizedBox(height: 8),
+            CustomTextFormField(
+              label: "To",
+              controller: _receiverEmailController,
+              hintText: "Enter recipient's email address",
+              isRequired: true,
+              maxLines: 1,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter recipient\'s email address';
+                }
+               
+                return null;
+              },
+            ),
+            CustomTextFormField(
+              label: "Subject",
+              controller: _subjectController,
+              hintText: "Enter email subject",
+              isRequired: true,
+              maxLines: 1,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter email subject';
+                }
+                return null;
+              },
+            ),
+            CustomTextFormField(
+              label: "Language",
+              controller: _languageController,
+              hintText: "Enter language",
+              isRequired: true,
+              maxLines: 1,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter language';
+                }
+                return null;
+              },
+            ),
+            CustomTextFormField(
+              label: "Action",
+              controller: _actionController,
+              hintText: "Enter action",
+              isRequired: true,
+              maxLines: 1,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter action';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 8),
+            CustomTextFormField(
+              label: "Email Body",
+              controller: _emailBodyController,
+              hintText: "Type your email content here...",
+              isRequired: true,
+              maxLines: 8,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter email body';
+                }
+                return null;
+              },
+            ),
+
+            // if (_isIdeasExpanded)
+            //   Container(
+            //     margin: EdgeInsets.only(top: 8.h),
+            //     padding: EdgeInsets.all(8.w),
+            //     decoration: BoxDecoration(
+            //       color: Colors.grey[100],
+            //       borderRadius: BorderRadius.circular(8.r),
+            //       border: Border.all(color: Colors.grey[300]!),
+            //     ),
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: _replyIdeas.map((idea) {
+            //         return InkWell(
+            //           onTap: () {
+            //             _emailBodyController.text = idea;
+            //             setState(() {
+            //               _isIdeasExpanded = false;
+            //             });
+            //           },
+            //           child: Padding(
+            //             padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+            //             child: Text(
+            //               idea,
+            //               style: TextStyle(fontSize: 14.sp, color: Colors.grey[800]),
+            //             ),
+            //           ),
+            //         );
+            //       }).toList(),
+            //     ),
+            //   ),
+
+            SizedBox(height: 16.h),
+            Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      _openSuggestIdeas(context);
+                    },
+                    icon: Icon(Icons.settings_suggest),
+                    label: Text("Suggest"),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildEmailHeader(
-                      sender: "John Doe",
-                      email: "john.doe@example.com",
-                      subject: "Meeting Request",
-                      date: "Mar 15, 2024",
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      "Dear Team,\n\nI hope this email finds you well. I would like to schedule a meeting to discuss our upcoming project. Please let me know your availability for next week.\n\nBest regards,\nJohn",
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        height: 1.5,
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 6,
+                  child: FilledButton(
+                    onPressed: () {
+
+                    },
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.edit, color: Colors.white),
+                        SizedBox(width: 8.w),
+                        Text("Draft"),
+                        SizedBox(width: 8.w),
+                        const Icon(Icons.keyboard_arrow_down,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ),
-
-          // Part 2: Reply Section
-          Expanded(
-            flex: 3,
-            child: Container(
-              padding: EdgeInsets.all(16.w),
-              child: Column(
-                children: [
-                  // Reply Header
-                  Row(
-                    children: [
-                      Text(
-                        "Reply to: John Doe <john.doe@example.com>",
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16.h),
-
-                  // Reply Text Field
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16.r),
-                        border: Border.all(
-                          color: AppColors.primary.withOpacity(0.25),
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.07),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-                      child: TextField(
-                        controller: _replyController,
-                        maxLines: null,
-                        expands: true,
-                        style: TextStyle(fontSize: 16.sp),
-                        decoration: InputDecoration(
-                          hintText: "Type your reply here...",
-                          hintStyle: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 16.sp,
-                          ),
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          isCollapsed: true,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Action Buttons
-                  SizedBox(height: 16.h),
-                  Row(
-                    children: [
-                      // Draft with Jarvis Unified Button
-                      Expanded(
-                        flex: 6,
-                        child: SizedBox(
-                          height: 48.h,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // TODO: Implement draft functionality
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.edit, size: 22, color: Colors.white),
-                                SizedBox(width: 8.w),
-                                Flexible(
-                                  child: Text(
-                                    "Draft with Jarvis",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16.sp,
-                                      color: Colors.white,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                SizedBox(width: 8.w),
-                                Icon(
-                                  _isIdeasExpanded
-                                      ? Icons.keyboard_arrow_up
-                                      : Icons.keyboard_arrow_down,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16.w),
-                      // Send Button
-                      Expanded(
-                        flex: 4,
-                        child: SizedBox(
-                          height: 48.h,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              // TODO: Implement send functionality
-                            },
-                            icon: const Icon(Icons.send, size: 22),
-                            label: const Text("Send"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8.w,
-                                vertical: 12.h,
-                              ),
-                              textStyle: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16.sp,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Ideas Dropdown
-                  if (_isIdeasExpanded)
-                    Container(
-                      margin: EdgeInsets.only(top: 8.h),
-                      padding: EdgeInsets.all(8.w),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: Colors.grey[300]!),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: _replyIdeas.map((idea) {
-                          return InkWell(
-                            onTap: () {
-                              _replyController.text = idea;
-                              setState(() {
-                                _isIdeasExpanded = false;
-                              });
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                vertical: 8.h,
-                                horizontal: 8.w,
-                              ),
-                              child: Text(
-                                idea,
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: Colors.grey[800],
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildEmailHeader({
-    required String sender,
-    required String email,
-    required String subject,
-    required String date,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: AppColors.primary,
-              child: Text(
-                sender[0].toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+  void _openSuggestIdeas(BuildContext context) async {
+    final ideas = await _getSuggestedReplyIdeas(context);
+
+    if (!context.mounted || ideas.isEmpty) return;
+
+    int selectedIdeaIndex = -1;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Center(
+              child: Dialog(
+                insetPadding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title + Close
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Suggest Ideas',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // List of ideas
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: ideas.length,
+                          itemBuilder: (_, index) {
+                            final idea = ideas[index];
+                            final isSelected = index == selectedIdeaIndex;
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(color: isSelected ? Colors.blue : Colors.grey.shade300),
+                                ),
+                                elevation: 2,
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      selectedIdeaIndex = index;
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: ListTile(
+                                    title: Text(
+                                      idea,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    trailing: isSelected
+                                        ? const Icon(Icons.check_circle, color: Colors.blue)
+                                        : null,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Confirm button
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton.icon(
+                            onPressed: selectedIdeaIndex != -1
+                                ? () {
+                              // Lưu ý tưởng được chọn vào biến để dùng sau
+                              _chosenIdea = ideas[selectedIdeaIndex];
+
+                              // Không gán vào emailBodyController ở đây
+
+                              // Đóng dialog
+                              Navigator.of(context).pop();
+                            }
+                                : null,
+                            icon: const Icon(Icons.done),
+                            label: const Text("Use This Idea"),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                  ),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    sender,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    email,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              date,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        Text(
-          subject,
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+            );
+          },
+        );
+      },
     );
+  }
+
+
+  Future<List<String>> _getSuggestedReplyIdeas(BuildContext context) async {
+    final emailBody = _emailBodyController.text.trim();
+    final sender = _senderNameController.text.trim();
+    final receiver = _receiverEmailController.text.trim();
+    final subject = _subjectController.text.trim();
+    final action = _actionController.text.trim();
+    final language = _languageController.text.trim();
+
+    final request = SuggestReplyIdeas(
+      action: action,
+      email: emailBody,
+      metadata: MetadataSuggest(
+        context: [],
+        subject: subject,
+        sender: sender,
+        receiver: receiver,
+        language: language,
+      ),
+    );
+    if (context.mounted) {
+      print("Request: $request");
+    }
+    try {
+      final response = await EmailRepository().suggestReplyIdeas(request);
+      return response.ideas;
+    } catch (e) {
+      if (context.mounted) {
+        print("Error fetching suggested replies: $e");
+      }
+      return [];
+    }
   }
 }

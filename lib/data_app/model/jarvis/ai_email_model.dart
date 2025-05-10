@@ -132,22 +132,23 @@ class SuggestReplyIdeas {
   final String action;
   final String email;
   final MetadataSuggest metadata;
-  final AssistantDto? assistant;
+  // final AssistantDto? assistant;
 
   SuggestReplyIdeas(
       {required this.action,
       required this.email,
       required this.metadata,
-      this.assistant});
+      // this.assistant
+      });
 
   factory SuggestReplyIdeas.fromJson(Map<String, dynamic> json) {
     return SuggestReplyIdeas(
       action: json['action'],
       email: json['email'],
       metadata: MetadataSuggest.fromJson(json['metadata']),
-      assistant: json['assistant'] != null
-          ? AssistantDto.fromJson(json['assistant'])
-          : null,
+      // assistant: json['assistant'] != null
+      //     ? AssistantDto.fromJson(json['assistant'])
+      //     : null,
     );
   }
 
@@ -156,7 +157,7 @@ class SuggestReplyIdeas {
       'action': action,
       'email': email,
       'metadata': metadata.toJson(),
-      'assistant': assistant?.toJson(),
+      // 'assistant': assistant?.toJson(),
     };
   }
 }
@@ -166,14 +167,14 @@ class MetadataSuggest {
   final String subject;
   final String sender;
   final String receiver;
-  final String language;
+  final String? language;
 
   MetadataSuggest({
     required this.context,
     required this.subject,
     required this.sender,
     required this.receiver,
-    required this.language,
+     this.language,
   });
 
   factory MetadataSuggest.fromJson(Map<String, dynamic> json) {

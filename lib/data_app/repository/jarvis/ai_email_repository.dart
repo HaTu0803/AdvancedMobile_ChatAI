@@ -2,7 +2,7 @@ import 'package:advancedmobile_chatai/data_app/model/jarvis/ai_email_model.dart'
 import 'package:advancedmobile_chatai/data_app/remote/jarvis/ai_email_remote.dart';
 import 'package:flutter/material.dart';
 
-class TokenRepository {
+class EmailRepository {
   final AiEmailApiClient AiEmailApi = AiEmailApiClient();
 
   Future<EmailResponse> responseEmail(EmailResponseModel request) async {
