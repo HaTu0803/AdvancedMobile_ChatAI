@@ -482,76 +482,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
     }
   }
 
-  Future<void> _createNewThread() async {
-    setState(() => _isSending = true);
-    try {
-      final request = ThreadAssistant(assistantId: _currentAssistant.id);
-      final response = await AssistantRepository().createThread(request);
-      setState(() {
-        _currentThreadId = response.openAiThreadId;
-        _messages = [];
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create thread: $e')),
-      );
-    } finally {
-      setState(() => _isSending = false);
-    }
-  }
-
-  Future<void> _sendMessage() async {
-    if (_messageController.text.trim().isEmpty) return;
-    if (_currentThreadId == null) {
-      await _createNewThread();
-      if (_currentThreadId == null) return;
-    }
-
-    final message = _messageController.text;
-    _messageController.clear();
-
-    setState(() {
-      _messages.add(RetrieveMessageOfThreadResponse(
-        role: 'user',
-        createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        content: [
-          MessageContent(
-            type: 'text',
-            text: MessageText(
-              value: message,
-              annotations: [],
-            ),
-          ),
-        ],
-      ));
-      _isSending = true;
-    });
-
-    try {
-      final request = AskAssistant(
-        message: message,
-        openAiThreadId: _currentThreadId!,
-        additionalInstruction: _currentAssistant.instructions ?? '',
-      );
-
-      await AssistantRepository().askAssistant(_currentAssistant.id, request);
-      
-      // Fetch the updated messages
-      final updatedMessages = await AssistantRepository()
-          .retrieveMessageOfThread(_currentThreadId!);
-      
-      setState(() {
-        _messages = updatedMessages;
-        _isSending = false;
-      });
-    } catch (e) {
-      setState(() => _isSending = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send message: $e')),
-      );
-    }
-  }
-
   Widget _buildMessageBubble(RetrieveMessageOfThreadResponse message) {
     final theme = Theme.of(context);
     final isUser = message.role == 'user';
@@ -932,205 +862,158 @@ class _EditBotScreenState extends State<EditBotScreen> {
 
   Widget _buildPreviewTab() {
     final theme = Theme.of(context);
-    
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.grey.withOpacity(0.1),
-                width: 1,
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          // Header
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.07),
+              border: Border(
+                bottom: BorderSide(color: Colors.grey.withOpacity(0.13)),
+              ),
+            ),
+            child: Text(
+              "Preview the assistant's responses in a chat interface.",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: Colors.deepPurple[700],
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Preview the assistant\'s responses in a chat interface.',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              if (_messages.isNotEmpty)
-                Container(
-                  height: 36,
-                  margin: const EdgeInsets.only(left: 8),
-                  child: OutlinedButton.icon(
-                    onPressed: _isSending ? null : _createNewThread,
-                    icon: _isSending
-                        ? SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                theme.colorScheme.primary,
-                              ),
-                            ),
-                          )
-                        : Icon(
-                            Icons.add,
-                            size: 16,
-                            color: theme.colorScheme.primary,
+          // Chat area
+          Expanded(
+            child: _messages.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary.withOpacity(0.10),
+                            shape: BoxShape.circle,
                           ),
-                    label: Text(
-                      'New Thread',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
+                          child: Icon(
+                            Icons.smart_toy,
+                            color: theme.colorScheme.primary,
+                            size: 44,
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+                        Text(
+                          "No messages yet",
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.deepPurple[700],
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Start a conversation to test your bot!",
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.deepPurple[300],
+                          ),
+                        ),
+                      ],
                     ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      side: BorderSide(color: theme.colorScheme.primary),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, idx) => _buildMessageBubble(_messages[idx]),
                   ),
-                ),
-            ],
           ),
-        ),
-        Expanded(
-          child: _messages.isEmpty
-              ? Container(
-                  color: Colors.grey[50],
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(60),
-                        ),
-                        child: Icon(
-                          Icons.chat_bubble_outline_rounded,
-                          size: 48,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'No messages yet',
+          // Bottom input area
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                top: BorderSide(color: Colors.grey.withOpacity(0.13)),
+              ),
+            ),
+            child: Column(
+              children: [
+                if (_messages.isEmpty)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      icon: Icon(Icons.add, color: theme.colorScheme.primary),
+                      label: Text(
+                        "New Thread",
                         style: TextStyle(
-                          color: Colors.grey[800],
-                          fontSize: 18,
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Start a conversation to test your bot!',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: theme.colorScheme.primary,
+                          width: 1.5,
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              : Container(
-                  color: Colors.grey[50],
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      return _buildMessageBubble(_messages[index]);
-                    },
-                    reverse: true, // This will make newest messages appear at the bottom
-                  ),
-                ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                offset: const Offset(0, -4),
-                blurRadius: 16,
-              ),
-            ],
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: theme.colorScheme.primary,
-                width: 1,
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: CompositedTransformTarget(
-                    link: _layerLink,
-                    child: TextField(
-                      controller: _messageController,
-                      maxLines: 5,
-                      minLines: 1,
-                      enabled: !_isSending,
-                      decoration: InputDecoration(
-                        hintText: 'Ask me anything, press \'/\' for prompts...',
-                        hintStyle: TextStyle(
-                          color: Colors.grey[400],
-                          fontSize: 14,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      onSubmitted: (_) => _sendMessage(),
+                      onPressed: () {
+                        // _createNewThread();
+                      },
                     ),
                   ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(8),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: _isSending ? null : _sendMessage,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: _isSending
-                            ? SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    theme.colorScheme.primary,
-                                  ),
-                                ),
-                              )
-                            : Icon(
-                                Icons.send_rounded,
-                                color: theme.colorScheme.primary,
-                                size: 20,
-                              ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CompositedTransformTarget(
+                        link: _layerLink,
+                        child: TextField(
+                          controller: _messageController,
+                          enabled: !_isSending,
+                          decoration: InputDecoration(
+                            hintText: "Ask me anything, press '/' for prompts...",
+                            filled: true,
+                            fillColor: Colors.deepPurple[50],
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14, horizontal: 16),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                  color: theme.colorScheme.primary, width: 1),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                  color: Colors.deepPurple.withOpacity(0.18)),
+                            ),
+                          ),
+                          onSubmitted: (val) {
+                            // _sendMessage();
+                          },
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(Icons.send_rounded,
+                          color: theme.colorScheme.primary, size: 28),
+                      onPressed: _isSending
+                          ? null
+                          : () {
+                              // _sendMessage();
+                            },
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
