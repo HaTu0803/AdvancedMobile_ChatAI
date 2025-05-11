@@ -9,7 +9,7 @@ class CustomTextFormField extends StatelessWidget {
   final int? maxLength;
   final int? currentLength;
   final String? Function(String?)? validator;
-
+final bool obscureText;
   const CustomTextFormField({
     super.key,
     required this.label,
@@ -20,6 +20,7 @@ class CustomTextFormField extends StatelessWidget {
     this.maxLength,
     this.currentLength,
     this.validator,
+    this.obscureText = false,
   });
 
   @override
@@ -54,6 +55,7 @@ class CustomTextFormField extends StatelessWidget {
             children: [
               TextFormField(
                 controller: controller,
+                 obscureText: obscureText,
                 decoration: InputDecoration(
                   hintText: hintText,
                   filled: true,

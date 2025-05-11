@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model.dart';
-import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository.dart';
+import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model_v2.dart';
+import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository_v2.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -204,7 +204,7 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
       final dataSource = DataSource(
         type: 'local_file',
         name: _fileModel!.name,
-        credentials: Credentials(file: _fileModel!.id),
+        credentials: FileCredentials(file: _fileModel!.id),
       );
 
       final dataSourceRequest = DataSourceRequest(datasources: [dataSource]);

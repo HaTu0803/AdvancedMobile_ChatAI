@@ -1,6 +1,6 @@
 import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
-import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model.dart';
-import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository.dart';
+import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model_v2.dart';
+import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository_v2.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_file.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_slack.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_website.dart';
@@ -250,9 +250,17 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                 children: [
                                   // Ảnh bên trái
                                   Image.asset(
-                                     'images/file.png',
-                                    width: 40,
-                                    height: 40,
+                                    unit.type == 'local_file'
+                                        ? 'images/file.png'
+                                        : unit.type == 'confluence'
+                                        ? 'images/confluence.png'
+                                        : unit.type == 'slack'
+                                        ? 'images/slack.png'
+                                        : unit.type == 'website'
+                                        ? 'images/web.png'
+                                        : 'images/file.png',
+                                    width: 30,
+                                    height: 30,
                                     fit: BoxFit.contain,
                                   ),
                                   const SizedBox(width: 12),
@@ -263,7 +271,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          unit.name,
+                                          unit.name ?? '',
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
@@ -272,13 +280,27 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 4),
-                                        Text(
-                                          unit.size?.toString() ?? '',
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 12,
-                                          ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              unit.size.toString(),
+                                              style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Container(
+                                              width: 8,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: unit.status ? Colors.blue : Colors.grey,
+                                              ),
+                                            ),
+                                          ],
                                         ),
+
                                       ],
                                     ),
                                   ),
@@ -294,7 +316,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                       size: 28,
                                     ),
                                     onPressed: () {
-                                      // _handleToggleActive(unit);
+                                      _handleToggleActive(unit);
                                     },
                                   ),
                                   // Icon xóa
@@ -318,6 +340,43 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
         ),
       ),
     );
+  }
+  Future<void> _handleToggleActive(KnowledgeDataSource unit) async {
+
+    try {
+      final newStatus = !unit.status;
+
+      final response = await KnowledgeDataRepository()
+          .updateDataSource(unit.id,unit.knowledgeId, newStatus);
+
+      // Nếu cập nhật thành công, cập nhật lại UI
+      setState(() {
+        final index = units.indexWhere((u) => u.id == unit.id);
+        if (index != -1) {
+          units[index] = KnowledgeDataSource(
+            name: unit.name,
+            type: unit.type,
+            size: unit.size,
+            status: newStatus,
+            userId: unit.userId,
+            metadata: unit.metadata,
+            knowledgeId: unit.knowledgeId,
+            createdAt: unit.createdAt,
+            updatedAt: unit.updatedAt,
+            createdBy: unit.createdBy,
+            updatedBy: unit.updatedBy,
+            deletedAt: unit.deletedAt,
+            id: unit.id,
+          );
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Status updated successfully')),
+      );
+    } catch (e) {
+     print('Error updating status: $e');
+
+    }
   }
 
   void _openCreateKnowledgeModal(BuildContext context) {

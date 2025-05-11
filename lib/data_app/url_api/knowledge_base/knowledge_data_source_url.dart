@@ -17,4 +17,6 @@ class ApiKnowledgeDataSourceUrl {
       '$baseUrl/$id/datasources';
   static String deleteDataSource(String id, String dataSourceId) =>
       '$baseUrl/$id/datasources/$dataSourceId';
+       static String updateDataSource(String id, String dataSourceId) =>
+      '$baseUrl/$id/datasources/$dataSourceId';
 }

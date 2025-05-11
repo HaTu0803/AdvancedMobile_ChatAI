@@ -27,7 +27,7 @@ class AiEmailApiClient {
     final response = await http.post(url, headers: headers, body: body);
 
     print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
+    print("📩 response.body email: ${response.body}");
     print("📩 request.body: ${request.toJson()}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {

@@ -1,5 +1,5 @@
-import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model.dart';
-import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository.dart';
+import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model_v2.dart';
+import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository_v2.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/widgets/notice.dart';
 import 'package:flutter/material.dart';
 
@@ -103,7 +103,7 @@ class _UploadConfluenceScreenState extends State<UploadConfluenceScreen> {
                 CustomTextFormField(
                   label: 'Wiki Page URL',
                   controller: _wikiPageUrl,
-                  hintText: 'https://example.com',
+                  hintText: 'https:/your-domain.atlassian.net',
                   isRequired: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -122,7 +122,7 @@ class _UploadConfluenceScreenState extends State<UploadConfluenceScreen> {
                 const SizedBox(height: 8),
 
                 CustomTextFormField(
-                  label: 'Confluence Username',
+                  label: 'Username',
                   controller: _confluenceUsername,
                   hintText: 'Enter your Confluence username...',
                   isRequired: true,
@@ -137,13 +137,14 @@ class _UploadConfluenceScreenState extends State<UploadConfluenceScreen> {
                 const SizedBox(height: 8),
 
                 CustomTextFormField(
-                  label: 'Confluence Access Token',
+                  label: 'API Token',
                   controller: _confluenceAccessToken,
-                  hintText: 'Enter your Confluence access token...',
+                  hintText: 'Enter your Confluence API token...',
                   isRequired: true,
+                  obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your Confluence access token';
+                      return 'Please enter your Confluence API token';
                     }
                     return null;
                   },
@@ -203,95 +204,27 @@ class _UploadConfluenceScreenState extends State<UploadConfluenceScreen> {
     );
   }
 
-  Widget _buildFormField({
-    required String label,
-    required TextEditingController controller,
-    required String hintText,
-    bool isRequired = false,
-    int? maxLines,
-    String? Function(String?)? validator,
-    int? maxLength,
-    int? currentLength,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            if (isRequired) ...[
-              const SizedBox(width: 4),
-              Text(
-                '*',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 8),
-        Stack(
-          children: [
-            TextFormField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: hintText,
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              ),
-              maxLines: maxLines,
-              maxLength: maxLength,
-              buildCounter: (_,
-                      {required currentLength,
-                      required isFocused,
-                      maxLength}) =>
-                  null,
-              validator: validator,
-            ),
-            if (maxLength != null && currentLength != null)
-              Positioned(
-                right: 8,
-                bottom: 4,
-                child: Text(
-                  '$currentLength/$maxLength',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelSmall
-                      ?.copyWith(color: Colors.grey),
-                ),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
+ 
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-
-      final request = UploadFileConfluence(
-        unitName: _nameController.text.trim(),
-        wikiPageUrl: _wikiPageUrl.text.trim(),
-        confluenceUsername: _confluenceUsername.text.trim(),
-        confluenceAccessToken: _confluenceAccessToken.text.trim(),
+final credentials = ConfluenceCredentials(
+        username: _confluenceUsername.text.trim(),
+         url: _wikiPageUrl.text.trim(),
+        token: _confluenceAccessToken.text.trim(),
       );
+      final request = DataSourceConfluence(
+        type: 'confluence',
+        name: _nameController.text.trim(),
+        credentials: credentials,
+      );
+      final dataSourceRequest = DataSourcesModel(datasources: [request]);
 
       try {
-        await KnowledgeDataRepository().uploadConfluence(widget.id, request);
+        await KnowledgeDataRepository().uploadConfluence(widget.id, dataSourceRequest);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Knowledge source added successfully')),
         );

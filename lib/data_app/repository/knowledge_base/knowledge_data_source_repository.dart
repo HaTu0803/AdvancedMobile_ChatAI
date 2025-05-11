@@ -1,7 +1,6 @@
 import 'dart:core';
 import 'dart:io';
 
-import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model.dart';
 import 'package:advancedmobile_chatai/data_app/remote/knowledge_base/knowledge_data_source_remote.dart';
 import 'package:flutter/material.dart';
@@ -60,31 +59,5 @@ class KnowledgeDataRepository {
     }
   }
 
-   Future<DataSourceResponse> getDataSources(String id, BaseQueryParams params) async {
-    try {
-      final response = await KnowledgeDataApi.getDataSources(id, params);
-      return response;
-    } catch (e) {
-      debugPrint("getDataSources Error: $e");
-      rethrow;
-    }
-  }
-   Future<FileModelResponse> uploadFile(File file) async {
-    try {
-      final response = await KnowledgeDataApi.uploadFile(file);
-      return response;
-    } catch (e) {
-      debugPrint("getDataSources Error: $e");
-      rethrow;
-    }
-  }
-  Future<DataSourceResponse> importDataSource(String id, DataSourceRequest request) async {
-    try {
-      final response = await KnowledgeDataApi.importDataSource(id, request);
-      return response;
-    } catch (e) {
-      debugPrint("getDataSources Error: $e");
-      rethrow;
-    }
-  }
+   
 }

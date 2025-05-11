@@ -164,7 +164,7 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
                   flex: 6,
                   child: FilledButton(
                     onPressed: () {
-                      _handleEmailDraft(context);
+                      handleEmailDraft(context);
                     },
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -312,6 +312,69 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
     );
   }
 
+  void showEmailDraftDialog(BuildContext context, String emailContent) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            print("Dialog is opening");
+            return Center(
+              child: Dialog(
+                insetPadding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title + Close
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Draft Email with AI',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Email content
+                        Text(emailContent),
+
+                        const SizedBox(height: 16),
+
+                        // Copy button
+                        TextButton(
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: emailContent));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Email content copied to clipboard')),
+                            );
+                          },
+                          child: const Text('Copy'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   Future<List<String>> _getSuggestedReplyIdeas(BuildContext context) async {
     final emailBody = _emailBodyController.text.trim();
@@ -346,13 +409,13 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
     }
   }
 
-  Future<void> _handleEmailDraft(BuildContext context) async {
+  Future<String?> getEmailDraftResponse() async {
     final emailBody = _emailBodyController.text.trim();
     final sender = _senderNameController.text.trim();
     final receiver = _receiverEmailController.text.trim();
     final subject = _subjectController.text.trim();
-    final action = _actionController.text.trim();
     final language = _languageController.text.trim();
+
     final style = Style(
       length: 'long',
       formality: 'neutral',
@@ -360,7 +423,6 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
     );
 
     final emailRequest = EmailRequestModel(
-      // Choose the first suggestion in the list if no idea is selected
       mainIdea: _chosenIdea ?? "",
       action: "Reply to this email",
       email: emailBody,
@@ -376,73 +438,23 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
 
     try {
       final response = await EmailRepository().responseEmail(emailRequest);
-
-      if (!context.mounted) return;
-
-      showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (context, setState) {
-              return Center(
-                child: Dialog(
-                  insetPadding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Title + Close
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Draft Email with AI',
-                                style: Theme.of(context).textTheme.headlineSmall,
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Email content
-                          Text(response.email),  // Displaying email content here
-
-                          const SizedBox(height: 16),
-
-                          // Copy button
-                          TextButton(
-                            onPressed: () {
-                              Clipboard.setData(ClipboardData(text: response.email));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Email content copied to clipboard')),
-                              );
-                            },
-                            child: const Text('Copy'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      );
+      return response.email;
     } catch (e) {
-      if (context.mounted) {
-        print("Error fetching email response: $e");
-      }
+      print("Error fetching email response: $e");
+      return null;
+    }
+  }
+  Future<void> handleEmailDraft(BuildContext context) async {
+    final result = await getEmailDraftResponse();
+
+    if (!context.mounted) return;
+
+    if (result != null && result.isNotEmpty) {
+      showEmailDraftDialog(context, result);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to generate email draft')),
+      );
     }
   }
 
