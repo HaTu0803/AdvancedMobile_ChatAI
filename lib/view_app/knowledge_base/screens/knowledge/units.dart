@@ -6,6 +6,7 @@ import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge_data_source/upload_website.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../widgets/dialog.dart';
 import '../knowledge_data_source/upload_confluence.dart';
 
 class KnowledgeUnitScreen extends StatefulWidget {
@@ -80,7 +81,9 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
       _offset = 0;
       _hasMore = true;
     });
-    _fetchKnowledgeUnits();
+    if (value.length >= 2 || value.isEmpty) {
+      _fetchKnowledgeUnits();
+    }
   }
 
 
@@ -282,6 +285,16 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                         const SizedBox(height: 4),
                                         Row(
                                           children: [
+                                            Container(
+                                              width: 8,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: unit.status ? Colors.green : Colors.grey,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+
                                             Text(
                                               unit.size.toString(),
                                               style: const TextStyle(
@@ -289,15 +302,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                                 fontSize: 12,
                                               ),
                                             ),
-                                            const SizedBox(width: 6),
-                                            Container(
-                                              width: 8,
-                                              height: 8,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: unit.status ? Colors.blue : Colors.grey,
-                                              ),
-                                            ),
+
                                           ],
                                         ),
 
@@ -327,7 +332,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                       color: Colors.grey,
                                     ),
                                     onPressed: () {
-                                      // _handleDeleteUnit(unit);
+                                      _handleDeleteUnit(unit);
                                     },
                                   ),
                                 ],
@@ -341,13 +346,55 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
       ),
     );
   }
+
+  void _handleDeleteUnit(KnowledgeDataSource unit) {
+    showCustomDialog(
+      context: context,
+      title: 'Delete Knowledge Unit',
+      message: Text.rich(
+        TextSpan(
+          children: [
+            const TextSpan(
+                text: 'Are you sure you want to delete '),
+            TextSpan(
+              text: unit.name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const TextSpan(text: '? This action cannot be undone'),
+          ],
+        ),
+      ),
+
+      isConfirmation: true,
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      onConfirm: () async {
+        try {
+          await KnowledgeDataRepository().deleteDataSource(unit.knowledgeId,unit.id);
+
+
+          setState(() {
+            units.removeWhere((a) => a.id == unit.id);
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Delete Knowledge Unit successfully')),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to delete Delete Knowledge Unit: $e')),
+          );
+        } finally {}
+      },
+    );
+  }
   Future<void> _handleToggleActive(KnowledgeDataSource unit) async {
 
     try {
       final newStatus = !unit.status;
 
       final response = await KnowledgeDataRepository()
-          .updateDataSource(unit.id,unit.knowledgeId, newStatus);
+          .updateDataSource(unit.knowledgeId,unit.id, newStatus);
 
       // Nếu cập nhật thành công, cập nhật lại UI
       setState(() {
@@ -502,7 +549,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 240, 248, 255),
                 borderRadius: BorderRadius.circular(
-                    999), // Nếu muốn tròn 100% thì dùng BorderRadius.circular(999)
+                    999),
               ),
               child: Image.asset(
                 imagePath,

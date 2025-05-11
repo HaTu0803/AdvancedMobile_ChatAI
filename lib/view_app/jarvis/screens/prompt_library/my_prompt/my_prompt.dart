@@ -314,7 +314,7 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
             const TextSpan(
                 text: 'Are you sure you want to delete the prompt titled '),
             TextSpan(
-              text: '"${prompt.title}"',
+              text: prompt.title,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const TextSpan(text: '?'),

@@ -61,4 +61,14 @@ class KnowledgeDataRepository {
       rethrow;
     }
   }
+   Future<bool> deleteDataSource(
+      String id, String dataSourceId) async {
+    try {
+      final response = await KnowledgeDataApi.deleteDataSource(id, dataSourceId);
+      return response;
+    } catch (e) {
+      debugPrint("updateDataSource Error: $e");
+      rethrow;
+    }
+  }
 }
