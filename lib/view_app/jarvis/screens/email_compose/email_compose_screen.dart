@@ -350,7 +350,9 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
                         const SizedBox(height: 16),
 
                         // Email content
-                        Text(emailContent),
+                        Text(emailContent,
+                          style: const TextStyle(fontSize: 14),
+                        ),
 
                         const SizedBox(height: 16),
 
