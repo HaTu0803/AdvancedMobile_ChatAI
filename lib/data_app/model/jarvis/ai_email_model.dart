@@ -200,7 +200,7 @@ class MetadataSuggest {
 
 class EmailResponse {
   final String email;
-  final String remainingUsage;
+  final int remainingUsage;
   final List<String> improvedActions;
 
   EmailResponse({
