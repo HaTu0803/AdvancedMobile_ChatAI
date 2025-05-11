@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class EmailRepository {
   final AiEmailApiClient AiEmailApi = AiEmailApiClient();
 
-  Future<EmailResponse> responseEmail(EmailResponseModel request) async {
+  Future<EmailResponse> responseEmail(EmailRequestModel request) async {
     try {
       final response = await AiEmailApi.responseEmail(request);
       return response;

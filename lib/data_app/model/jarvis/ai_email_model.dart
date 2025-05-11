@@ -1,27 +1,27 @@
-class EmailResponseModel {
+class EmailRequestModel {
   final String mainIdea;
   final String action;
   final String email;
-  final MetadataResponse metadata;
-  final AssistantDto? assistant;
+  final MetadataRequest metadata;
+  // final AssistantDto? assistant;
 
-  EmailResponseModel({
+  EmailRequestModel({
     required this.mainIdea,
     required this.action,
     required this.email,
     required this.metadata,
-    this.assistant,
+    // this.assistant,
   });
 
-  factory EmailResponseModel.fromJson(Map<String, dynamic> json) {
-    return EmailResponseModel(
+  factory EmailRequestModel.fromJson(Map<String, dynamic> json) {
+    return EmailRequestModel(
       mainIdea: json['mainIdea'],
       action: json['action'],
       email: json['email'],
-      metadata: MetadataResponse.fromJson(json['metadata']),
-      assistant: json['assistant'] != null
-          ? AssistantDto.fromJson(json['assistant'])
-          : null,
+      metadata: MetadataRequest.fromJson(json['metadata']),
+      // assistant: json['assistant'] != null
+      //     ? AssistantDto.fromJson(json['assistant'])
+      //     : null,
     );
   }
 
@@ -31,12 +31,12 @@ class EmailResponseModel {
       'action': action,
       'email': email,
       'metadata': metadata.toJson(),
-      'assistant': assistant?.toJson(), // Use null-aware operator
+      // 'assistant': assistant?.toJson(), // Use null-aware operator
     };
   }
 }
 
-class MetadataResponse {
+class MetadataRequest {
   final List<dynamic> context;
   final String subject;
   final String sender;
@@ -44,7 +44,7 @@ class MetadataResponse {
   final Style style;
   final String language;
 
-  MetadataResponse({
+  MetadataRequest({
     required this.context,
     required this.subject,
     required this.sender,
@@ -53,8 +53,8 @@ class MetadataResponse {
     required this.language,
   });
 
-  factory MetadataResponse.fromJson(Map<String, dynamic> json) {
-    return MetadataResponse(
+  factory MetadataRequest.fromJson(Map<String, dynamic> json) {
+    return MetadataRequest(
       context: json['context'] ?? [],
       subject: json['subject'],
       sender: json['sender'],
@@ -201,16 +201,19 @@ class MetadataSuggest {
 class EmailResponse {
   final String email;
   final String remainingUsage;
+  final List<String> improvedActions;
 
   EmailResponse({
     required this.email,
     required this.remainingUsage,
+    required this.improvedActions,
   });
 
   factory EmailResponse.fromJson(Map<String, dynamic> json) {
     return EmailResponse(
       email: json['email'],
       remainingUsage: json['remainingUsage'],
+      improvedActions: List<String>.from(json['improvedActions'] ?? []),
     );
   }
 
@@ -218,6 +221,7 @@ class EmailResponse {
     return {
       'email': email,
       'remainingUsage': remainingUsage,
+      'improvedActions': improvedActions,
     };
   }
 }

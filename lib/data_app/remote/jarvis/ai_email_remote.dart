@@ -15,7 +15,7 @@ import '../../repository/auth/authentication_repository.dart';
 class AiEmailApiClient {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  Future<EmailResponse> responseEmail(EmailResponseModel request) async {
+  Future<EmailResponse> responseEmail(EmailRequestModel request) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
     print("🔑 AccessToken: $token");
@@ -28,6 +28,7 @@ class AiEmailApiClient {
 
     print("📩 response.statusCode: ${response.statusCode}");
     print("📩 response.body: ${response.body}");
+    print("📩 request.body: ${request.toJson()}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return EmailResponse.fromJson(jsonDecode(response.body));
@@ -46,6 +47,8 @@ class AiEmailApiClient {
           AppRoutes.login,
               (route) => true,
         );
+        handleErrorResponse(retryResponse);
+
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
