@@ -281,7 +281,7 @@ class _AppSidebarState extends State<AppSidebar> {
   }
 
   void _showUpgradePlansScreen(BuildContext context) async {
-    final Uri url = Uri.parse('https://admin.dev.jarvis.cx/pricing/overview');
+    final Uri url = Uri.parse('https://dev.jarvis.cx/pricing');
     try {
       if (!await launchUrl(url)) {
         if (context.mounted) {
