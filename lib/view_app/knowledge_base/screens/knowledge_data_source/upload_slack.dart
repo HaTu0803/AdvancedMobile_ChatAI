@@ -91,21 +91,6 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                 ),
                 const SizedBox(height: 8),
                 _buildFormField(
-                  label: 'Slack Workspace',
-                  controller: _slackWorkspace,
-                  hintText: 'Enter Slack Workspace',
-                  isRequired: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a Slack Workspace URL';
-                    }
-
-                    return null;
-                  },
-                  maxLines: 1,
-                ),
-                const SizedBox(height: 8),
-                _buildFormField(
                   label: 'Slack Bot Token',
                   controller: _slackBotToken,
                   hintText: 'Enter Slack Bot Token',

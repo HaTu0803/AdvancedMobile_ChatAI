@@ -312,7 +312,6 @@ class _AppSidebarState extends State<AppSidebar> {
     }
   }
 
-  // This function shows the Bot screen as a modal bottom sheet
   void _showBotScreen(BuildContext context) {
     Navigator.push(
       context,
@@ -324,7 +323,6 @@ class _AppSidebarState extends State<AppSidebar> {
     );
   }
 
-  // This function shows the Data screen as a modal bottom sheet
   void _showDataScreen(BuildContext context) {
     Navigator.push(
       context,
@@ -335,39 +333,35 @@ class _AppSidebarState extends State<AppSidebar> {
       ),
     );
   }
-
-  // This function shows the Settings screen as a modal bottom sheet
   void _showSettingsScreen(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return const Center(
-          child: Text("Settings"), // Replace with your Settings widget
+          child: Text("Settings"), 
         );
       },
     );
   }
 
-  // This function shows the Help & Support screen as a modal bottom sheet
   void _showHelpSupportScreen(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return const Center(
           child:
-              Text("Help & Support"), // Replace with your Help & Support widget
+              Text("Help & Support"),
         );
       },
     );
   }
 
-  // This function shows the About screen as a modal bottom sheet
   void _showAboutScreen(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return const Center(
-          child: Text("About"), // Replace with your About widget
+          child: Text("About"), 
         );
       },
     );

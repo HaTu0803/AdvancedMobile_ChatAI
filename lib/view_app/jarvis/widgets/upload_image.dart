@@ -3,7 +3,6 @@ import 'package:image_picker/image_picker.dart';
 
 class ImageUploader {
   static Future<String?> pickImage(BuildContext context) async {
-    // Create an instance of ImagePicker
     final ImagePicker picker = ImagePicker();
 
     // Show a dialog to choose between gallery or camera
@@ -15,13 +14,13 @@ class ImageUploader {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context, 'gallery'); // Gallery option
+                Navigator.pop(context, 'gallery'); 
               },
               child: const Text('Gallery'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context, 'camera'); // Camera option
+                Navigator.pop(context, 'camera');
               },
               child: const Text('Camera'),
             ),

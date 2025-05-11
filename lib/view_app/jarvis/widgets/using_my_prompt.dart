@@ -97,7 +97,7 @@ class _UsingMyPromptState extends State<UsingMyPrompt> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const PromptLibraryScreen(
-                            selectedTab: 'My Prompts', // Chọn tab này
+                            selectedTab: 'My Prompts',
                           ),
                         ),
                       );
@@ -136,8 +136,6 @@ class _UsingMyPromptState extends State<UsingMyPrompt> {
 
               const SizedBox(height: 4),
 
-              // Prompt TextField (read-only)
-// Prompt TextField (editable)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -196,11 +194,11 @@ class _UsingMyPromptState extends State<UsingMyPrompt> {
                     controller: _promptController,
 
                     readOnly: false,
-                    maxLines: 2, // Giới hạn hiển thị 2 dòng
+                    maxLines: 2, 
                     decoration: const InputDecoration(
                       filled: true,
-                      fillColor: Color(0xFFF4F5F7), // Màu nền xám nhạt
-                      border: InputBorder.none, // Không có viền
+                      fillColor: Color(0xFFF4F5F7), 
+                      border: InputBorder.none,
                       hintText: 'Enter prompt content here...',
                       contentPadding: EdgeInsets.all(12),
                     ),
@@ -221,8 +219,7 @@ class _UsingMyPromptState extends State<UsingMyPrompt> {
                     "Output Language",
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(
-                      height: 4), // khoảng cách giữa label và dropdown
+                  const SizedBox(height: 4),
                   DropdownButtonFormField<String>(
                     isExpanded: true,
                     value: selectedLanguage,
@@ -263,7 +260,7 @@ class _UsingMyPromptState extends State<UsingMyPrompt> {
                 width: double.infinity,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.primary, // Sửa từ backgroundColor → color
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Material(

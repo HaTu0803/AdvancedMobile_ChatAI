@@ -241,7 +241,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
             ),
             child: Container(
               width:
-                  MediaQuery.of(context).size.width, // Full width of the screen
+                  MediaQuery.of(context).size.width,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(
@@ -400,7 +400,7 @@ void _showKnowledgeDetailBottomSheet(
     isScrollControlled: true,
     builder: (context) => DraggableScrollableSheet(
         expand: false,
-        initialChildSize: 0.9, // Chiếm 90% màn hình
+        initialChildSize: 0.9,
         minChildSize: 0.5,
         maxChildSize: 1.0,
         builder: (_, controller) =>

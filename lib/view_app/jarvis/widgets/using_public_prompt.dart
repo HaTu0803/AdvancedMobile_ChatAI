@@ -114,7 +114,7 @@ class _UsingPublicPromptState extends State<UsingPublicPrompt> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const PromptLibraryScreen(
-                            selectedTab: 'Public Prompts', // Chọn tab này
+                            selectedTab: 'Public Prompts',
                           ),
                         ),
                       );
@@ -246,8 +246,7 @@ class _UsingPublicPromptState extends State<UsingPublicPrompt> {
                     "Output Language",
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(
-                      height: 4), // khoảng cách giữa label và dropdown
+                  const SizedBox(height: 4),
                   DropdownButtonFormField<String>(
                     isExpanded: true,
                     value: selectedLanguage,
@@ -287,7 +286,6 @@ class _UsingPublicPromptState extends State<UsingPublicPrompt> {
                   child: TextFormField(
                     controller: entry.value,
                     decoration: InputDecoration(
-                      // labelText: entry.key,
                       hintText: entry.key,
                       filled: true,
                       fillColor: const Color(0xFFF4F5F7),
@@ -306,7 +304,7 @@ class _UsingPublicPromptState extends State<UsingPublicPrompt> {
                 width: double.infinity,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.primary, // Sửa từ backgroundColor → color
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Material(

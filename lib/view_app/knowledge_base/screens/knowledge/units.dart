@@ -119,7 +119,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
         ),
       ),
       child: Scaffold(
-        backgroundColor: Colors.transparent, // Để giữ background bo tròn
+        backgroundColor: Colors.transparent,
         body: Column(
           children: [
             Padding(
@@ -136,8 +136,8 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                       overflow:
-                          TextOverflow.ellipsis, // Hiển thị ba chấm khi quá dài
-                      maxLines: 1, // Chỉ hiển thị 1 dòng
+                          TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   ),
                   ),
@@ -156,7 +156,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
             ),
             Padding(
               padding: const EdgeInsets.all(8),
-              child: Row( // <-- THÊM Row ở đây
+              child: Row(
                 children: [
                   Expanded(
                     child: Container(
@@ -215,8 +215,6 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
               ),
             ),
 
-            // Danh sách các đơn vị kiến thức
-
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -267,7 +265,6 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                     fit: BoxFit.contain,
                                   ),
                                   const SizedBox(width: 12),
-                                  // Name + Size
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -324,7 +321,6 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                       _handleToggleActive(unit);
                                     },
                                   ),
-                                  // Icon xóa
                                   IconButton(
                                     icon: const Icon(
                                       Icons.delete_outline,
@@ -396,7 +392,6 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
       final response = await KnowledgeDataRepository()
           .updateDataSource(unit.knowledgeId,unit.id, newStatus);
 
-      // Nếu cập nhật thành công, cập nhật lại UI
       setState(() {
         final index = units.indexWhere((u) => u.id == unit.id);
         if (index != -1) {
@@ -601,8 +596,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 240, 248, 255),
-                borderRadius: BorderRadius.circular(
-                    999), // Nếu muốn tròn 100% thì dùng BorderRadius.circular(999)
+                borderRadius: BorderRadius.circular(999),
               ),
               child: Image.asset(
                 imagePath,
@@ -647,7 +641,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,// Full width of the screen
+              width: MediaQuery.of(context).size.width * 0.9,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(
@@ -697,7 +691,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.9,// Full width of the screen
+              width: MediaQuery.of(context).size.width * 0.9,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(
@@ -745,7 +739,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.9, // Full width of the screen
+              width: MediaQuery.of(context).size.width * 0.9,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: SingleChildScrollView(
                 child: Column(

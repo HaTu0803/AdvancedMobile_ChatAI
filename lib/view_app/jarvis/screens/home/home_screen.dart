@@ -30,8 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _messageController = TextEditingController();
   AiModel? selectedAiModel;
   AssistantResponse? _selectedAssistant;
-
-  // Thêm biến quản lý conversationId và messages của conversation hiện tại
   String? _conversationId;
   List<Map<String, dynamic>> _conversationMessages = [];
 
@@ -59,13 +57,11 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       _scrollToBottom();
 
-      // Show loading indicator for bot response
       setState(() {
         messages.add({'text': '...', 'isUser': false, 'isLoading': true});
       });
       _scrollToBottom();
 
-      // Tạo danh sách ChatMessage cho conversation
       List<ChatMessage> chatMessages = _conversationMessages.map((msg) {
         return ChatMessage(
           role: msg['role'],
@@ -78,13 +74,12 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }).toList();
 
-      // Tạo request body cho API
       final chatRequest = ChatRequest(
         content: message,
         files: [],
         metadata: ChatMetadata(
           conversation: Conversation(
-            id: _conversationId, // Truyền conversationId nếu có
+            id: _conversationId,
             messages: chatMessages,
           ),
         ),
@@ -96,18 +91,15 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       try {
-        // Gửi message tới bot
         final response = await AiChatRepository().chatWithBot(chatRequest);
         debugPrint("Bot response: [32m");
 
-        // Lưu lại conversationId nếu có (chỉ lấy lần đầu)
         if (_conversationId == null && response.conversationId != null) {
           setState(() {
             _conversationId = response.conversationId;
           });
         }
 
-        // Lưu message bot vào conversation
         setState(() {
           messages.removeLast();
           messages.add({'text': response.message, 'isUser': false});
@@ -130,7 +122,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // List of example prompts
   final List<String> prompts = [
     "Write a blog post about artificial intelligence",
     "Explain quantum computing to a 10-year-old",

@@ -20,7 +20,7 @@ class PromptInputProvider extends ChangeNotifier {
     print('Sending prompt: $content');
     if (_sendPromptCallback != null && content.trim().isNotEmpty) {
       _sendPromptCallback!(content);
-      clear(); // hoặc _content = ''; notifyListeners();
+      clear(); 
     }
   }
 
