@@ -769,6 +769,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                     const SizedBox(height: 16),
                     UploadConfluenceScreen(
                       onSuccess: () {
+                        Navigator.pop(context);
                         _fetchKnowledgeUnits();
                       },
                       id: widget.id,
