@@ -229,11 +229,10 @@ final credentials = ConfluenceCredentials(
           const SnackBar(content: Text('Knowledge source added successfully')),
         );
         widget.onSuccess?.call();
-        Navigator.pop(context);
+        Navigator.pop(context); // Pop lần 1
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to add knowledge source')),
-        );
+       print('Error: $e');
+
       } finally {
         if (mounted) {
           setState(() {

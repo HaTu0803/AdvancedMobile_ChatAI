@@ -308,17 +308,20 @@ class DataSourcesModel {
 }
 
 
-class ConfluenceResponse extends BaseModel {
+class ConfluenceResponse  {
   final String name;
   final String type;
   final int size;
   final bool status;
   final String userId;
-  final MetadataConfluence metadata;
+  final MetadataConfluence? metadata;
   final String knowledgeId;
   final String? deletedAt;
   final String id;
-
+  final String createdAt;
+  final String? updatedAt;
+  final String? createdBy;
+  final String? updatedBy;
   ConfluenceResponse({
     required this.name,
     required this.type,
@@ -327,19 +330,13 @@ class ConfluenceResponse extends BaseModel {
     required this.userId,
     required this.metadata,
     required this.knowledgeId,
-    required String createdAt,
-    String? updatedAt,
-    String? createdBy,
-    String? updatedBy,
+    required this.createdAt,
+    this.updatedAt,
+    this.createdBy,
+    this.updatedBy,
     this.deletedAt,
     required this.id,
-  }) : super(
-    createdAt: createdAt,
-    updatedAt: updatedAt,
-    createdBy: createdBy,
-    updatedBy: updatedBy,
-  );
-
+  });
   factory ConfluenceResponse.fromJson(Map<String, dynamic> json) {
     return ConfluenceResponse(
       name: json['name'] ?? '',
@@ -347,13 +344,15 @@ class ConfluenceResponse extends BaseModel {
       size: json['size'] ?? 0,
       status: json['status'] ?? false,
       userId: json['userId'] ?? '',
-      metadata: MetadataConfluence.fromJson(json['metadata'] ?? {}),
+      metadata: json['metadata'] != null
+          ? MetadataConfluence.fromJson(json['metadata'])
+          : MetadataConfluence(datasourceId: ''),
       knowledgeId: json['knowledgeId'] ?? '',
       createdBy: json['createdBy'] ,
       updatedBy: json['updatedBy'],
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'],
-      deletedAt: json['deletedAt'] != null ? DateTime.parse(json['deletedAt']).toIso8601String() : null,
+      deletedAt: json['deletedAt'],
       id: json['id'] ?? '',
     );
   }
@@ -365,7 +364,8 @@ class ConfluenceResponse extends BaseModel {
       'size': size,
       'status': status,
       'userId': userId,
-      'metadata': metadata.toJson(),
+      'metadata': metadata?.toJson(),
+
       'knowledgeId': knowledgeId,
       'createdAt': createdAt,
       'updatedAt': updatedAt,

@@ -671,6 +671,7 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                     const SizedBox(height: 8),
                     AddWebSiteScreen(
                       onSuccess: () {
+                        Navigator.pop(context);
                         _fetchKnowledgeUnits();
                       },
                       id: widget.id,

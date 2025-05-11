@@ -282,7 +282,7 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
                                 ? () {
                               // Save the selected idea and trigger the draft
                               _chosenIdea = ideas[selectedIdeaIndex];
-
+                              handleEmailDraft(context);
                               // Automatically trigger the email draft after choosing an idea
 
                               Navigator.of(context).pop();
