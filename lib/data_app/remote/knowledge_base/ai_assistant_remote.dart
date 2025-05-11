@@ -389,71 +389,71 @@ class AssistantApiClient {
     }
   }
 
-  Future<ThreadAssistantResponse> createThread(ThreadAssistant request) async {
-    await BasePreferences.init();
-    String token = await BasePreferences().getTokenPreferred('access_token');
-    final url = Uri.parse(ApiKnowledgeAiAssistantUrl.createThreadForAssistant);
-    final headers = ApiHeaders.getAIChatHeaders("", token);
-    final body = jsonEncode(request.toJson());
-    final response = await http.post(url, headers: headers, body: body);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return ThreadAssistantResponse.fromJson(jsonDecode(response.body));
-    } else if (response.statusCode == 401) {
-      final retryResponse = await retryWithRefreshToken(
-        url: url,
-        body: body,
-        method: 'POST',
-      );
+  // Future<ThreadAssistantResponse> createThread(ThreadAssistant request) async {
+  //   await BasePreferences.init();
+  //   String token = await BasePreferences().getTokenPreferred('access_token');
+  //   final url = Uri.parse(ApiKnowledgeAiAssistantUrl.createThreadForAssistant);
+  //   final headers = ApiHeaders.getAIChatHeaders("", token);
+  //   final body = jsonEncode(request.toJson());
+  //   final response = await http.post(url, headers: headers, body: body);
+  //   if (response.statusCode == 200 || response.statusCode == 201) {
+  //     return ThreadAssistantResponse.fromJson(jsonDecode(response.body));
+  //   } else if (response.statusCode == 401) {
+  //     final retryResponse = await retryWithRefreshToken(
+  //       url: url,
+  //       body: body,
+  //       method: 'POST',
+  //     );
 
-      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
-        return ThreadAssistantResponse.fromJson(jsonDecode(retryResponse.body));
-      } else {
-        await AuthRepository().logOut();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.login,
-          (route) => true,
-        );
-        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-      }
-    } else {
-      handleErrorResponse(response);
-      throw Exception('Failed to upload file due to an error response');
-    }
-  }
+  //     if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+  //       return ThreadAssistantResponse.fromJson(jsonDecode(retryResponse.body));
+  //     } else {
+  //       await AuthRepository().logOut();
+  //       navigatorKey.currentState?.pushNamedAndRemoveUntil(
+  //         AppRoutes.login,
+  //         (route) => true,
+  //       );
+  //       throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+  //     }
+  //   } else {
+  //     handleErrorResponse(response);
+  //     throw Exception('Failed to upload file due to an error response');
+  //   }
+  // }
 
-  Future<bool> updateThreadBackground(ThreadAssistant request) async {
-    await BasePreferences.init();
-    String token = await BasePreferences().getTokenPreferred('access_token');
-    final url = Uri.parse(ApiKnowledgeAiAssistantUrl.updateThreadBackground);
-    final headers = ApiHeaders.getAIChatHeaders("", token);
-    final body = jsonEncode(request.toJson());
-    final response = await http.post(url, headers: headers, body: body);
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return true;
-    } else if (response.statusCode == 401) {
-      final retryResponse = await retryWithRefreshToken(
-        url: url,
-        body: body,
-        method: 'POST',
-      );
+  // Future<bool> updateThreadBackground(ThreadAssistant request) async {
+  //   await BasePreferences.init();
+  //   String token = await BasePreferences().getTokenPreferred('access_token');
+  //   final url = Uri.parse(ApiKnowledgeAiAssistantUrl.updateThreadBackground);
+  //   final headers = ApiHeaders.getAIChatHeaders("", token);
+  //   final body = jsonEncode(request.toJson());
+  //   final response = await http.post(url, headers: headers, body: body);
+  //   if (response.statusCode == 200 || response.statusCode == 201) {
+  //     return true;
+  //   } else if (response.statusCode == 401) {
+  //     final retryResponse = await retryWithRefreshToken(
+  //       url: url,
+  //       body: body,
+  //       method: 'POST',
+  //     );
 
-      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
-        return true;
-      } else {
-        await AuthRepository().logOut();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.login,
-          (route) => true,
-        );
-        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-      }
-    } else {
-      handleErrorResponse(response);
-      throw Exception('Failed to upload file due to an error response');
-    }
-  }
+  //     if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+  //       return true;
+  //     } else {
+  //       await AuthRepository().logOut();
+  //       navigatorKey.currentState?.pushNamedAndRemoveUntil(
+  //         AppRoutes.login,
+  //         (route) => true,
+  //       );
+  //       throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+  //     }
+  //   } else {
+  //     handleErrorResponse(response);
+  //     throw Exception('Failed to upload file due to an error response');
+  //   }
+  // }
 
-  Future<bool> askAssistant(String assistantId, AskAssistant request) async {
+  Future<dynamic> askAssistant(String assistantId, AskAssistant request) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
     print("🔑 AccessToken: $token");
@@ -465,7 +465,14 @@ class AssistantApiClient {
     final response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return true;
+      // Kiểm tra response có phải JSON không
+      final contentType = response.headers['content-type'] ?? '';
+      if (contentType.contains('application/json')) {
+        return jsonDecode(response.body);
+      } else {
+        // Nếu là text, trả về nguyên văn
+        return response.body;
+      }
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
@@ -474,7 +481,14 @@ class AssistantApiClient {
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
-        return true;
+        // Kiểm tra response có phải JSON không
+        final contentType = retryResponse.headers['content-type'] ?? '';
+        if (contentType.contains('application/json')) {
+          return jsonDecode(retryResponse.body);
+        } else {
+          // Nếu là text, trả về nguyên văn
+          return retryResponse.body;
+        }
       } else {
         await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
@@ -485,85 +499,85 @@ class AssistantApiClient {
       }
     } else {
       handleErrorResponse(response);
-      throw Exception('Failed to upload file due to an error response');
+      throw Exception('Failed to ask assistant');
     }
   }
 
-  Future<List<RetrieveMessageOfThreadResponse>> retrieveMessageOfThread(
-      String openAiThreadId) async {
-    await BasePreferences.init();
-    String token = await BasePreferences().getTokenPreferred('access_token');
+  // Future<List<RetrieveMessageOfThreadResponse>> retrieveMessageOfThread(
+  //     String openAiThreadId) async {
+  //   await BasePreferences.init();
+  //   String token = await BasePreferences().getTokenPreferred('access_token');
 
-    final url = Uri.parse(
-        ApiKnowledgeAiAssistantUrl.retrieveMessageOfThread(openAiThreadId));
-    final headers = ApiHeaders.getAIChatHeaders("", token);
+  //   final url = Uri.parse(
+  //       ApiKnowledgeAiAssistantUrl.retrieveMessageOfThread(openAiThreadId));
+  //   final headers = ApiHeaders.getAIChatHeaders("", token);
 
-    final response = await http.get(url, headers: headers);
+  //   final response = await http.get(url, headers: headers);
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data
-          .map((e) => RetrieveMessageOfThreadResponse.fromJson(e))
-          .toList();
-    } else if (response.statusCode == 401) {
-      final retryResponse = await retryWithRefreshToken(
-        url: url,
-        body: null,
-        method: 'GET',
-      );
+  //   if (response.statusCode == 200 || response.statusCode == 201) {
+  //     final List<dynamic> data = jsonDecode(response.body);
+  //     return data
+  //         .map((e) => RetrieveMessageOfThreadResponse.fromJson(e))
+  //         .toList();
+  //   } else if (response.statusCode == 401) {
+  //     final retryResponse = await retryWithRefreshToken(
+  //       url: url,
+  //       body: null,
+  //       method: 'GET',
+  //     );
 
-      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
-        final List<dynamic> data = jsonDecode(retryResponse.body);
-        return data
-            .map((e) => RetrieveMessageOfThreadResponse.fromJson(e))
-            .toList();
-      } else {
-        await AuthRepository().logOut();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.login,
-          (route) => true,
-        );
-        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-      }
-    } else {
-      handleErrorResponse(response);
-      throw Exception('Failed to upload file due to an error response');
-    }
-  }
+  //     if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+  //       final List<dynamic> data = jsonDecode(retryResponse.body);
+  //       return data
+  //           .map((e) => RetrieveMessageOfThreadResponse.fromJson(e))
+  //           .toList();
+  //     } else {
+  //       await AuthRepository().logOut();
+  //       navigatorKey.currentState?.pushNamedAndRemoveUntil(
+  //         AppRoutes.login,
+  //         (route) => true,
+  //       );
+  //       throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+  //     }
+  //   } else {
+  //     handleErrorResponse(response);
+  //     throw Exception('Failed to upload file due to an error response');
+  //   }
+  // }
 
-  Future<ThreadAssistantListResponse> getThreads(
-      String assistantId, BaseQueryParams params) async {
-    await BasePreferences.init();
-    String token = await BasePreferences().getTokenPreferred('access_token');
+  // Future<ThreadAssistantListResponse> getThreads(
+  //     String assistantId, BaseQueryParams params) async {
+  //   await BasePreferences.init();
+  //   String token = await BasePreferences().getTokenPreferred('access_token');
 
-    final url = Uri.parse(ApiKnowledgeAiAssistantUrl.getAssistantThreads(
-        assistantId, params.toQueryString()));
-    final headers = ApiHeaders.getAIChatHeaders("", token);
+  //   final url = Uri.parse(ApiKnowledgeAiAssistantUrl.getAssistantThreads(
+  //       assistantId, params.toQueryString()));
+  //   final headers = ApiHeaders.getAIChatHeaders("", token);
 
-    final response = await http.get(url, headers: headers);
+  //   final response = await http.get(url, headers: headers);
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return ThreadAssistantListResponse.fromJson(jsonDecode(response.body));
-    } else if (response.statusCode == 401) {
-      final retryResponse = await retryWithRefreshToken(
-        url: url,
-        body: null,
-        method: 'GET',
-      );
-      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
-        return ThreadAssistantListResponse.fromJson(
-            jsonDecode(retryResponse.body));
-      } else {
-        await AuthRepository().logOut();
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          AppRoutes.login,
-          (route) => true,
-        );
-        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-      }
-    } else {
-      handleErrorResponse(response);
-      throw Exception('Failed to upload file due to an error response');
-    }
-  }
+  //   if (response.statusCode == 200 || response.statusCode == 201) {
+  //     return ThreadAssistantListResponse.fromJson(jsonDecode(response.body));
+  //   } else if (response.statusCode == 401) {
+  //     final retryResponse = await retryWithRefreshToken(
+  //       url: url,
+  //       body: null,
+  //       method: 'GET',
+  //     );
+  //     if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+  //       return ThreadAssistantListResponse.fromJson(
+  //           jsonDecode(retryResponse.body));
+  //     } else {
+  //       await AuthRepository().logOut();
+  //       navigatorKey.currentState?.pushNamedAndRemoveUntil(
+  //         AppRoutes.login,
+  //         (route) => true,
+  //       );
+  //       throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+  //     }
+  //   } else {
+  //     handleErrorResponse(response);
+  //     throw Exception('Failed to upload file due to an error response');
+  //   }
+  // }
 }

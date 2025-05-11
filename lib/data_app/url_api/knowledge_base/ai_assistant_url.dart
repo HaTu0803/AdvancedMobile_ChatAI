@@ -26,11 +26,11 @@ class ApiKnowledgeAiAssistantUrl {
           String assistantId, String query) =>
       '$baseUrl/$assistantId/knowledges${query.isNotEmpty ? '?$query' : ''}';
 
-  static const String createThreadForAssistant = '$baseUrl/thread';
-  static const String updateThreadBackground = '$baseUrl/thread/background';
+  // static const String createThreadForAssistant = '$baseUrl/thread';
+  // static const String updateThreadBackground = '$baseUrl/thread/background';
   static String askAssistant(String assistantId) => '$baseUrl/$assistantId/ask';
-  static String retrieveMessageOfThread(String openAiThreadId) =>
-      '$baseUrl/thread/$openAiThreadId/messages';
-  static String getAssistantThreads(String assistantId, String query) =>
-      '$baseUrl/$assistantId/threads${query.isNotEmpty ? '?$query' : ''}';
+  // static String retrieveMessageOfThread(String openAiThreadId) =>
+  //     '$baseUrl/thread/$openAiThreadId/messages';
+  // static String getAssistantThreads(String assistantId, String query) =>
+  //     '$baseUrl/$assistantId/threads${query.isNotEmpty ? '?$query' : ''}';
 }

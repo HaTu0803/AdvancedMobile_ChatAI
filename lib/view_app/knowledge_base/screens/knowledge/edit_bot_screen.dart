@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
 import '../../../../data_app/model/knowledge_base/assistant_model.dart';
 import '../../../../data_app/repository/knowledge_base/assistant_repository.dart';
 import '../../../../data_app/model/jarvis/prompt_model.dart';
@@ -57,6 +58,8 @@ class _EditBotScreenState extends State<EditBotScreen> {
   String? _messengerBotToken;
   String? _messengerPageId;
   String? _messengerAppSecret;
+  bool _isBotThinking = false;
+  final scrollController = ScrollController();
 
   @override
   void initState() {
@@ -100,7 +103,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
     });
 
     try {
-      // Fetch both public and private prompts
       final publicPrompts = await PromptRepository().getPrompt(
         GetPromptRequest(isPublic: true, limit: 50),
       );
@@ -153,7 +155,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
   }
 
   Future<void> _removeKnowledge(String knowledgeName) async {
-    // Get the knowledge ID from our mapping
     final knowledgeId = _knowledgeIdMap[knowledgeName];
     if (knowledgeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -162,7 +163,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
       return;
     }
 
-    // Show confirmation dialog first
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -192,7 +192,7 @@ class _EditBotScreenState extends State<EditBotScreen> {
       );
       
       await AssistantRepository().removeKnowledge(params);
-      await _fetchImportedKnowledges(); // Refresh the list
+      await _fetchImportedKnowledges();
       
       if (!mounted) return;
       
@@ -464,7 +464,7 @@ class _EditBotScreenState extends State<EditBotScreen> {
         
         final updatedAssistant = await AssistantRepository().updateAssistant(_currentAssistant.id, request);
         
-        Navigator.pop(context); // Close dialog
+        Navigator.pop(context); 
         setState(() {
           _currentAssistant = updatedAssistant;
         });
@@ -866,7 +866,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
       color: Colors.white,
       child: Column(
         children: [
-          // Header
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
@@ -886,47 +885,92 @@ class _EditBotScreenState extends State<EditBotScreen> {
           ),
           // Chat area
           Expanded(
-            child: _messages.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withOpacity(0.10),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.smart_toy,
-                            color: theme.colorScheme.primary,
-                            size: 44,
-                          ),
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height * 0.4,
+                ),
+                child: _messages.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.primary.withOpacity(0.10),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.smart_toy,
+                                color: theme.colorScheme.primary,
+                                size: 44,
+                              ),
+                            ),
+                            const SizedBox(height: 22),
+                            Text(
+                              "No messages yet",
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: Colors.deepPurple[700],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Start a conversation to test your bot!",
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.deepPurple[300],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 22),
-                        Text(
-                          "No messages yet",
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: Colors.deepPurple[700],
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Start a conversation to test your bot!",
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.deepPurple[300],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, idx) => _buildMessageBubble(_messages[idx]),
-                  ),
+                      )
+                    : ListView.builder(
+                        controller: scrollController,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, idx) {
+                          final msg = _messages[idx];
+                          if (msg.role == 'assistant' && msg.content.first.text.value == '' && _isBotThinking) {
+                            return _buildBotThinkingBubble();
+                          }
+                          return _buildMessageBubble(msg);
+                        },
+                      ),
+              ),
+            ),
           ),
+          // New Thread button 
+          if (_messages.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(right: 18, bottom: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton.icon(
+                    onPressed: _createNewThread,
+                    icon: Icon(Icons.refresh, color: theme.colorScheme.primary),
+                    label: Text(
+                      "New Thread",
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: theme.colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           // Bottom input area
           Container(
             padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
@@ -937,35 +981,8 @@ class _EditBotScreenState extends State<EditBotScreen> {
               ),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (_messages.isEmpty)
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      icon: Icon(Icons.add, color: theme.colorScheme.primary),
-                      label: Text(
-                        "New Thread",
-                        style: TextStyle(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: theme.colorScheme.primary,
-                          width: 1.5,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      onPressed: () {
-                        // _createNewThread();
-                      },
-                    ),
-                  ),
-                const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
@@ -992,7 +1009,7 @@ class _EditBotScreenState extends State<EditBotScreen> {
                             ),
                           ),
                           onSubmitted: (val) {
-                            // _sendMessage();
+                            _sendMessage();
                           },
                         ),
                       ),
@@ -1001,11 +1018,7 @@ class _EditBotScreenState extends State<EditBotScreen> {
                     IconButton(
                       icon: Icon(Icons.send_rounded,
                           color: theme.colorScheme.primary, size: 28),
-                      onPressed: _isSending
-                          ? null
-                          : () {
-                              // _sendMessage();
-                            },
+                      onPressed: _isSending ? null : _sendMessage,
                     ),
                   ],
                 ),
@@ -1388,7 +1401,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
                         ],
                       ),
                       const SizedBox(height: 18),
-                      // Step 1: Copylink
                       Card(
                         color: Colors.blue[50],
                         elevation: 0,
@@ -1418,7 +1430,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      // Step 2: Slack Information
                       Card(
                         color: Colors.white,
                         elevation: 1,
@@ -1493,7 +1504,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      // Action buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -1698,7 +1708,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title
                       Row(
                         children: [
                           Expanded(
@@ -1717,7 +1726,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
                         ],
                       ),
                       const SizedBox(height: 18),
-                      // Step 1: Copylink
                       Card(
                         color: Colors.blue[50],
                         elevation: 0,
@@ -1744,7 +1752,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      // Step 2: Messenger Information
                       Card(
                         color: Colors.white,
                         elevation: 1,
@@ -1807,7 +1814,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      // Action buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -1994,7 +2000,6 @@ class _EditBotScreenState extends State<EditBotScreen> {
                       const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () {
-                          // TODO: Open Telegram config help link
                         },
                         child: Text(
                           'How to obtain Telegram configurations?',
@@ -2125,6 +2130,176 @@ class _EditBotScreenState extends State<EditBotScreen> {
       },
     );
   }
+
+  Future<void> _createNewThread() async {
+    setState(() {
+      _messages = [];
+      _currentThreadId = null;
+    });
+  }
+
+  Future<void> _sendMessage() async {
+    final text = _messageController.text.trim();
+    if (text.isEmpty || _isSending) return;
+
+    setState(() {
+      _isSending = true;
+      _isBotThinking = true;
+      _messages.add(
+        RetrieveMessageOfThreadResponse(
+          role: 'user',
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          content: [
+            MessageContent(
+              type: 'text',
+              text: MessageText(value: text, annotations: []),
+            ),
+          ],
+        ),
+      );
+      _messages.add(
+        RetrieveMessageOfThreadResponse(
+          role: 'assistant',
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          content: [
+            MessageContent(
+              type: 'text',
+              text: MessageText(value: '', annotations: []),
+            ),
+          ],
+        ),
+      );
+    });
+
+    _messageController.clear();
+    await Future.delayed(const Duration(milliseconds: 100));
+    _scrollToBottom();
+
+    try {
+      if (_currentThreadId == null) {
+        _currentThreadId = DateTime.now().millisecondsSinceEpoch.toString();
+      }
+
+      final askRequest = AskAssistant(
+        message: text,
+        openAiThreadId: _currentThreadId!,
+        additionalInstruction: '',
+      );
+
+      final botResponse = await AssistantRepository().askAssistant(_currentAssistant.id, askRequest);
+
+      setState(() {
+        _isBotThinking = false;
+        if (_messages.isNotEmpty && _messages.last.role == 'assistant' && _messages.last.content.first.text.value == '') {
+          _messages.removeLast();
+        }
+        if (botResponse != null) {
+          if (botResponse is Map<String, dynamic>) {
+            _messages.add(RetrieveMessageOfThreadResponse.fromJson(botResponse));
+          } else if (botResponse is String) {
+            final lines = botResponse.split('\n');
+            final buffer = StringBuffer();
+            for (final line in lines) {
+              if (line.startsWith('data:')) {
+                final jsonStr = line.substring(5).trim();
+                try {
+                  final data = jsonStr.isNotEmpty ? jsonDecode(jsonStr) : null;
+                  final content = data != null && data['content'] != null ? data['content'].toString() : '';
+                  if (content.trim().isNotEmpty) {
+                    buffer.write(content);
+                  }
+                } catch (e) {}
+              }
+            }
+            final fullContent = buffer.toString().trim();
+            if (fullContent.isNotEmpty) {
+              _messages.add(
+                RetrieveMessageOfThreadResponse(
+                  role: 'assistant',
+                  createdAt: DateTime.now().millisecondsSinceEpoch,
+                  content: [
+                    MessageContent(
+                      type: 'text',
+                      text: MessageText(value: fullContent, annotations: []),
+                    ),
+                  ],
+                ),
+              );
+            }
+          }
+        }
+      });
+
+      await Future.delayed(const Duration(milliseconds: 100));
+      _scrollToBottom();
+    } catch (e) {
+      setState(() {
+        _isBotThinking = false;
+        if (_messages.isNotEmpty && _messages.last.role == 'assistant' && _messages.last.content.first.text.value == '') {
+          _messages.removeLast();
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send message: $e')),
+      );
+    } finally {
+      setState(() => _isSending = false);
+    }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  Widget _buildBotThinkingBubble() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            margin: const EdgeInsets.only(right: 12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.smart_toy,
+              size: 18,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _currentAssistant.assistantName,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                AnimatedDots(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _PlatformItem {
@@ -2138,4 +2313,49 @@ class _PlatformItem {
     required this.status,
     required this.statusColor,
   });
+}
+
+class AnimatedDots extends StatefulWidget {
+  @override
+  State<AnimatedDots> createState() => _AnimatedDotsState();
+}
+
+class _AnimatedDotsState extends State<AnimatedDots> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  int dotCount = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..addListener(() {
+        if (_controller.status == AnimationStatus.completed) {
+          setState(() {
+            dotCount = dotCount % 3 + 1;
+          });
+          _controller.forward(from: 0);
+        }
+      });
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Bot is thinking${'.' * dotCount}',
+      style: TextStyle(
+        color: Colors.grey[600],
+        fontStyle: FontStyle.italic,
+        fontSize: 14,
+      ),
+    );
+  }
 }
