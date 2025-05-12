@@ -246,12 +246,11 @@ print(decoded);
 
       final response = await http.delete(url, headers: headers);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
         return true;
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          body: null,
           method: 'DELETE',
         );
 

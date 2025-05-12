@@ -374,9 +374,8 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
 
 
           setState(() {
-            units.removeWhere((a) => a.id == unit.id);
+            units.removeWhere((u) => u.id == unit.id);
           });
-
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Delete Knowledge Unit successfully')),
           );
