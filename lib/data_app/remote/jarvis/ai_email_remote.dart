@@ -15,7 +15,7 @@ import '../../repository/auth/authentication_repository.dart';
 class AiEmailApiClient {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  Future<EmailResponse> responseEmail(EmailResponseModel request) async {
+  Future<EmailResponse> responseEmail(EmailRequestModel request) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
     print("🔑 AccessToken: $token");
@@ -27,28 +27,33 @@ class AiEmailApiClient {
     final response = await http.post(url, headers: headers, body: body);
 
     print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body: ${response.body}");
+    print("📩 response.body email: ${response.body}");
+    print("📩 request.body: ${request.toJson()}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return EmailResponse.fromJson(jsonDecode(response.body)['data']);
+      return EmailResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: body,
+        method: 'POST',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
-        return EmailResponse.fromJson(jsonDecode(retryResponse.body)['data']);
+        return EmailResponse.fromJson(jsonDecode(retryResponse.body));
       } else {
         await AuthRepository().logOut();
         navigatorKey.currentState?.pushNamedAndRemoveUntil(
           AppRoutes.login,
-          (route) => true,
+              (route) => true,
         );
+        handleErrorResponse(retryResponse);
+
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      handleErrorResponse(response);
+
       throw Exception('Lỗi: ${response.statusCode}');
     }
   }
@@ -66,24 +71,30 @@ class AiEmailApiClient {
 
     print("📩 response.statusCode: ${response.statusCode}");
     print("📩 response.body: ${response.body}");
-
+    print("📩 request.body: ${request.toJson()}");
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return IdeaResponse.fromJson(jsonDecode(response.body)['data']);
+      return IdeaResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
         body: body,
+        method: 'POST',
       );
 
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
-        return IdeaResponse.fromJson(jsonDecode(retryResponse.body)['data']);
+        return IdeaResponse.fromJson(jsonDecode(retryResponse.body));
       } else {
-        DialogHelper.showError(
-            'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-        throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-      }
+      await AuthRepository().logOut();
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        AppRoutes.login,
+            (route) => true,
+      );
+      handleErrorResponse(retryResponse);
+      throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+    }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      handleErrorResponse(response);
+
       throw Exception('Lỗi: ${response.statusCode}');
     }
   }

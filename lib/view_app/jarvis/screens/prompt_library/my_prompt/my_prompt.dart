@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:advancedmobile_chatai/core/util/themes/colors.dart';
 import 'package:advancedmobile_chatai/data_app/repository/jarvis/prompt_repository.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/prompt_library/create_prompt/create_prompt_screen.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/widgets/using_my_prompt.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
 import '../../../../../widgets/dialog.dart';
+import '../../../widgets/button_action.dart';
 
 class MyPromptScreen extends StatefulWidget {
   const MyPromptScreen({super.key});
@@ -19,7 +22,11 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
   Timer? _debounce;
   List<PromptItemV2> _prompts = [];
   bool _isLoading = false;
-
+  bool _hasMore = true;
+  int _offset = 0;
+  final int _limit = 10;
+  String _currentQuery = "";
+  final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
@@ -30,34 +37,82 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
       _debounce = Timer(const Duration(milliseconds: 500), () {
         final query = _searchController.text.trim();
         if (query.isEmpty || query.length >= 2) {
-          _fetchPrompts(query: query);
+          _resetAndFetch(query);
         }
       });
     });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !_isLoading &&
+          _hasMore) {
+        _fetchPrompts(query: _currentQuery);
+      }
+    });
+  }
+
+  void _resetAndFetch(String query) {
+    setState(() {
+      _offset = 0;
+      _prompts.clear();
+      _hasMore = true;
+      _currentQuery = query;
+    });
+    _fetchPrompts(query: query);
   }
 
   Future<void> _fetchPrompts({String query = ""}) async {
+    if (!_hasMore || _isLoading) return;
+
     setState(() => _isLoading = true);
 
     final params = GetPromptRequest(
       query: query,
-      limit: 100,
+      offset: _offset,
+      limit: _limit,
       isPublic: false,
     );
 
     try {
       final response = await PromptRepository().getPrompt(params);
-      setState(() => _prompts = response.items);
-      debugPrint("Fetched prompts: ${_prompts}");
+      final newItems = response.items;
+
+      setState(() {
+        _prompts.addAll(newItems);
+        _offset += _limit;
+        _hasMore = response.hasNext;
+      });
     } catch (e) {
       debugPrint('Failed to fetch prompts: $e');
     } finally {
       setState(() => _isLoading = false);
     }
   }
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            "images/no_found.png",
+            width: 300,
+            height: 300,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "No found",
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _searchController.dispose();
     _debounce?.cancel();
     super.dispose();
@@ -71,11 +126,11 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
           child: Dialog(
             insetPadding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Container(
               width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -86,22 +141,20 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
                       children: [
                         Text(
                           'Edit Prompt',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close),
+                          icon: const Icon(Icons.close, size: 18),
                           onPressed: () {
                             Navigator.pop(context);
                           },
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 4),
                     CreatePromptScreen(
                       promptToEdit: promptToEdit,
-                      onSubmitSuccess: _fetchPrompts,
-                      // Pass the prompt to edit here
-                      // promptToEdit: promptToEdit,
+                      onSubmitSuccess: () => _resetAndFetch(_currentQuery),
                     ),
                   ],
                 ),
@@ -115,55 +168,90 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: _searchController,
-                decoration: const InputDecoration(
-                  hintText: 'Search...',
-                  prefixIcon: Icon(Icons.search, color: Colors.grey),
-                  border: InputBorder.none,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 42,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search prompts...',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon:
+                        Icon(Icons.search, color: theme.colorScheme.primary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: theme.colorScheme.primary),
+                    ),
+                    filled: true,
+                    fillColor: theme.colorScheme.surface,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              )
+            ],
           ),
-
+          const SizedBox(height: 8),
           // Prompt List
           Expanded(
-            child: _isLoading
+            child: _prompts.isEmpty && _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _prompts.isEmpty
-                    ? const Center(child: Text("No prompts found"))
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4.0, vertical: 8.0),
-                        itemCount: _prompts.length,
-                        itemBuilder: (context, index) {
-                          // Cast the prompt to PromptItemV2
-                          final prompt = _prompts[index] as PromptItemV2;
+                  : _prompts.isEmpty
+                    ? _buildEmptyState() 
+                : ListView.separated(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 4.0, vertical: 4.0),
+                    itemCount: _prompts.length + (_hasMore ? 1 : 0),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      if (index >= _prompts.length) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                          return _buildPromptItem(
-                            prompt, // Pass the whole PromptItemV2 object
-                            onEdit: () => _openPromptDialog(
-                              promptToEdit: prompt,
-                            ),
-                            onDelete: () => _handleDeletePrompt(
-                                prompt), // Pass the whole PromptItemV2 object
-                            onUse: () {},
-                          );
-                        },
-                      ),
+                      final prompt = _prompts[index];
+                      return ButtonAction(
+                        onPressed: () => _showUsingMyPrompt(prompt),
+                        model: prompt,
+                        iconActions: [
+                          IconAction(
+                            icon: Icons.edit_outlined,
+                            onPressed: () =>
+                                _openPromptDialog(promptToEdit: prompt),
+                          ),
+                          IconAction(
+                            icon: Icons.delete_outlined,
+                            onPressed: () => _handleDeletePrompt(prompt),
+                          ),
+                          IconAction(
+                            icon: Icons.arrow_forward,
+                            onPressed: () => _showUsingMyPrompt(prompt),
+                          ),
+                        ],
+                        showIconActions: true,
+                        showContent: false,
+                      );
+                    },
+                  ),
           ),
 
           // Footer
@@ -173,7 +261,9 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
               child: RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textGray,
+                      ),
                   children: [
                     const TextSpan(text: 'Find more prompts in '),
                     TextSpan(
@@ -195,12 +285,40 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
     );
   }
 
+  void _showUsingMyPrompt(PromptItemV2 prompt) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        isScrollControlled: true,
+        builder: (context) => UsingMyPrompt(prompt: prompt),
+      );
+    });
+  }
+
   Future<void> _handleDeletePrompt(PromptItemV2 prompt) async {
     showCustomDialog(
       context: context,
       title: 'Delete Prompt',
-      message:
-          'Are you sure you want to delete the prompt titled "${prompt.title}"?',
+      message: Text.rich(
+        TextSpan(
+          children: [
+            const TextSpan(
+                text: 'Are you sure you want to delete the prompt titled '),
+            TextSpan(
+              text: prompt.title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const TextSpan(text: '?'),
+          ],
+        ),
+      ),
       isConfirmation: true,
       confirmText: 'Yes, Delete',
       cancelText: 'Cancel',
@@ -237,66 +355,5 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
     } finally {
       setState(() => _isLoading = false);
     }
-  }
-
-  Widget _buildPromptItem(
-    PromptItemV2 prompt, {
-    required VoidCallback onEdit,
-    required VoidCallback onDelete,
-    required VoidCallback onUse,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            spreadRadius: 1,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              prompt.title, // Access the title from PromptItemV2
-              style: Theme.of(context).textTheme.titleMedium,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit_outlined,
-                    size: 20, color: Colors.grey),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: onEdit,
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline,
-                    size: 20, color: Colors.grey),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: onDelete,
-              ),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward,
-                    size: 20, color: Colors.grey),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: onUse,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }

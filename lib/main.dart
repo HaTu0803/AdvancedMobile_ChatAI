@@ -4,6 +4,7 @@ import 'package:advancedmobile_chatai/core/helpers/dialog_helper.dart';
 import 'package:advancedmobile_chatai/core/navigation/routes.dart';
 import 'package:advancedmobile_chatai/core/util/themes/theme.dart';
 import 'package:advancedmobile_chatai/providers/auth_provider.dart';
+import 'package:advancedmobile_chatai/providers/prompt_input.dart';
 import 'package:advancedmobile_chatai/providers/prompt_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,6 +21,9 @@ void main() {
           providers: [
             ChangeNotifierProvider(create: (_) => PromptProvider()),
             ChangeNotifierProvider(create: (context) => AuthProvider()),
+            ChangeNotifierProvider(
+              create: (context) => PromptInputProvider(),
+            ),
           ],
           child: const MyApp(),
         ),

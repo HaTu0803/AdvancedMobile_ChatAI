@@ -49,4 +49,9 @@ class AppColors {
   static const Color textGray = Color(0xFFABBBC2);
   static const Color textGrayDarker = Color(0xFF9B9D9E);
 
+  static const Color divider = Color(0xFFE5E5E5);
+  static const Color iconColor = Color(0xFF8884FA);
+  static const Color iconColorDark = Color(0xFF9B9D9E);
+  static const Color categoryGrey = Color(0xFFF5F5F5);
+
 }

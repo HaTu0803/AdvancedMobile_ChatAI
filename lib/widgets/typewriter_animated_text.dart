@@ -3,7 +3,7 @@ import 'dart:async';
 
 class TypewriterAnimatedText extends StatefulWidget {
   final List<String> texts;
-  final int typingSpeed; // Characters per minute
+  final int typingSpeed;
   final Duration pauseDuration;
 
   const TypewriterAnimatedText({

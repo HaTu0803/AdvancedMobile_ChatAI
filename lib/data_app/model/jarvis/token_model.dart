@@ -1,7 +1,7 @@
 class UsageTokenResponse {
   final int totalTokens;
   final int availableTokens;
-  final int unlimited;
+  final bool unlimited;
   final String date;
 
   UsageTokenResponse({

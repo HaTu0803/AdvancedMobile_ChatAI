@@ -3,14 +3,17 @@ import 'package:advancedmobile_chatai/data_app/remote/jarvis/user_remote.dart';
 import 'package:flutter/material.dart';
 
 class TokenRepository {
-  final UserApiClient UserApi = UserApiClient();
+  final UserApiClient userApi = UserApiClient();
 
   Future<CurrentUserReponse> getCurrentUser() async {
     try {
-      final response = await UserApi.getCurrentUser();
+      debugPrint("🔄 TokenRepository: Getting current user...");
+      final response = await userApi.getCurrentUser();
+      debugPrint("✅ TokenRepository: Successfully got user data: ${response.toJson()}");
       return response;
-    } catch (e) {
-      debugPrint("Error: $e");
+    } catch (e, stackTrace) {
+      debugPrint("❌ TokenRepository Error: $e");
+      debugPrint("📍 TokenRepository Stack trace: $stackTrace");
       rethrow;
     }
   }

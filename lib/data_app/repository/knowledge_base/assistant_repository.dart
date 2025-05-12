@@ -31,7 +31,7 @@ class AssistantRepository {
       final response = await AssistantApi.getAssistantList(params);
       return response;
     } catch (e) {
-      debugPrint("GetConversations Error: $e");
+      debugPrint("getAssistants Error: $e");
       rethrow;
     }
   }
@@ -99,56 +99,57 @@ class AssistantRepository {
     }
   }
 
-  Future<ThreadAssistantResponse> createThread(ThreadAssistant request) async {
-    try {
-      final response = await AssistantApi.createThread(request);
-      return response;
-    } catch (e) {
-      debugPrint("GetConversations Error: $e");
-      rethrow;
-    }
-  }
+  // Future<ThreadAssistantResponse> createThread(ThreadAssistant request) async {
+  //   try {
+  //     final response = await AssistantApi.createThread(request);
+  //     return response;
+  //   } catch (e) {
+  //     debugPrint("GetConversations Error: $e");
+  //     rethrow;
+  //   }
+  // }
 
-  Future<bool> updateThreadBackground(ThreadAssistant request) async {
-    try {
-      final response = await AssistantApi.updateThreadBackground(request);
-      return response;
-    } catch (e) {
-      debugPrint("GetConversations Error: $e");
-      rethrow;
-    }
-  }
+  // Future<bool> updateThreadBackground(ThreadAssistant request) async {
+  //   try {
+  //     final response = await AssistantApi.updateThreadBackground(request);
+  //     return response;
+  //   } catch (e) {
+  //     debugPrint("GetConversations Error: $e");
+  //     rethrow;
+  //   }
+  // }
 
-  Future<bool> askAssistant(String assistantId, AskAssistant request) async {
+  Future<dynamic> askAssistant(String assistantId, AskAssistant request) async {
     try {
+      
       final response = await AssistantApi.askAssistant(assistantId, request);
       return response;
     } catch (e) {
-      debugPrint("GetConversations Error: $e");
+      debugPrint("askAssistant Error: $e");
       rethrow;
     }
   }
 
-  Future<List<RetrieveMessageOfThreadResponse>> retrieveMessageOfThread(
-      String openAiThreadId) async {
-    try {
-      final response =
-          await AssistantApi.retrieveMessageOfThread(openAiThreadId);
-      return response;
-    } catch (e) {
-      debugPrint("GetConversations Error: $e");
-      rethrow;
-    }
-  }
+  // Future<List<RetrieveMessageOfThreadResponse>> retrieveMessageOfThread(
+  //     String openAiThreadId) async {
+  //   try {
+  //     final response =
+  //         await AssistantApi.retrieveMessageOfThread(openAiThreadId);
+  //     return response;
+  //   } catch (e) {
+  //     debugPrint("GetConversations Error: $e");
+  //     rethrow;
+  //   }
+  // }
 
-  Future<ThreadAssistantListResponse> getThreads(
-      String assistantId, BaseQueryParams params) async {
-    try {
-      final response = await AssistantApi.getThreads(assistantId, params);
-      return response;
-    } catch (e) {
-      debugPrint("GetConversations Error: $e");
-      rethrow;
-    }
-  }
+  // Future<ThreadAssistantListResponse> getThreads(
+  //     String assistantId, BaseQueryParams params) async {
+  //   try {
+  //     final response = await AssistantApi.getThreads(assistantId, params);
+  //     return response;
+  //   } catch (e) {
+  //     debugPrint("GetConversations Error: $e");
+  //     rethrow;
+  //   }
+  // }
 }

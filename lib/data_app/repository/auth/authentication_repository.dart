@@ -13,7 +13,7 @@ class AuthRepository {
       await saveTokens(response.accessToken, response.refreshToken);
       return response;
     } catch (e) {
-      debugPrint("SignUp Error: ${e.toString()}");
+      debugPrint(e.toString());
       rethrow;
     }
   }
@@ -22,6 +22,8 @@ class AuthRepository {
     try {
       final response = await authApiClient.signIn(request);
       await saveTokens(response.accessToken, response.refreshToken);
+      final stored = await basePreferences.getTokenPreferred('refresh_token');
+      debugPrint("✅ After SignIn: Stored refresh_token = $stored");
       return response;
     } catch (e) {
       debugPrint("SignIn Error: ${e.toString()}");
@@ -56,9 +58,12 @@ class AuthRepository {
     try {
       final refreshToken =
           await basePreferences.getTokenPreferred('refresh_token');
+      debugPrint("Refresh token 123: $refreshToken");
+
       if (refreshToken.isNotEmpty) {
         final response = await authApiClient.fetchRefreshToken(refreshToken);
         debugPrint("🔍 response Token: $response");
+        await basePreferences.setTokenPreferred('access_token', response);
 
         return response;
       }

@@ -27,13 +27,13 @@ class PromptRepository {
     }
   }
 
-  Future<GetPromptResponse> getPrompt(GetPromptRequest params) async {
+  Future<GetPromptResponse> getPrompt(GetPromptRequest? params) async {
     try {
       final response = await promptApiClient.getPrompt(params);
       debugPrint("Get Prompt Response: ${response}");
       return response;
     } catch (e) {
-      debugPrint("Get Prompt Error: \${e.toString()}");
+      debugPrint(e.toString());
       rethrow;
     }
   }
@@ -59,21 +59,21 @@ class PromptRepository {
     }
   }
 
-  // Future<void> addPromptToFavorites(String id) async {
-  //   try {
-  //     await promptApiClient.addPromptToFavorites(id);
-  //   } catch (e) {
-  //     debugPrint("Add to Favorites Error: \${e.toString()}");
-  //     rethrow;
-  //   }
-  // }
+  Future<void> addPromptToFavorites(String id) async {
+    try {
+      await promptApiClient.addPromptToFavorites(id);
+    } catch (e) {
+      debugPrint("Add to Favorites Error: ${e.toString()}");
+      rethrow;
+    }
+  }
 
-  // Future<void> removePromptFromFavorites(String id) async {
-  //   try {
-  //     await promptApiClient.removePromptFromFavorites(id);
-  //   } catch (e) {
-  //     debugPrint("Remove from Favorites Error: \${e.toString()}");
-  //     rethrow;
-  //   }
-  // }
+  Future<void> removePromptFromFavorites(String id) async {
+    try {
+      await promptApiClient.removePromptFromFavorites(id);
+    } catch (e) {
+      debugPrint("Remove from Favorites Error: ${e.toString()}");
+      rethrow;
+    }
+  }
 }

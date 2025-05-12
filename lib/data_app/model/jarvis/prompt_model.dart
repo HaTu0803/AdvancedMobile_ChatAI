@@ -114,7 +114,7 @@ class PromptItem extends StatelessWidget {
       content: json["content"] ?? "",
       description: json["description"] ?? "",
       isPublic: json["isPublic"] ?? false,
-      language: json["language"] ?? "en",
+      language: json["language"] ?? "",
       title: json["title"] ?? "",
       userId: json["userId"] ?? "Unknown",
       userName: json["userName"] ?? "Anonymous",
@@ -290,34 +290,25 @@ class GetPromptRequest {
     this.isPublic,
   });
 
-  Map<String, String> toQueryParams() {
-    final Map<String, String> params = {};
+  Map<String, dynamic> toJson() {
+    return {
+      'query': query,
+      'offset': offset,
+      'limit': limit,
+      'category': category,
+      'isFavorite': isFavorite,
+      'isPublic': isPublic,
+    };
+  }
+  String toQueryString() {
+    final Map<String, dynamic> json = toJson();
 
-    if (query != null && query!.isNotEmpty) {
-      params['query'] = query!;
-    }
+    final filtered = json.entries.where((e) => e.value != null);
 
-    if (offset != null) {
-      params['offset'] = offset.toString();
-    }
-
-    if (limit != null) {
-      params['limit'] = limit.toString();
-    }
-
-    if (category != null && category!.isNotEmpty) {
-      params['category'] = category!;
-    }
-
-    if (isFavorite != null) {
-      params['isFavorite'] = isFavorite.toString();
-    }
-
-    if (isPublic != null) {
-      params['isPublic'] = isPublic.toString();
-    }
-
-    return params;
+    return filtered
+        .map((e) =>
+    '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value.toString())}')
+        .join('&');
   }
 }
 
@@ -387,7 +378,7 @@ class PromptItemV2 {
       content: json["content"] ?? "",
       description: json["description"] ?? "No description",
       isPublic: json["isPublic"] ?? false,
-      language: json["language"] ?? "en",
+      language: json["language"] ?? "Auto",
       title: json["title"] ?? "Untitled",
       userId: json["userId"] ?? "Unknown",
       userName: json["userName"] ?? "Anonymous",
@@ -428,30 +419,4 @@ class PromptCategory {
     required this.isSelected,
     required this.id,
   });
-}
-
-// Hàm để xây dựng các PromptItem vào một Widget
-Widget? buildPromptItem(PromptItem? promptItem) {
-  if (promptItem == null) {
-    return null;
-  }
-
-  return promptItem;
-}
-
-// Widget để hiển thị danh sách PromptItem
-class PromptList extends StatelessWidget {
-  final List<PromptItem> promptItems;
-
-  PromptList({required this.promptItems});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: promptItems.length,
-      itemBuilder: (context, index) {
-        return buildPromptItem(promptItems[index]) ?? Container();
-      },
-    );
-  }
 }

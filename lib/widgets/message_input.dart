@@ -1,8 +1,13 @@
-import 'package:advancedmobile_chatai/data_app/repository/jarvis/ai_chat_repository.dart';
+import 'dart:io';
+
+import 'package:advancedmobile_chatai/data_app/model/jarvis/token_model.dart';
+import 'package:advancedmobile_chatai/data_app/repository/jarvis/token_repository.dart';
+import 'package:advancedmobile_chatai/providers/prompt_input.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/widgets/upload_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../core/util/themes/colors.dart';
-import '../data_app/model/jarvis/chat_model.dart';
 import '../data_app/model/jarvis/prompt_model.dart';
 import '../data_app/repository/jarvis/prompt_repository.dart';
 import '../view_app/jarvis/screens/prompt_library/prompt_library.dart';
@@ -24,13 +29,48 @@ class _MessageInputFieldState extends State<MessageInputField> {
   OverlayEntry? _overlayEntry;
   List<PromptItemV2> _suggestions = [];
   bool _isLoading = false;
+  late PromptInputProvider _promptInputProvider;
+
+  // Add token related variables
+  final TokenRepository _tokenRepository = TokenRepository();
+  UsageTokenResponse? _tokenData;
+  bool _isLoadingToken = false;
+  String _tokenError = '';
+  List<File> _selectedImages = [];
 
   @override
   void initState() {
     super.initState();
     _controller.addListener(_handleTextChange);
+    _fetchTokenData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get the provider instance here
+    _promptInputProvider = Provider.of<PromptInputProvider>(context);
+    // Listen to changes and update the controller text
+    _controller.text = _promptInputProvider.content;
+  }
+
+Future<void> _handleImageUpload() async {
+  final imagePath = await ImageUploader.pickImage(context);
+
+  if (imagePath != null) {
+    setState(() {
+      _selectedImages.add(File(imagePath)); // Thêm ảnh mới vào danh sách
+    });
+  }
+}
+
+  // Future<void> _handleImageUpload() async {
+  //   await ImageUploader.pickAndUploadImage(context, (imageFile) {
+  //     setState(() {
+  //       _selectedImage = imageFile; // Update the state with the selected image
+  //     });
+  //   });
+  // }
   @override
   void dispose() {
     _hideOverlay();
@@ -79,6 +119,28 @@ class _MessageInputFieldState extends State<MessageInputField> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _fetchTokenData() async {
+    setState(() {
+      _isLoadingToken = true;
+      _tokenError = '';
+    });
+
+    try {
+      final response = await _tokenRepository.getUsage();
+      setState(() {
+        _tokenData = response;
+        _isLoadingToken = false;
+      });
+      print('Token data fetched successfully: ${response.availableTokens}');
+    } catch (e) {
+      setState(() {
+        _tokenError = e.toString();
+        _isLoadingToken = false;
+      });
+      print('Error fetching token data: $e');
     }
   }
 
@@ -164,86 +226,204 @@ class _MessageInputFieldState extends State<MessageInputField> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      margin: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 16.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(
-          color: Theme.of(context).primaryColor,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: CompositedTransformTarget(
-                  link: _layerLink,
-                  child: TextField(
-                    controller: _controller,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    decoration: InputDecoration(
-                      hintText: 'Type a message... (Type / for prompts)',
-                      hintStyle: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 14,
-                      ),
-                      border: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.transparent),
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.transparent),
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.transparent),
-                      ),
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 12.0),
-                    ),
-                    onChanged: (text) {
-                      setState(() {
-                        _isComposing = text.isNotEmpty;
-                      });
-                    },
-                    onSubmitted: _isComposing ? _handleSubmitted : null,
-                  ),
-                ),
-              ),
-            ],
+    final bool isOutOfTokens =
+        _tokenData != null && _tokenData!.availableTokens <= 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          margin: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 4.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.0),
+            border: Border.all(
+              color: isOutOfTokens
+                  ? Theme.of(context).colorScheme.error.withOpacity(0.5)
+                  : Theme.of(context).primaryColor,
+              width: 1,
+            ),
           ),
-          const SizedBox(height: 8),
-          Row(
+          child: Column(
             children: [
-              Flexible(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    _buildActionButton(Icons.terminal_outlined, onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PromptLibraryScreen(),
+             
+              Row(
+                children: [
+                  Expanded(
+                    child: CompositedTransformTarget(
+                      link: _layerLink,
+                      child: TextField(
+                        controller: _controller,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        decoration: InputDecoration(
+                          hintText: isOutOfTokens
+                              ? 'You have run out of tokens, please wait until tomorrow or upgrade your account to get more tokens.'
+                              : 'Type a message... (Type / for prompts)',
+                          hintStyle: TextStyle(
+                            color: isOutOfTokens
+                                ? Theme.of(context).colorScheme.error
+                                : Colors.grey.shade500,
+                            fontSize: 14,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12.0),
                         ),
-                      );
-                    }),
-                    _buildActionButton(Icons.attach_file_outlined,
-                        onPressed: () {}),
-                    _buildActionButton(
-                      Icons.arrow_upward,
-                      onPressed: _isComposing
-                          ? () => _handleSubmitted(_controller.text)
-                          : null,
-                      isActive: _isComposing,
+                        
+                        enabled: !isOutOfTokens,
+                        onChanged: (text) {
+                          _promptInputProvider.setInputContent(text);
+                          setState(() {
+                            _isComposing = text.isNotEmpty;
+                          });
+                        },
+                        onSubmitted: _isComposing ? _handleSubmitted : null,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+                            const SizedBox(height: 8),
+
+if (_selectedImages.isNotEmpty)
+  Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: _selectedImages.map((image) {
+              return Container(
+                margin: const EdgeInsets.only(right: 8.0),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.file(
+                        image,
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedImages.remove(image); // Xóa ảnh khi nhấn nút "x"
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.5),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    ],
+  ),
+
+              Row(
+                children: [
+                  Flexible(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        _buildActionButton(Icons.terminal_outlined,
+                            onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PromptLibraryScreen(),
+                            ),
+                          );
+                        }),
+                        _buildActionButton(Icons.attach_file_outlined,
+                            onPressed: () {
+                          _handleImageUpload();
+                        }),
+                        _buildActionButton(
+                          Icons.arrow_upward,
+                          onPressed: (_isComposing && !isOutOfTokens)
+                              ? () => _handleSubmitted(_controller.text)
+                              : null,
+                          isActive: _isComposing && !isOutOfTokens,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        // Token display with real data
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.local_fire_department,
+                size: 16,
+                color: isOutOfTokens
+                    ? Theme.of(context).colorScheme.error
+                    : (_tokenError.isNotEmpty
+                        ? Colors.red
+                        : Colors.grey.shade600),
+              ),
+              const SizedBox(width: 4),
+              if (_isLoadingToken)
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                )
+              else if (_tokenError.isNotEmpty)
+                const Text(
+                  'Error loading tokens',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.red,
+                    fontWeight: FontWeight.w500,
+                  ),
+                )
+              else
+                Text(
+                  '${_tokenData?.availableTokens ?? 0}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isOutOfTokens
+                        ? Theme.of(context).colorScheme.error
+                        : Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -269,6 +449,63 @@ class _MessageInputFieldState extends State<MessageInputField> {
   }
 
   void _handleSubmitted(String text) async {
+    if (_tokenData == null || _tokenData!.availableTokens <= 0) {
+      // Show an elegant bottom sheet when out of tokens
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.token_outlined,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Out of tokens!',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'You have used all your tokens. Please wait until tomorrow or upgrade your account to get more tokens.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Got it'),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        },
+      );
+      return;
+    }
+
     widget.onSend(text);
     _controller.clear();
     setState(() {
@@ -276,28 +513,29 @@ class _MessageInputFieldState extends State<MessageInputField> {
     });
     _hideOverlay();
 
-    // Create the request body for the API
-    final chatRequest = ChatRequest(
-      content: text,
-      files: [],
-      metadata: ChatMetadata(
-        conversation: Conversation(messages: []),
-      ),
-      assistant: AssistantInfo(
-        model: "knowledge-base",
-        name: "votutrinh2002's Default Team Assistant",
-        id: "29178123-34d4-4e52-94fb-8e580face2d5",
-      ),
-    );
+    // // Create the request body for the API
+    // final chatRequest = ChatRequest(
+    //   content: text,
+    //   files: [],
+    //   metadata: ChatMetadata(
+    //     conversation: Conversation(messages: []),
+    //   ),
+    //   assistant: AssistantInfo(
+    //     model: "knowledge-base",
+    //     name: "votutrinh2002's Default Team Assistant",
+    //     id: "29178123-34d4-4e52-94fb-8e580face2d5",
+    //   ),
+    // );
 
-    try {
-      // Send the message to the bot using the chat API
-      final response = await AiChatRepository().chatWithBot(chatRequest);
-      debugPrint("Bot response: ${response.message}");
+    // try {
+    //   // Send the message to the bot using the chat API
+    //   final response = await AiChatRepository().chatWithBot(chatRequest);
+    //   debugPrint("Bot response: ${response.message}");
 
-      // Handle bot response (you can display it in your UI)
-    } catch (e) {
-      debugPrint("Error sending message to bot: $e");
-    }
+    //   // Update token count after successful response
+    //   _fetchTokenData();
+    // } catch (e) {
+    //   debugPrint("Error sending message to bot: $e");
+    // }
   }
 }

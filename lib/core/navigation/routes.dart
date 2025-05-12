@@ -6,6 +6,7 @@ import 'package:advancedmobile_chatai/view_app/auth/screens/introduction/introdu
 import 'package:advancedmobile_chatai/view_app/auth/screens/login/login_screen.dart';
 import 'package:advancedmobile_chatai/view_app/auth/screens/signup/signup_screen.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/chat_history/chat_history_screen.dart';
+import 'package:advancedmobile_chatai/view_app/jarvis/screens/email_compose/email_compose_screen.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/profile/profile_screen.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +28,7 @@ class AppRoutes {
   static const String history = '/conversation-history';
   static const String createPrompt = '/create-prompt';
   static const String bot = '/bot';
+  static const String emailCompose = '/email-compose';
 }
 
 // Khởi tạo GoRouter
@@ -40,9 +42,8 @@ final GoRouter router = GoRouter(
           final authProvider =
               Provider.of<AuthProvider>(context, listen: false);
 
-          // Nếu dữ liệu chưa load xong, chờ đợi
           if (authProvider.hasSeenIntro == null) {
-            return null; // Không điều hướng ngay
+            return null;
           }
 
           return authProvider.hasSeenIntro ? AppRoutes.login : AppRoutes.intro;

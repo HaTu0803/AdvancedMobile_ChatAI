@@ -197,7 +197,7 @@ class AskAssistant {
 class AssistantResponse extends BaseModel {
   final String id;
   final String assistantName;
-  final String openAiAssistantId;
+  final String? openAiAssistantId;
   final String? instructions;
   final String? description;
   final String? openAiThreadIdPlay;
@@ -211,7 +211,7 @@ class AssistantResponse extends BaseModel {
     String? updatedBy,
     required this.id,
     required this.assistantName,
-    required this.openAiAssistantId,
+     this.openAiAssistantId,
     this.instructions,
     this.description,
     this.openAiThreadIdPlay,
@@ -443,21 +443,58 @@ class ThreadAssistantListResponse {
   }
 }
 
+class MessageContent {
+  final String type;
+  final MessageText text;
+
+  MessageContent({
+    required this.type,
+    required this.text,
+  });
+
+  factory MessageContent.fromJson(Map<String, dynamic> json) {
+    return MessageContent(
+      type: json['type'],
+      text: MessageText.fromJson(json['text']),
+    );
+  }
+}
+
+class MessageText {
+  final String value;
+  final List<dynamic> annotations;
+
+  MessageText({
+    required this.value,
+    required this.annotations,
+  });
+
+  factory MessageText.fromJson(Map<String, dynamic> json) {
+    return MessageText(
+      value: json['value'],
+      annotations: json['annotations'] ?? [],
+    );
+  }
+}
+
 class RetrieveMessageOfThreadResponse {
-  final String content;
   final String role;
-  final String createdAt;
+  final int createdAt;
+  final List<MessageContent> content;
+
   RetrieveMessageOfThreadResponse({
-    required this.content,
     required this.role,
     required this.createdAt,
+    required this.content,
   });
 
   factory RetrieveMessageOfThreadResponse.fromJson(Map<String, dynamic> json) {
     return RetrieveMessageOfThreadResponse(
-      content: json['content'],
       role: json['role'],
       createdAt: json['createdAt'],
+      content: (json['content'] as List)
+          .map((item) => MessageContent.fromJson(item))
+          .toList(),
     );
   }
 }

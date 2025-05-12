@@ -52,38 +52,6 @@ class UploadWebsite {
   }
 }
 
-class UploadFileConfluence {
-  String unitName;
-  String wikiPageUrl;
-  String confluenceUsername;
-  String confluenceAccessToken;
-
-  UploadFileConfluence({
-    required this.unitName,
-    required this.wikiPageUrl,
-    required this.confluenceUsername,
-    required this.confluenceAccessToken,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'unitName': unitName,
-      'wikiPageUrl': wikiPageUrl,
-      'confluenceUsername': confluenceUsername,
-      'confluenceAccessToken': confluenceAccessToken,
-    };
-  }
-
-  factory UploadFileConfluence.fromJson(Map<String, dynamic> json) {
-    return UploadFileConfluence(
-      unitName: json['unitName'],
-      wikiPageUrl: json['wikiPageUrl'],
-      confluenceUsername: json['confluenceUsername'],
-      confluenceAccessToken: json['confluenceAccessToken'],
-    );
-  }
-}
-
 class UploadFileResponse extends BaseModel {
   String id;
   String name;
@@ -134,5 +102,37 @@ class UploadFileResponse extends BaseModel {
       'userId': userId,
       'knowledgeId': knowledgeId,
     };
+  }
+}
+
+class UploadFileConfluence {
+  String unitName;
+  String wikiPageUrl;
+  String confluenceUsername;
+  String confluenceAccessToken;
+
+  UploadFileConfluence({
+    required this.unitName,
+    required this.wikiPageUrl,
+    required this.confluenceUsername,
+    required this.confluenceAccessToken,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'unitName': unitName,
+      'wikiPageUrl': wikiPageUrl,
+      'confluenceUsername': confluenceUsername,
+      'confluenceAccessToken': confluenceAccessToken,
+    };
+  }
+
+  factory UploadFileConfluence.fromJson(Map<String, dynamic> json) {
+    return UploadFileConfluence(
+      unitName: json['unitName'],
+      wikiPageUrl: json['wikiPageUrl'],
+      confluenceUsername: json['confluenceUsername'],
+      confluenceAccessToken: json['confluenceAccessToken'],
+    );
   }
 }

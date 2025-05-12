@@ -30,11 +30,13 @@ class ChatMetadata {
 }
 
 class Conversation {
+  final String? id;
   final List<ChatMessage> messages;
 
-  Conversation({required this.messages});
+  Conversation({this.id, required this.messages});
 
   Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
         'messages': messages.map((msg) => msg.toJson()).toList(),
       };
 }
@@ -81,22 +83,26 @@ class AssistantInfo {
 class ChatWithBotResponse {
   final String message;
   final int remainingUsage;
+  final String? conversationId;
 
   ChatWithBotResponse({
     required this.message,
     required this.remainingUsage,
+    this.conversationId,
   });
 
   factory ChatWithBotResponse.fromJson(Map<String, dynamic> json) {
     return ChatWithBotResponse(
       message: json['message'],
       remainingUsage: json['remainingUsage'],
+      conversationId: json['conversationId'],
     );
   }
 
   Map<String, dynamic> toJson() => {
         'message': message,
         'remainingUsage': remainingUsage,
+        'conversationId': conversationId,
       };
 }
 

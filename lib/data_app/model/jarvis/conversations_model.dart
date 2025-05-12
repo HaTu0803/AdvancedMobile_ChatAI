@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Items {
   final String? title;
   final String id;
@@ -27,13 +29,14 @@ class ConversationRequest {
     return {
       if (cursor != null) 'cursor': cursor,
       if (limit != null) 'limit': limit,
-      if (assistantId != null) 'assistantIid': assistantId,
+      if (assistantId != null) 'assistantId': assistantId,
       'assistantModel': assistantModel,
     };
   }
 
   String toQueryString() {
     final query = toJson().entries
+        .where((e) => e.value != null)
         .map((e) => '${e.key}=${Uri.encodeComponent(e.value.toString())}')
         .join('&');
     return query;
@@ -91,13 +94,20 @@ class ConversationHistoryResponse {
   });
 
   factory ConversationHistoryResponse.fromJson(Map<String, dynamic> json) {
+    List<ConversationHistoryItem> itemsList = [];
+    if (json['items'] != null) {
+      if (json['items'] is List) {
+        itemsList = (json['items'] as List)
+            .map((item) => ConversationHistoryItem.fromJson(item))
+            .toList();
+      }
+    }
+
     return ConversationHistoryResponse(
-      cursor: json['cursor'],
-      hasMore: json['has_more'],
-      limit: json['limit'],
-      items: (json['items'] as List)
-          .map((item) => ConversationHistoryItem.fromJson(item))
-          .toList(),
+      cursor: json['cursor']?.toString() ?? '',
+      hasMore: json['has_more'] ?? false,
+      limit: json['limit'] is int ? json['limit'] : int.tryParse(json['limit'].toString()) ?? 0,
+      items: itemsList,
     );
   }
 
@@ -124,10 +134,10 @@ class ConversationHistoryItem {
 
   factory ConversationHistoryItem.fromJson(Map<String, dynamic> json) {
     return ConversationHistoryItem(
-      answer: json['answer'] ?? "",
-      createdAt: json['createdAt'] ?? 0,
-      files: json['files'] ?? [],
-      query: json['query'] ?? "",
+      answer: json['answer']?.toString(),
+      createdAt: json['createdAt'] is int ? json['createdAt'] : int.tryParse(json['createdAt'].toString()),
+      files: json['files'] is List ? json['files'] : [],
+      query: json['query']?.toString(),
     );
   }
 

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Import for Clipboard
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
+import '../../../widgets/button_action.dart';
 import '../../../../../data_app/model/jarvis/prompt_model.dart';
+import '../../../../../data_app/repository/jarvis/prompt_repository.dart';
 import '../../../../../providers/prompt_provider.dart';
+import '../../../widgets/using_public_prompt.dart';
 
 class PublicPromptsScreen extends StatefulWidget {
   const PublicPromptsScreen({super.key});
@@ -14,31 +16,35 @@ class PublicPromptsScreen extends StatefulWidget {
 
 class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   String _selectedCategory = 'All';
-  List<Prompt> _filteredPrompts = [];
+  List<Prompt> _allPrompts = []; 
+  List<Prompt> _filteredPrompts = []; 
   String _searchQuery = '';
   bool _isStarred = false;
+  bool _isLoading = false;
 
   late List<PromptCategory> _categories = [];
-  late List<Prompt> _prompts = [];
+  int _itemsPerPage = 10;
+  int _currentMax = 10;
 
   @override
   void initState() {
     super.initState();
     _fetchPromptsFromApi();
-    print("Categories from API:");
-    _categories.forEach((category) {
-      print("Category: ${category.name}, ID: ${category.id}");
-    });
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   Future<void> _fetchPromptsFromApi() async {
+    setState(() => _isLoading = true);
+
     try {
       final promptProvider =
           Provider.of<PromptProvider>(context, listen: false);
@@ -47,12 +53,10 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         promptProvider.fetchCategories(),
       ]);
 
-      // Lấy danh sách prompts và categories từ provider
       final prompts = promptProvider.prompts?.items ?? [];
-      print(promptProvider.prompts);
 
       setState(() {
-        _prompts = prompts
+        _allPrompts = prompts
             .map((data) => Prompt(
                   id: data.id,
                   title: data.title ?? '',
@@ -70,7 +74,7 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             .toList();
 
         _categories = promptProvider.categories;
-        _filterPrompts();
+        _filterPrompts(reset: true);
       });
     } catch (e) {
       if (mounted) {
@@ -79,21 +83,42 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         );
       }
     }
+    setState(() => _isLoading = false);
+
   }
 
-  void _filterPrompts() {
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 10) {
+      if (_currentMax < _filteredPrompts.length) {
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            setState(() {
+              _currentMax = (_currentMax + _itemsPerPage).clamp(0, _filteredPrompts.length);
+            });
+          }
+        });
+      }
+    }
+  }
+
+  void _filterPrompts({bool reset = false}) {
+    List<Prompt> filtered = _allPrompts.where((prompt) {
+      final matchesCategory = _selectedCategory == 'All' ||
+          prompt.category == _selectedCategory;
+      final matchesSearch =
+          prompt.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          prompt.description.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesFavorite = !_isStarred || prompt.isFavorite;
+      return matchesCategory && matchesSearch && matchesFavorite;
+    }).toList();
+
     setState(() {
-      _filteredPrompts = _prompts.where((prompt) {
-        final matchesCategory = _selectedCategory == 'All' ||
-            prompt.category.contains(_selectedCategory);
-        final matchesSearch =
-            prompt.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                prompt.description
-                    .toLowerCase()
-                    .contains(_searchQuery.toLowerCase());
-        final matchesFavorite = !_isStarred || prompt.isFavorite;
-        return matchesCategory && matchesSearch && matchesFavorite;
-      }).toList();
+      _filteredPrompts = filtered;
+      if (reset) {
+        _currentMax = _itemsPerPage.clamp(0, _filteredPrompts.length);
+      } else {
+        _currentMax = _currentMax.clamp(0, _filteredPrompts.length);
+      }
     });
   }
 
@@ -103,31 +128,45 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
       for (var cat in _categories) {
         cat.isSelected = cat.name == category;
       }
-      _filterPrompts();
     });
+    _filterPrompts(reset: true);
   }
 
-  void _toggleFavorite(int index) {
-    final promptIndex = _prompts.indexOf(_filteredPrompts[index]);
+  void _toggleFavorite(int index) async {
+    final promptIndex = _allPrompts.indexOf(_filteredPrompts[index]);
     if (promptIndex != -1) {
-      setState(() {
-        _prompts[promptIndex].isFavorite = !_prompts[promptIndex].isFavorite;
+      final prompt = _allPrompts[promptIndex];
+      try {
+        if (!prompt.isFavorite) {
+          await PromptRepository().addPromptToFavorites(prompt.id);
+        } else {
+          await PromptRepository().removePromptFromFavorites(prompt.id);
+        }
+        setState(() {
+          _allPrompts[promptIndex].isFavorite = !_allPrompts[promptIndex].isFavorite;
+        });
         _filterPrompts();
-      });
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error updating favorite status: $e')),
+          );
+        }
+      }
     }
   }
 
   void _onSearchChanged(String query) {
     setState(() {
       _searchQuery = query;
-      _filterPrompts();
     });
+    _filterPrompts(reset: true);
   }
 
   void _showPromptDetails(
-      BuildContext context, Prompt prompt, Function onToggleFavorite) {
+      BuildContext context, Prompt prompt, Function onToggleFavorite, int index) {
     final buttonColor =
-        const Color(0xFF7B68EE); // Use the same color as Public Prompts
+        const Color(0xFF7B68EE);
 
     showDialog(
       context: context,
@@ -137,18 +176,22 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
             return AlertDialog(
               title: Row(
                 children: [
-                  Text(prompt.title),
+                  Text(
+                    prompt.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
                   const Spacer(),
                   IconButton(
                     icon: Icon(
-                      Icons.star,
-                      color: prompt.isFavorite ? Colors.yellow : Colors.grey,
+                      prompt.isFavorite ? Icons.star : Icons.star_border,
+                      color: prompt.isFavorite ? Colors.grey : Colors.grey,
                     ),
                     onPressed: () {
-                      setState(() {
-                        prompt.isFavorite = !prompt.isFavorite;
-                      });
-                      onToggleFavorite();
+                      Navigator.of(context).pop(); // Đóng dialog để cập nhật lại UI
+                      _toggleFavorite(index); // Cập nhật trạng thái toàn cục
+                      // Có thể mở lại dialog nếu muốn, hoặc để user tự mở lại
                     },
                   ),
                 ],
@@ -227,7 +270,9 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Handle "Use this prompt" action
+                    _showUsingMyPrompt(
+                      prompt);
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: buttonColor,
@@ -246,6 +291,22 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
       },
     );
   }
+  void _showUsingMyPrompt(Prompt prompt) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        isScrollControlled: true,
+        builder: (context) => UsingPublicPrompt(prompt: prompt),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -254,23 +315,35 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
             child: Row(
               children: [
                 Expanded(
+
                   child: TextField(
                     controller: _searchController,
                     onChanged: _onSearchChanged,
                     decoration: InputDecoration(
-                      hintText: 'Search...',
-                      prefixIcon:
-                          Icon(Icons.search, color: Colors.grey.shade500),
+                      hintText: 'Search prompts...',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
                       ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                      ),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surface,
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8, vertical: 4
+                      ),
                     ),
                   ),
                 ),
@@ -282,14 +355,14 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
                   ),
                   child: IconButton(
                     icon: Icon(
-                      Icons.star,
-                      color: _isStarred ? Colors.yellow : Colors.grey,
+                      _isStarred ? Icons.star : Icons.star_border,
+                      color: _isStarred ? Colors.grey : Colors.grey,
                     ),
                     onPressed: () {
                       setState(() {
                         _isStarred = !_isStarred;
-                        _filterPrompts();
                       });
+                      _filterPrompts(reset: true);
                     },
                   ),
                 ),
@@ -300,27 +373,46 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
           _buildCategoriesList(),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView.separated(
+            child: _allPrompts.isEmpty && _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                :ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: _filteredPrompts.length,
-              separatorBuilder: (context, index) => const Divider(),
+              itemCount: (_currentMax < _filteredPrompts.length)
+                  ? _currentMax + 1
+                  : _filteredPrompts.length,
               itemBuilder: (context, index) {
+                if (index == _currentMax && _currentMax < _filteredPrompts.length) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
                 final prompt = _filteredPrompts[index];
-                return PromptItem(
-                  id: prompt.id,
-                  createdAt: prompt.createdAt.toString(),
-                  updatedAt: prompt.updatedAt.toString(),
-                  category: prompt.category,
-                  content: prompt.content,
-                  description: prompt.description,
-                  isPublic: prompt.isPublic,
-                  language: prompt.language,
-                  title: prompt.title,
-                  userId: prompt.userId,
-                  userName: prompt.userName,
-                  isFavorite: prompt.isFavorite,
-                  onToggleFavorite: () => _toggleFavorite(index),
-                  showDetails: _showPromptDetails,
+                return ButtonAction(
+                  model: prompt,
+                  iconActions: [
+                    IconAction(
+                      icon: prompt.isFavorite ? Icons.star : Icons.star_border,
+                      onPressed: () => _toggleFavorite(index),
+                      style: IconButtonStyle(
+                        iconColor: Colors.grey,
+                      ),
+                    ),
+                    IconAction(
+                      icon: Icons.info_outline,
+                      onPressed: () => _showPromptDetails(context, prompt, () => _toggleFavorite(index), index),
+                    ),
+                    IconAction(
+                      icon: Icons.arrow_forward,
+                      onPressed: () => _showUsingMyPrompt(prompt),
+                      style: IconButtonStyle(
+                        iconColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -369,13 +461,61 @@ class _PublicPromptsScreenState extends State<PublicPromptsScreen> {
   Widget _buildCategoriesList() {
     return SizedBox(
       height: 50,
-      child: ListView(
+      child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        children: _categories
-            .map((category) => _buildCategoryItem(category))
-            .toList(),
+        itemCount: _categories.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          return ChoiceChip(
+            label: Text(
+              category.name,
+              style: TextStyle(
+                color: category.isSelected ? Colors.white : Colors.black87,
+                fontWeight: category.isSelected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 15,
+              ),
+            ),
+            selected: category.isSelected,
+            selectedColor: const Color(0xFF7B68EE),
+            backgroundColor: const Color(0xFFF5F5F5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+              side: BorderSide(
+                color: category.isSelected ? const Color(0xFF7B68EE) : Colors.grey.shade300,
+                width: 1.2,
+              ),
+            ),
+            elevation: category.isSelected ? 4 : 0,
+            shadowColor: const Color(0xFF7B68EE).withOpacity(0.2),
+            onSelected: (_) => _selectCategory(category.name),
+            showCheckmark: false,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          );
+        },
       ),
+    );
+  }
+}
+
+Widget? buildPromptItem(PromptItem? promptItem) {
+  if (promptItem == null) {
+    return null;
+  }
+  return promptItem;
+}
+
+class PromptList extends StatelessWidget {
+  final List<PromptItem> promptItems;
+  PromptList({required this.promptItems});
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: promptItems.length,
+      itemBuilder: (context, index) {
+        return buildPromptItem(promptItems[index]) ?? Container();
+      },
     );
   }
 }

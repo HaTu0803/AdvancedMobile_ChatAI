@@ -1,18 +1,21 @@
 import 'dart:convert';
 
 import 'package:advancedmobile_chatai/core/config/api_headers.dart';
+import 'package:advancedmobile_chatai/core/helpers/dialog_helper.dart';
+import 'package:advancedmobile_chatai/core/helpers/refresh_token_helper.dart';
 import 'package:advancedmobile_chatai/core/local_storage/base_preferences.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/chat_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/jarvis/conversations_model.dart';
 import 'package:advancedmobile_chatai/data_app/url_api/jarvis/ai_chat_url.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class AiChatApiClient {
   Future<ConversationResponse> conversation(ConversationRequest params) async {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
-    final uri = Uri.parse(ApiJarvisAiChatUrl.getConversations(params.toQueryString()));
-
+    final uri =
+        Uri.parse(ApiJarvisAiChatUrl.getConversations(params.toQueryString()));
 
     final response = await http.get(
       uri,
@@ -22,8 +25,15 @@ class AiChatApiClient {
     print("📩 response.body params: ${response.body}");
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ConversationResponse.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: uri,
+        method: 'GET',
+      );
+      throw Exception('Token expired. Please log in again.');
     } else {
-      throw Exception('Failed to sign up: ${response.body}');
+      handleErrorResponse(response);
+      throw Exception('Token expired. Please log in again.');
     }
   }
 
@@ -32,20 +42,45 @@ class AiChatApiClient {
     await BasePreferences.init();
 
     String token = await BasePreferences().getTokenPreferred('access_token');
+
+    // Build query string manually
+    final queryParams = <String, String>{};
+    if (params.limit != null) {
+      queryParams['limit'] = params.limit.toString();
+    }
+    if (params.cursor != null) {
+      queryParams['cursor'] = params.cursor!;
+    }
+    if (params.assistantId != null) {
+      queryParams['assistantId'] = params.assistantId!;
+    }
+    queryParams['assistantModel'] = params.assistantModel;
+
     final uri =
         Uri.parse(ApiJarvisAiChatUrl.getConversationHistory(conversationId))
-            .replace(queryParameters: params.toJson());
+            .replace(queryParameters: queryParams);
+
+    debugPrint("🔑 Request URL: ${uri.toString()}");
+    debugPrint("🔑 Request params: $queryParams");
 
     final response = await http.get(
       uri,
       headers: ApiHeaders.getAIChatHeaders("", token),
     );
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body params: ${response.body}");
+    debugPrint("📩 response.statusCode: ${response.statusCode}");
+    debugPrint("📩 response.body: ${response.body}");
+
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ConversationHistoryResponse.fromJson(jsonDecode(response.body));
-    } else {
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: uri,
+        method: 'GET',
+      );
       throw Exception('Failed to sign up: ${response.body}');
+    } else {
+      handleErrorResponse(response);
+      throw Exception('Failed to get conversation history: ${response.body}');
     }
   }
 
@@ -64,7 +99,15 @@ class AiChatApiClient {
     print("📩 response.body bost params: ${response.body}");
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ChatWithBotResponse.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: Uri.parse(ApiJarvisAiChatUrl.chatWithBot),
+        method: 'POST',
+        body: jsonEncode(request.toJson()),
+      );
+      throw Exception('Failed to sign up: ${response.body}');
     } else {
+      handleErrorResponse(response);
       throw Exception('Failed to sign up: ${response.body}');
     }
   }
@@ -79,11 +122,17 @@ class AiChatApiClient {
       headers: ApiHeaders.getAIChatHeaders("", token),
       body: jsonEncode(request.toJson()),
     );
-    print("📩 response.statusCode: ${response.statusCode}");
-    print("📩 response.body params: ${response.body}");
     if (response.statusCode == 200 || response.statusCode == 201) {
       return ChatResponse.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: Uri.parse(ApiJarvisAiChatUrl.sendMessage),
+        method: 'POST',
+        body: jsonEncode(request.toJson()),
+      );
+      throw Exception('Failed to sign up: ${response.body}');
     } else {
+      handleErrorResponse(response);
       throw Exception('Failed to sign up: ${response.body}');
     }
   }
