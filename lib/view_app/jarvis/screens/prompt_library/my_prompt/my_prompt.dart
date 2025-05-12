@@ -155,8 +155,6 @@ class _MyPromptScreenState extends State<MyPromptScreen> {
                     CreatePromptScreen(
                       promptToEdit: promptToEdit,
                       onSubmitSuccess: () => _resetAndFetch(_currentQuery),
-                      // Pass the prompt to edit here
-                      // promptToEdit: promptToEdit,
                     ),
                   ],
                 ),

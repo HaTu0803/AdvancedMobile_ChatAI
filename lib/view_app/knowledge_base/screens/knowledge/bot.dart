@@ -365,13 +365,6 @@ class _BotsScreenState extends State<BotsScreen> {
                                                 assistant.assistantName),
                                             theme: theme,
                                           ),
-                                          const SizedBox(width: 8),
-                                          _buildActionButton(
-                                            icon: Icons.chat_bubble_outline,
-                                            onPressed: () {},
-                                            theme: theme,
-                                            isPrimary: true,
-                                          ),
                                         ],
                                       ),
                                     ],

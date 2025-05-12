@@ -10,7 +10,7 @@ class TCustomButton extends StatelessWidget {
   final IconData? icon;
   final VoidCallback onPressed;
   final ButtonType type;
-  final ButtonStyle? customStyle; // A single parameter for all customizations
+  final ButtonStyle? customStyle;
 
   const TCustomButton({
     super.key,
