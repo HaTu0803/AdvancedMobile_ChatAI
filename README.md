@@ -1,4 +1,9 @@
 # JARVIS AI CHATBOT
+
+## Milestones Demo
+- [Milestone 1](https://youtu.be/dkhWrtpB5jY)
+- [Milestone 2](https://youtu.be/kf6mt3OGfG0)
+
 ## Widget trees
 - https://drive.google.com/file/d/1VMEsQcOImKTYVFVLuWadRDzLOT0-w76b/view
 ## Demo Screenshots
@@ -46,6 +51,5 @@
 ![image](https://github.com/user-attachments/assets/214ae8e1-0515-403a-a4da-d9c9489792bf)
 ![image](https://github.com/user-attachments/assets/c3001ae8-e6d1-42f2-ac04-0e9c05ff1ac8)
 
-## Milestones Demo
-- [Milestone 2](https://youtu.be/kf6mt3OGfG0)
+
 
