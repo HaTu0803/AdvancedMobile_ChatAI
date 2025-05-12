@@ -9,7 +9,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 class ImportLocalFilesDialog extends StatefulWidget {
   final String id;
-  const ImportLocalFilesDialog({super.key, required this.id});
+  final VoidCallback? onSuccess;
+
+  const ImportLocalFilesDialog({super.key, required this.id, this.onSuccess});
 
   @override
   State<ImportLocalFilesDialog> createState() => _ImportLocalFilesDialogState();
@@ -221,8 +223,9 @@ print('Data source: ${dataSource.toJson()}');
       await KnowledgeDataRepository().importDataSource(widget.id, dataSourceRequest);
 
       if (mounted) {
+        widget.onSuccess?.call();
         Navigator.pop(context);
-        Navigator.pop(context);
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Tải file lên thành công!')),
         );

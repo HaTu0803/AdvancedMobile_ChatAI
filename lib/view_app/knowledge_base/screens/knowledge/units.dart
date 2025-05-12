@@ -462,7 +462,13 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                         showDialog(
                           context: context,
                           builder: (context) =>
-                              ImportLocalFilesDialog(id: widget.id),
+                              ImportLocalFilesDialog(id: widget.id,
+                                  onSuccess: () {
+                                    Navigator.pop(context);
+                                    _fetchKnowledgeUnits();
+                                  }),
+
+
                         );
                       },
                     ),

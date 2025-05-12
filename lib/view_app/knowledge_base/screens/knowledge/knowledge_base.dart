@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:advancedmobile_chatai/data_app/model/base/base_model.dart';
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_model.dart';
 import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_repository.dart';
@@ -16,7 +18,7 @@ class KnowledgeBaseScreen extends StatefulWidget {
 }
 
 class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
-  String searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
   String _currentFilterKey = 'all';
   String? _order;
   String? _orderField;
@@ -26,26 +28,51 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
   bool _hasMore = true;
   int _offset = 0;
   final int _limit = 10;
+  Timer? _debounce;
+  String _currentQuery = "";
+
   @override
   void initState() {
     super.initState();
     _fetchKnowledge();
-    _scrollController.addListener(_onScroll);
+
+    _searchController.addListener(() {
+      if (_debounce?.isActive ?? false) _debounce?.cancel();
+      _debounce = Timer(const Duration(milliseconds: 500), () {
+        final query = _searchController.text.trim();
+        if (query.isEmpty || query.length >= 2) {
+          _resetAndFetch(query);
+        }
+      });
+    });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200 &&
+          !_isLoading &&
+          _hasMore) {
+        _fetchKnowledge(query: _currentQuery);
+      }
+    });
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+  void _resetAndFetch(String query) {
+    setState(() {
+      _offset = 0;
+      knowledges.clear();
+      _hasMore = true;
+      _currentQuery = query;
+    });
+    _fetchKnowledge(query: query);
   }
 
-  Future<void> _fetchKnowledge() async {
+  Future<void> _fetchKnowledge({String query = ""}) async {
     if (_isLoading || !_hasMore) return;
 
     setState(() => _isLoading = true);
 
     final params = BaseQueryParams(
-      q: searchQuery,
+      q: query,
       limit: _limit,
       offset: _offset,
     );
@@ -71,23 +98,12 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
     }
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 200 &&
-        !_isLoading &&
-        _hasMore) {
-      _fetchKnowledge();
-    }
-  }
-
-  void _onSearchChanged(String value) {
-    setState(() {
-      searchQuery = value;
-      knowledges.clear();
-      _offset = 0;
-      _hasMore = true;
-    });
-    _fetchKnowledge();
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
 
   Widget _buildEmptyState() {
@@ -145,7 +161,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
             child: Container(
               height: 42,
               child: TextField(
-                onChanged: _onSearchChanged,
+                controller: _searchController,
                 decoration: InputDecoration(
                   hintText: 'Search Knowledge Base',
                   hintStyle: TextStyle(color: Colors.grey[400]),
@@ -183,7 +199,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                         controller: _scrollController,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 4.0, vertical: 8.0),
-                        itemCount: knowledges.length + 1,
+              itemCount: knowledges.length + (_hasMore ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index == knowledges.length) {
                             return _isLoading
