@@ -1,5 +1,6 @@
-import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model.dart';
-import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository.dart';
+import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_data_source_model_v2.dart';
+import 'package:advancedmobile_chatai/data_app/repository/knowledge_base/knowledge_data_source_repository_v2.dart';
+import 'package:advancedmobile_chatai/view_app/knowledge_base/widgets/custom_text_form.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/widgets/notice.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,7 @@ class UploadSlackScreen extends StatefulWidget {
 class _UploadSlackScreenState extends State<UploadSlackScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _slackWorkspace = TextEditingController();
+  // final _slackWorkspace = TextEditingController();
   final _slackBotToken = TextEditingController();
   bool _isLoading = false;
   bool _isFormValid = false;
@@ -29,16 +30,16 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
   void initState() {
     super.initState();
     _nameController.addListener(_validateForm);
-    _slackWorkspace.addListener(_validateForm);
+    // _slackWorkspace.addListener(_validateForm);
     _slackBotToken.addListener(_validateForm);
   }
 
   @override
   void dispose() {
     _nameController.removeListener(_validateForm);
-    _slackWorkspace.removeListener(_validateForm);
+    // _slackWorkspace.removeListener(_validateForm);
     _nameController.dispose();
-    _slackWorkspace.dispose();
+    // _slackWorkspace.dispose();
     _slackBotToken.removeListener(_validateForm);
     _slackBotToken.dispose();
     super.dispose();
@@ -46,15 +47,15 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
 
   void _validateForm() {
     final name = _nameController.text.trim();
-    final slackWorkspace = _slackWorkspace.text.trim();
+    // final slackWorkspace = _slackWorkspace.text.trim();
     final slackBotToken = _slackBotToken.text.trim();
 
-    final uri = Uri.tryParse(slackWorkspace);
-    final isValidUrl = uri != null && uri.hasScheme && uri.hasAuthority;
+    // final uri = Uri.tryParse(slackWorkspace);
+    // final isValidUrl = uri != null && uri.hasScheme && uri.hasAuthority;
 
     final isSlackBotTokenValid = slackBotToken.isNotEmpty;
 
-    final isValid = name.isNotEmpty && isValidUrl && isSlackBotTokenValid;
+    final isValid = name.isNotEmpty && isSlackBotTokenValid;
 
     if (isValid != _isFormValid) {
       setState(() {
@@ -76,7 +77,7 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildFormField(
+                CustomTextFormField(
                   label: 'Name',
                   controller: _nameController,
                   hintText: 'Enter knowledge unit name...',
@@ -90,9 +91,10 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                   maxLines: 1,
                 ),
                 const SizedBox(height: 8),
-                _buildFormField(
+                CustomTextFormField(
                   label: 'Slack Bot Token',
                   controller: _slackBotToken,
+                  obscureText: true,
                   hintText: 'Enter Slack Bot Token',
                   isRequired: true,
                   validator: (value) {
@@ -106,7 +108,8 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
                 ),
                 const SizedBox(height: 16),
                 const PageLimitNotice(
-                  helpUrl: 'https://jarvis.cx/help/knowledge-base/connectors/slack'),
+                    helpUrl:
+                        'https://jarvis.cx/help/knowledge-base/connectors/slack'),
                 const SizedBox(height: 16),
                 Padding(
                   padding:
@@ -158,89 +161,6 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
     );
   }
 
-  Widget _buildFormField({
-    required String label,
-    required TextEditingController controller,
-    required String hintText,
-    bool isRequired = false,
-    int? maxLines,
-    String? Function(String?)? validator,
-    int? maxLength,
-    int? currentLength,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            if (isRequired) ...[
-              const SizedBox(width: 4),
-              Text(
-                '*',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          constraints: (maxLines ?? 1) == 1
-              ? const BoxConstraints(maxHeight: 40)
-              : null,
-
-          child:    Stack(
-            children: [
-              TextFormField(
-                controller: controller,
-                decoration: InputDecoration(
-                  hintText: hintText,
-                  filled: true,
-                  fillColor: Theme.of(context).colorScheme.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 0,
-                  ),
-                ),
-                maxLines: maxLines,
-                maxLength: maxLength,
-
-                buildCounter: (_,
-                    {required currentLength,
-                      required isFocused,
-                      maxLength}) =>
-                null,
-                validator: validator,
-              ),
-              if (maxLength != null && currentLength != null)
-                Positioned(
-                  right: 8,
-                  bottom: 4,
-                  child: Text(
-                    '$currentLength/$maxLength',
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall
-                        ?.copyWith(color: Colors.grey),
-                  ),
-                ),
-            ],
-
-          ),
-        ),
-      ],
-    );
-  }
 
 
   void _submitForm() async {
@@ -248,15 +168,19 @@ class _UploadSlackScreenState extends State<UploadSlackScreen> {
       setState(() {
         _isLoading = true;
       });
-
-      final request = UpLoadFileSlack(
-        unitName: _nameController.text.trim(),
-        slackWorkspace: _slackWorkspace.text.trim(),
-        slackBotToken: _slackBotToken.text.trim(),
+      final credentials = SlackCredentials(
+        token: _slackBotToken.text.trim(),
       );
+      final request = SlackDatasource(
+        type: 'slack',
+        name: _nameController.text.trim(),
+        credentials: credentials,
+      );
+      final dataSourceRequest = SlackDatasourceWrapper(datasources: [request]);
 
       try {
-        await KnowledgeDataRepository().uploadSlack(widget.id, request);
+        await KnowledgeDataRepository()
+            .uploadSlack(widget.id, dataSourceRequest);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Knowledge source added successfully')),
         );

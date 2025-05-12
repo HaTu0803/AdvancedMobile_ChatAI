@@ -10,7 +10,16 @@ import 'package:flutter/material.dart';
 class KnowledgeDataRepository {
   final KnowledgeDataApiClient KnowledgeDataApi = KnowledgeDataApiClient();
 
-
+ Future<ConfluenceResponse> uploadSlack(
+      String id, SlackDatasourceWrapper request) async {
+    try {
+      final response = await KnowledgeDataApi.uploadSlack(id, request);
+      return response;
+    } catch (e) {
+      debugPrint("ConfluenceResponse Error: $e");
+      rethrow;
+    }
+  }
 
   Future<ConfluenceResponse> uploadConfluence(
       String id, DataSourcesModel request) async {

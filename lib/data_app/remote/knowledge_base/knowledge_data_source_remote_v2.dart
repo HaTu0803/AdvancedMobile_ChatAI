@@ -18,7 +18,49 @@ import '../../repository/auth/authentication_repository.dart';
 
 class KnowledgeDataApiClient {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
- 
+ Future<ConfluenceResponse> uploadSlack(
+      String id, SlackDatasourceWrapper request) async {
+    try {
+      await BasePreferences.init();
+      String token = await BasePreferences().getTokenPreferred('access_token');
+
+      final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadLocal(id));
+      final headers = ApiHeaders.getAIChatHeaders("", token);
+      final body = jsonEncode(request.toJson());
+      final response = await http.post(url, headers: headers, body: body);
+print("response.statusCode ConfluenceResponse : ${response.statusCode}");
+      print("response.body ConfluenceResponse: ${response.body}");
+      print("request.toJson() ConfluenceResponse: ${request.toJson()}");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ConfluenceResponse.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == 401) {
+        final retryResponse = await retryWithRefreshToken(
+          url: url,
+          body: body,
+          method: 'POST',
+        );
+
+        if (retryResponse.statusCode == 200 ||
+            retryResponse.statusCode == 201) {
+          return ConfluenceResponse.fromJson(jsonDecode(retryResponse.body));
+        } else {
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+            (route) => true,
+          );
+          throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        }
+      } else {
+        handleErrorResponse(response);
+
+        throw Exception('Failed to upload file due to an error response');
+      }
+    } catch (e) {
+      throw Exception('Đã xảy ra lỗi: $e');
+    }
+  }
+
   Future<ConfluenceResponse> uploadConfluence(
       String id, DataSourcesModel request) async {
     try {

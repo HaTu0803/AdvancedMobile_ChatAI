@@ -461,3 +461,66 @@ class DataSourceItem {
 }
 
 
+class SlackDatasource {
+  final String type;
+  final String name;
+  final SlackCredentials credentials;
+
+  SlackDatasource({
+    required this.type,
+    required this.name,
+    required this.credentials,
+  });
+
+  factory SlackDatasource.fromJson(Map<String, dynamic> json) {
+    return SlackDatasource(
+      type: json['type'],
+      name: json['name'],
+      credentials: SlackCredentials.fromJson(json['credentials']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'name': name,
+      'credentials': credentials.toJson(),
+    };
+  }
+}
+
+class SlackCredentials {
+  final String token;
+
+  SlackCredentials({required this.token});
+
+  factory SlackCredentials.fromJson(Map<String, dynamic> json) {
+    return SlackCredentials(token: json['token']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'token': token,
+    };
+  }
+}
+
+class SlackDatasourceWrapper {
+  final List<SlackDatasource> datasources;
+
+  SlackDatasourceWrapper({required this.datasources});
+
+  factory SlackDatasourceWrapper.fromJson(Map<String, dynamic> json) {
+    return SlackDatasourceWrapper(
+      datasources: (json['datasources'] as List)
+          .map((e) => SlackDatasource.fromJson(e))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'datasources': datasources.map((e) => e.toJson()).toList(),
+    };
+  }
+}
