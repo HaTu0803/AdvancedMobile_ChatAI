@@ -31,51 +31,54 @@ class ButtonAction extends StatelessWidget {
         },
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
+              // Title + Description
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Text(
                         model.title ?? 'No Title',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
-                  ),
-                  if (showIconActions && iconActions.isNotEmpty)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: iconActions.map((action) {
-                        return SizedBox(
-                          width: action.size.width,
-                          height: action.size.height,
-                          child: IconButton(
-                            icon: Icon(action.icon),
-                            padding: EdgeInsets.zero,
-                            iconSize: action.style?.iconSize?.toDouble() ?? 16,
-                            color: action.style?.iconColor ?? Colors.black,
-                            onPressed: action.onPressed,
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                ],
-              ),
-              if (showContent && model.description?.isNotEmpty == true) ...[
-                const SizedBox(height: 6),
-                Text(
-                  model.description!,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Colors.grey),
-                  overflow: TextOverflow.ellipsis,
+
+                    if (showContent && model.description?.isNotEmpty == true)
+                      const SizedBox(height: 6),
+                    if (showContent && model.description?.isNotEmpty == true)
+                      Text(
+                        model.description!,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: Colors.grey),
+                        textAlign: TextAlign.justify,
+                      ),
+                  ],
                 ),
-              ],
+              ),
+              // Icon Actions
+              if (showIconActions && iconActions.isNotEmpty)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: iconActions.map((action) {
+                    return SizedBox(
+                      width: action.size.width,
+                      height: action.size.height,
+                      child: IconButton(
+                        icon: Icon(action.icon),
+                        padding: EdgeInsets.zero,
+                        iconSize: action.style?.iconSize?.toDouble() ?? 16,
+                        color: action.style?.iconColor ?? Colors.black,
+                        onPressed: action.onPressed,
+                      ),
+                    );
+                  }).toList(),
+                ),
             ],
           ),
         ),

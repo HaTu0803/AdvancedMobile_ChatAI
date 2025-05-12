@@ -112,9 +112,8 @@ Future<FileModelResponse> uploadFile(File file) async {
     var request = http.MultipartRequest('POST', url);
     request.headers.addAll(header);
 
-    // ✅ Chỉ thêm một MultipartFile duy nhất
     final multipartFile = await http.MultipartFile.fromPath(
-      'files', // 👈 tên trường phải đúng theo API yêu cầu
+      'files', 
       file.path,
       filename: file.path.split('/').last,
     );
@@ -130,7 +129,9 @@ Future<FileModelResponse> uploadFile(File file) async {
 
     print("response.statusCode: ${response.statusCode}");
     print("response.body: ${response.body}");
+print('streamedResponse body: $streamedResponse');
 final decoded = jsonDecode(response.body);
+
 print(decoded); 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return FileModelResponse.fromJson(jsonDecode(response.body));
