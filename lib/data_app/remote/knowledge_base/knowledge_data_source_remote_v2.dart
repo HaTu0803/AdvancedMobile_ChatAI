@@ -10,6 +10,8 @@ import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_da
 import 'package:advancedmobile_chatai/data_app/url_api/knowledge_base/knowledge_data_source_url.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 import '../../../core/navigation/routes.dart';
 import '../../repository/auth/authentication_repository.dart';
@@ -101,47 +103,42 @@ print("response.statusCode getDataSources: ${response.statusCode}");
     throw Exception('Đã xảy ra lỗi: $e');
   }
 }
+
 Future<FileModelResponse> uploadFile(File file) async {
   try {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
 
     final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadFile());
-    final header = ApiHeaders.getHeadersWithFile("", token);
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'x-jarvis-guid': '',
+    };
+ final mimeType = lookupMimeType(file.path) ?? 'application/octet-stream';
+    var request = http.MultipartRequest('POST', url)
+      ..headers.addAll(headers)
+      ..files.add(await http.MultipartFile.fromPath(
+        'files', 
+        file.path,
+          contentType: MediaType.parse(mimeType),
+        filename: file.uri.pathSegments.last, 
+      ));
 
-    var request = http.MultipartRequest('POST', url);
-    request.headers.addAll(header);
+    final response = await request.send();
 
-    final multipartFile = await http.MultipartFile.fromPath(
-      'files', 
-      file.path,
-      filename: file.path.split('/').last,
-    );
-    request.files.add(multipartFile);
-
-    print("File path: ${file.path}");
-    print("File exists: ${await file.exists()}");
-    print("File length: ${await file.length()} bytes");
-    print("Multipart file name: ${multipartFile.filename}");
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+    final responseBody = await response.stream.bytesToString();
 
     print("response.statusCode: ${response.statusCode}");
-    print("response.body: ${response.body}");
-print('streamedResponse body: $streamedResponse');
-final decoded = jsonDecode(response.body);
+    print("response.body: $responseBody");
 
-print(decoded); 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return FileModelResponse.fromJson(jsonDecode(response.body));
+      return FileModelResponse.fromJson(jsonDecode(responseBody));
     } else if (response.statusCode == 401) {
-      final retryResponse = await retryWithRefreshTokenMultipart(
+      final retryResponse = await retryWithRefreshToken(
         url: url,
-        headers: request.headers,
-        filePath: file.path,
+        body: await file.readAsBytes(),
+        method: 'POST',
       );
-
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return FileModelResponse.fromJson(jsonDecode(retryResponse.body));
       } else {
@@ -167,11 +164,13 @@ print(decoded);
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
 
-      final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadLocal(id));
+      final url = Uri.parse(ApiKnowledgeDataSourceUrl.importDataSource(id));
       final headers = ApiHeaders.getAIChatHeaders("", token);
       final body = jsonEncode(request.toJson());
       final response = await http.post(url, headers: headers, body: body);
-
+print("response.statusCode importDataSource: ${response.statusCode}");
+      print("response.body importDataSource: ${response.body}");
+      print("request.toJson() importDataSource: ${request.toJson()}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return DataSourceResponse.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {

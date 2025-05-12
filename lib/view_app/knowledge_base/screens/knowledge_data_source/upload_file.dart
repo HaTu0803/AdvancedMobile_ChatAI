@@ -161,11 +161,13 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
     }
 
     final pickedFile = File(result.files.first.path!);
-
+print('Picked file: ${pickedFile.path}');
+print('Picked file name: ${result.files.first.name}');
     setState(() {
       _selectedFile = pickedFile;
       _isUploading = true;
     });
+print('Uploading file: ${_fileModel?.id}');
 
     try {
       final response = await KnowledgeDataRepository().uploadFile(_selectedFile!);
@@ -199,14 +201,18 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
     setState(() {
       _isUploading = true;
     });
-
+print('Importing file: ${_fileModel!.name}');
+print('File ID: ${_fileModel!.id}');
+final credentials = FileCredentials(
+        file: _fileModel!.id,
+      );
     try {
       final dataSource = DataSource(
         type: 'local_file',
         name: _fileModel!.name,
-        credentials: FileCredentials(file: _fileModel!.id),
+        credentials: credentials,
       );
-
+print('Data source: ${dataSource.toJson()}');
       final dataSourceRequest = DataSourceRequest(datasources: [dataSource]);
 
       await KnowledgeDataRepository().importDataSource(widget.id, dataSourceRequest);
