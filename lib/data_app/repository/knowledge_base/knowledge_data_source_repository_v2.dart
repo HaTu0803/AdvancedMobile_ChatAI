@@ -42,12 +42,12 @@ class KnowledgeDataRepository {
       rethrow;
     }
   }
-  Future<DataSourceResponse> importDataSource(String id, DataSourceRequest request) async {
+  Future<DataSourceFileResponse> importDataSource(String id, DataSourceRequest request) async {
     try {
       final response = await KnowledgeDataApi.importDataSource(id, request);
       return response;
     } catch (e) {
-      debugPrint("getDataSources Error: $e");
+      debugPrint("importDataSource Error: $e");
       rethrow;
     }
   }

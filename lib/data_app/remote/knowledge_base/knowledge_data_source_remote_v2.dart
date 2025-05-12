@@ -159,7 +159,7 @@ Future<FileModelResponse> uploadFile(File file) async {
 }
 
  
-  Future<DataSourceResponse> importDataSource(String id, DataSourceRequest request) async {
+  Future<DataSourceFileResponse> importDataSource(String id, DataSourceRequest request) async {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
@@ -172,7 +172,7 @@ print("response.statusCode importDataSource: ${response.statusCode}");
       print("response.body importDataSource: ${response.body}");
       print("request.toJson() importDataSource: ${request.toJson()}");
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return DataSourceResponse.fromJson(jsonDecode(response.body));
+        return DataSourceFileResponse.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
@@ -182,7 +182,7 @@ print("response.statusCode importDataSource: ${response.statusCode}");
 
         if (retryResponse.statusCode == 200 ||
             retryResponse.statusCode == 201) {
-          return DataSourceResponse.fromJson(jsonDecode(retryResponse.body));
+          return DataSourceFileResponse.fromJson(jsonDecode(retryResponse.body));
         } else {
           await AuthRepository().logOut();
           navigatorKey.currentState?.pushNamedAndRemoveUntil(

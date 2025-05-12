@@ -258,6 +258,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                           icon: const Icon(Icons.close),
                           onPressed: () {
                             Navigator.pop(context);
+                            _fetchKnowledge();
                           },
                         ),
                       ],

@@ -82,7 +82,8 @@ class KnowledgeApiClient {
       final headers = ApiHeaders.getAIChatHeaders("", token);
 
       final response = await http.get(url, headers: headers);
-
+print("📥 Response status: ${response.statusCode}");
+print("📥 Response body KnowledgeListResponse: ${response.body}");
       if (response.statusCode == 200 || response.statusCode == 201) {
         return KnowledgeListResponse.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {

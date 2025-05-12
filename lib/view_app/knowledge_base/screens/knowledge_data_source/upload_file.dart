@@ -203,6 +203,9 @@ print('Uploading file: ${_fileModel?.id}');
     });
 print('Importing file: ${_fileModel!.name}');
 print('File ID: ${_fileModel!.id}');
+print('widget id: ${widget.id}');
+
+    // Create the credentials for the data source
 final credentials = FileCredentials(
         file: _fileModel!.id,
       );
@@ -218,6 +221,7 @@ print('Data source: ${dataSource.toJson()}');
       await KnowledgeDataRepository().importDataSource(widget.id, dataSourceRequest);
 
       if (mounted) {
+        Navigator.pop(context);
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Tải file lên thành công!')),
