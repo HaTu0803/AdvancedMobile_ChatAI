@@ -291,9 +291,8 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                                               ),
                                             ),
                                             const SizedBox(width: 6),
-
                                             Text(
-                                              unit.size.toString(),
+                                              '${(unit.size / 1024).toStringAsFixed(1)} KB',
                                               style: const TextStyle(
                                                 color: Colors.grey,
                                                 fontSize: 12,
@@ -370,9 +369,8 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
 
 
           setState(() {
-            units.removeWhere((a) => a.id == unit.id);
+            units.removeWhere((u) => u.id == unit.id);
           });
-
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Delete Knowledge Unit successfully')),
           );
@@ -464,7 +462,13 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                         showDialog(
                           context: context,
                           builder: (context) =>
-                              ImportLocalFilesDialog(id: widget.id),
+                              ImportLocalFilesDialog(id: widget.id,
+                                  onSuccess: () {
+                                    Navigator.pop(context);
+                                    _fetchKnowledgeUnits();
+                                  }),
+
+
                         );
                       },
                     ),

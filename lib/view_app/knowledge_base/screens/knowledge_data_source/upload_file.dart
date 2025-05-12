@@ -9,7 +9,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 class ImportLocalFilesDialog extends StatefulWidget {
   final String id;
-  const ImportLocalFilesDialog({super.key, required this.id});
+  final VoidCallback? onSuccess;
+
+  const ImportLocalFilesDialog({super.key, required this.id, this.onSuccess});
 
   @override
   State<ImportLocalFilesDialog> createState() => _ImportLocalFilesDialogState();
@@ -161,11 +163,13 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
     }
 
     final pickedFile = File(result.files.first.path!);
-
+print('Picked file: ${pickedFile.path}');
+print('Picked file name: ${result.files.first.name}');
     setState(() {
       _selectedFile = pickedFile;
       _isUploading = true;
     });
+print('Uploading file: ${_fileModel?.id}');
 
     try {
       final response = await KnowledgeDataRepository().uploadFile(_selectedFile!);
@@ -199,20 +203,29 @@ class _ImportLocalFilesDialogState extends State<ImportLocalFilesDialog> {
     setState(() {
       _isUploading = true;
     });
+print('Importing file: ${_fileModel!.name}');
+print('File ID: ${_fileModel!.id}');
+print('widget id: ${widget.id}');
 
+    // Create the credentials for the data source
+final credentials = FileCredentials(
+        file: _fileModel!.id,
+      );
     try {
       final dataSource = DataSource(
         type: 'local_file',
         name: _fileModel!.name,
-        credentials: FileCredentials(file: _fileModel!.id),
+        credentials: credentials,
       );
-
+print('Data source: ${dataSource.toJson()}');
       final dataSourceRequest = DataSourceRequest(datasources: [dataSource]);
 
       await KnowledgeDataRepository().importDataSource(widget.id, dataSourceRequest);
 
       if (mounted) {
+        widget.onSuccess?.call();
         Navigator.pop(context);
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Tải file lên thành công!')),
         );

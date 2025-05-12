@@ -395,3 +395,132 @@ class MetadataConfluence extends BaseMetadata {
     };
   }
 }
+
+class DataSourceFileResponse {
+  final List<DataSourceItem> datasources;
+
+  DataSourceFileResponse({required this.datasources});
+
+  factory DataSourceFileResponse.fromJson(Map<String, dynamic> json) {
+    return DataSourceFileResponse(
+      datasources: (json['datasources'] as List<dynamic>? ?? [])
+          .map((e) => DataSourceItem.fromJson(e))
+          .toList(),
+    );
+  }
+}
+
+class DataSourceItem {
+  final String name;
+  final String type;
+  final int size;
+  final bool status;
+  final String userId;
+  final Metadata metadata;
+  final String knowledgeId;
+  final String? createdBy;
+  final String? updatedBy;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final String? deletedAt;
+  final String id;
+
+  DataSourceItem({
+    required this.name,
+    required this.type,
+    required this.size,
+    required this.status,
+    required this.userId,
+    required this.metadata,
+    required this.knowledgeId,
+    this.createdBy,
+    this.updatedBy,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.id,
+  });
+
+  factory DataSourceItem.fromJson(Map<String, dynamic> json) {
+    return DataSourceItem(
+      name: json['name'],
+      type: json['type'],
+      size: json['size'],
+      status: json['status'],
+      userId: json['userId'],
+      metadata: Metadata.fromJson(json['metadata']),
+      knowledgeId: json['knowledgeId'],
+      createdBy: json['createdBy'],
+      updatedBy: json['updatedBy'],
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+      deletedAt: json['deletedAt'],
+      id: json['id'],
+    );
+  }
+}
+
+
+class SlackDatasource {
+  final String type;
+  final String name;
+  final SlackCredentials credentials;
+
+  SlackDatasource({
+    required this.type,
+    required this.name,
+    required this.credentials,
+  });
+
+  factory SlackDatasource.fromJson(Map<String, dynamic> json) {
+    return SlackDatasource(
+      type: json['type'],
+      name: json['name'],
+      credentials: SlackCredentials.fromJson(json['credentials']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type,
+      'name': name,
+      'credentials': credentials.toJson(),
+    };
+  }
+}
+
+class SlackCredentials {
+  final String token;
+
+  SlackCredentials({required this.token});
+
+  factory SlackCredentials.fromJson(Map<String, dynamic> json) {
+    return SlackCredentials(token: json['token']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'token': token,
+    };
+  }
+}
+
+class SlackDatasourceWrapper {
+  final List<SlackDatasource> datasources;
+
+  SlackDatasourceWrapper({required this.datasources});
+
+  factory SlackDatasourceWrapper.fromJson(Map<String, dynamic> json) {
+    return SlackDatasourceWrapper(
+      datasources: (json['datasources'] as List)
+          .map((e) => SlackDatasource.fromJson(e))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'datasources': datasources.map((e) => e.toJson()).toList(),
+    };
+  }
+}

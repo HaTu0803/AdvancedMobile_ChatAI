@@ -10,13 +10,57 @@ import 'package:advancedmobile_chatai/data_app/model/knowledge_base/knowledge_da
 import 'package:advancedmobile_chatai/data_app/url_api/knowledge_base/knowledge_data_source_url.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 import '../../../core/navigation/routes.dart';
 import '../../repository/auth/authentication_repository.dart';
 
 class KnowledgeDataApiClient {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
- 
+ Future<ConfluenceResponse> uploadSlack(
+      String id, SlackDatasourceWrapper request) async {
+    try {
+      await BasePreferences.init();
+      String token = await BasePreferences().getTokenPreferred('access_token');
+
+      final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadLocal(id));
+      final headers = ApiHeaders.getAIChatHeaders("", token);
+      final body = jsonEncode(request.toJson());
+      final response = await http.post(url, headers: headers, body: body);
+print("response.statusCode ConfluenceResponse : ${response.statusCode}");
+      print("response.body ConfluenceResponse: ${response.body}");
+      print("request.toJson() ConfluenceResponse: ${request.toJson()}");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ConfluenceResponse.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == 401) {
+        final retryResponse = await retryWithRefreshToken(
+          url: url,
+          body: body,
+          method: 'POST',
+        );
+
+        if (retryResponse.statusCode == 200 ||
+            retryResponse.statusCode == 201) {
+          return ConfluenceResponse.fromJson(jsonDecode(retryResponse.body));
+        } else {
+          await AuthRepository().logOut();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.login,
+            (route) => true,
+          );
+          throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        }
+      } else {
+        handleErrorResponse(response);
+
+        throw Exception('Failed to upload file due to an error response');
+      }
+    } catch (e) {
+      throw Exception('Đã xảy ra lỗi: $e');
+    }
+  }
+
   Future<ConfluenceResponse> uploadConfluence(
       String id, DataSourcesModel request) async {
     try {
@@ -101,46 +145,42 @@ print("response.statusCode getDataSources: ${response.statusCode}");
     throw Exception('Đã xảy ra lỗi: $e');
   }
 }
+
 Future<FileModelResponse> uploadFile(File file) async {
   try {
     await BasePreferences.init();
     String token = await BasePreferences().getTokenPreferred('access_token');
 
     final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadFile());
-    final header = ApiHeaders.getHeadersWithFile("", token);
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'x-jarvis-guid': '',
+    };
+ final mimeType = lookupMimeType(file.path) ?? 'application/octet-stream';
+    var request = http.MultipartRequest('POST', url)
+      ..headers.addAll(headers)
+      ..files.add(await http.MultipartFile.fromPath(
+        'files', 
+        file.path,
+          contentType: MediaType.parse(mimeType),
+        filename: file.uri.pathSegments.last, 
+      ));
 
-    var request = http.MultipartRequest('POST', url);
-    request.headers.addAll(header);
+    final response = await request.send();
 
-    // ✅ Chỉ thêm một MultipartFile duy nhất
-    final multipartFile = await http.MultipartFile.fromPath(
-      'files', // 👈 tên trường phải đúng theo API yêu cầu
-      file.path,
-      filename: file.path.split('/').last,
-    );
-    request.files.add(multipartFile);
-
-    print("File path: ${file.path}");
-    print("File exists: ${await file.exists()}");
-    print("File length: ${await file.length()} bytes");
-    print("Multipart file name: ${multipartFile.filename}");
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+    final responseBody = await response.stream.bytesToString();
 
     print("response.statusCode: ${response.statusCode}");
-    print("response.body: ${response.body}");
-final decoded = jsonDecode(response.body);
-print(decoded); 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return FileModelResponse.fromJson(jsonDecode(response.body));
-    } else if (response.statusCode == 401) {
-      final retryResponse = await retryWithRefreshTokenMultipart(
-        url: url,
-        headers: request.headers,
-        filePath: file.path,
-      );
+    print("response.body: $responseBody");
 
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return FileModelResponse.fromJson(jsonDecode(responseBody));
+    } else if (response.statusCode == 401) {
+      final retryResponse = await retryWithRefreshToken(
+        url: url,
+        body: await file.readAsBytes(),
+        method: 'POST',
+      );
       if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
         return FileModelResponse.fromJson(jsonDecode(retryResponse.body));
       } else {
@@ -161,18 +201,20 @@ print(decoded);
 }
 
  
-  Future<DataSourceResponse> importDataSource(String id, DataSourceRequest request) async {
+  Future<DataSourceFileResponse> importDataSource(String id, DataSourceRequest request) async {
     try {
       await BasePreferences.init();
       String token = await BasePreferences().getTokenPreferred('access_token');
 
-      final url = Uri.parse(ApiKnowledgeDataSourceUrl.uploadLocal(id));
+      final url = Uri.parse(ApiKnowledgeDataSourceUrl.importDataSource(id));
       final headers = ApiHeaders.getAIChatHeaders("", token);
       final body = jsonEncode(request.toJson());
       final response = await http.post(url, headers: headers, body: body);
-
+print("response.statusCode importDataSource: ${response.statusCode}");
+      print("response.body importDataSource: ${response.body}");
+      print("request.toJson() importDataSource: ${request.toJson()}");
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return DataSourceResponse.fromJson(jsonDecode(response.body));
+        return DataSourceFileResponse.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
@@ -182,7 +224,7 @@ print(decoded);
 
         if (retryResponse.statusCode == 200 ||
             retryResponse.statusCode == 201) {
-          return DataSourceResponse.fromJson(jsonDecode(retryResponse.body));
+          return DataSourceFileResponse.fromJson(jsonDecode(retryResponse.body));
         } else {
           await AuthRepository().logOut();
           navigatorKey.currentState?.pushNamedAndRemoveUntil(
@@ -246,12 +288,11 @@ print(decoded);
 
       final response = await http.delete(url, headers: headers);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
         return true;
       } else if (response.statusCode == 401) {
         final retryResponse = await retryWithRefreshToken(
           url: url,
-          body: null,
           method: 'DELETE',
         );
 

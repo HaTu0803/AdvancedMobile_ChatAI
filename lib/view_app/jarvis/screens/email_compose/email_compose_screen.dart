@@ -1,3 +1,4 @@
+import 'package:advancedmobile_chatai/view_app/jarvis/widgets/language_option_email.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/widgets/custom_text_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,8 +20,9 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
       TextEditingController();
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _emailBodyController = TextEditingController();
-  final TextEditingController _languageController = TextEditingController();
+  // final TextEditingController _languageController = TextEditingController();
   final TextEditingController _actionController = TextEditingController();
+  late String? selectedLanguage;
 
   String? _chosenIdea;
   @override
@@ -30,14 +32,14 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
     _receiverEmailController.dispose();
     _subjectController.dispose();
     _emailBodyController.dispose();
-    _languageController.dispose();
+    // _languageController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    
+    selectedLanguage = 'Vietnamese';
   }
 
 
@@ -98,17 +100,25 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
                 return null;
               },
             ),
-            CustomTextFormField(
-              label: "Language",
-              controller: _languageController,
-              hintText: "Enter language",
-              isRequired: true,
-              maxLines: 1,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter language';
-                }
-                return null;
+            // CustomTextFormField(
+            //   label: "Language",
+            //   controller: _languageController,
+            //   hintText: "Enter language",
+            //   isRequired: true,
+            //   maxLines: 1,
+            //   validator: (value) {
+            //     if (value == null || value.isEmpty) {
+            //       return 'Please enter language';
+            //     }
+            //     return null;
+            //   },
+            // ),
+            LanguageSelector(
+              selectedLanguage: selectedLanguage,
+              onLanguageChanged: (value) {
+                setState(() {
+                  selectedLanguage = value;
+                });
               },
             ),
             CustomTextFormField(
@@ -384,7 +394,7 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
     final receiver = _receiverEmailController.text.trim();
     final subject = _subjectController.text.trim();
     final action = _actionController.text.trim();
-    final language = _languageController.text.trim();
+    final language = selectedLanguage ?? "Vietnamese";
 
     final request = SuggestReplyIdeas(
       action: action,
@@ -416,7 +426,7 @@ class _EmailComposeScreenState extends State<EmailComposeScreen> {
     final sender = _senderNameController.text.trim();
     final receiver = _receiverEmailController.text.trim();
     final subject = _subjectController.text.trim();
-    final language = _languageController.text.trim();
+    final language = selectedLanguage ?? "Vietnamese";
 
     final style = Style(
       length: 'long',
