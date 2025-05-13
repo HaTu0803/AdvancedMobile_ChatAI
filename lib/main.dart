@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:advancedmobile_chatai/core/helpers/dialog_helper.dart';
 import 'package:advancedmobile_chatai/core/navigation/routes.dart';
 import 'package:advancedmobile_chatai/core/util/themes/theme.dart';
+import 'package:advancedmobile_chatai/providers/assistant_provider.dart';
 import 'package:advancedmobile_chatai/providers/auth_provider.dart';
 import 'package:advancedmobile_chatai/providers/prompt_input.dart';
 import 'package:advancedmobile_chatai/providers/prompt_provider.dart';
@@ -24,6 +25,7 @@ void main() {
             ChangeNotifierProvider(
               create: (context) => PromptInputProvider(),
             ),
+            ChangeNotifierProvider(create: (_) => AssistantProvider()),
           ],
           child: const MyApp(),
         ),
