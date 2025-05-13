@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../core/util/themes/colors.dart';
 
 class CustomDialog extends StatelessWidget {
@@ -24,12 +25,12 @@ class CustomDialog extends StatelessWidget {
     return AlertDialog(
       title: Text(
         title,
-        style: Theme.of(context).textTheme.titleLarge,
+        style: Theme.of(context).textTheme.headlineSmall,
       ),
       content: message is String
           ? Text(
         message as String,
-        style: Theme.of(context).textTheme.bodyLarge,
+        style: Theme.of(context).textTheme.titleLarge,
       )
           : message as Widget,
       actionsAlignment: MainAxisAlignment.end,
@@ -40,7 +41,10 @@ class CustomDialog extends StatelessWidget {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.textGrayDarker,
             ),
-            child: Text(cancelText),
+            child: Text(
+              cancelText,
+              style: const TextStyle(fontSize: 12), 
+            ),
           ),
         TextButton(
           onPressed: () {
@@ -50,7 +54,8 @@ class CustomDialog extends StatelessWidget {
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.primary,
           ),
-          child: Text(isConfirmation ? confirmText : "OK"),
+          child: Text(isConfirmation ? confirmText : "OK" ,
+              style: const TextStyle(fontSize: 12)),
         ),
       ],
     );

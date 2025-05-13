@@ -167,79 +167,6 @@ class _CreateAKnowledgeBaseScreenState
     );
   }
 
-  Widget _buildFormField({
-    required String label,
-    required TextEditingController controller,
-    required String hintText,
-    bool isRequired = false,
-    int? maxLines,
-    String? Function(String?)? validator,
-    int? maxLength,
-    int? currentLength,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            if (isRequired) ...[
-              const SizedBox(width: 4),
-              Text(
-                '*',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 8),
-        Stack(
-          children: [
-            TextFormField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: hintText,
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              ),
-              maxLines: maxLines,
-              maxLength: maxLength,
-              buildCounter: (_,
-                      {required currentLength,
-                      required isFocused,
-                      maxLength}) =>
-                  null,
-              validator: validator,
-            ),
-            if (maxLength != null && currentLength != null)
-              Positioned(
-                right: 8,
-                bottom: 4,
-                child: Text(
-                  '$currentLength/$maxLength',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelSmall
-                      ?.copyWith(color: Colors.grey),
-                ),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -261,6 +188,7 @@ class _CreateAKnowledgeBaseScreenState
                 content: Text('Knowledge Base updated successfully')),
           );
         } else {
+
           await KnowledgeRepository().createKnowledge(request);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Knowledge Base successfully')),

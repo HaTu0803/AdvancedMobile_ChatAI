@@ -166,6 +166,8 @@ class KnowledgeDataSource {
       metadata = MetadataConfluence.fromJson(json['metadata']);
     } else if (json['type'] == 'local_file') {
       metadata = Metadata.fromJson(json['metadata']);
+    } else if (json['type'] == 'slack') {
+      metadata = MetadataConfluence.fromJson(json['metadata']);
     }
     else {
       metadata = Metadata.fromJson(json['metadata']);

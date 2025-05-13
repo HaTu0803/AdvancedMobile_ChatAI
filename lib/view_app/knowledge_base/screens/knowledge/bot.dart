@@ -26,7 +26,7 @@ class _BotsScreenState extends State<BotsScreen> {
     setState(() => isLoading = true);
 
     final params = GetAssistants(
-      q: searchQuery,
+q: searchQuery.isNotEmpty ? searchQuery : null, 
       order_field: _currentFilterKey == 'name'
           ? 'assistantName'
           : _currentFilterKey == 'date'
@@ -46,10 +46,14 @@ class _BotsScreenState extends State<BotsScreen> {
     }
   }
 
-  void _onSearchChanged(String value) {
-    setState(() => searchQuery = value);
-    _fetchAssistants();
-  }
+void _onSearchChanged(String value) {
+  setState(() {
+    searchQuery = value;
+  });
+ _fetchAssistants();
+  
+}
+
 
   void _onFilterChanged(String value) {
     setState(() {
@@ -281,9 +285,25 @@ class _BotsScreenState extends State<BotsScreen> {
                               color: Colors.transparent,
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
-                                onTap: () => Navigator.pop(
-                                    context, assistant.assistantName),
-                                child: Padding(
+                                onTap: () {
+                                  // Set the assistant data in the provider
+                                  // final assistantProvider = Provider.of<AssistantProvider>(context, listen: false);
+                                  // assistantProvider.setAssistantData(
+                                  //     assistant.id,
+                                  //     assistant.assistantName
+                                  // );
+
+                                  // // Navigate to HomeScreen
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) => const HomeScreen(),
+                                  //   ),
+                                  // );
+                                }
+                                ,
+
+                                  child: Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: Column(
                                     crossAxisAlignment:
@@ -333,11 +353,11 @@ class _BotsScreenState extends State<BotsScreen> {
                                           ),
                                         ],
                                       ),
-                                      if (assistant.description?.isNotEmpty ==
+                                      if (assistant.instructions?.isNotEmpty ==
                                           true) ...[
                                         const SizedBox(height: 8),
                                         Text(
-                                          assistant.description!,
+                                          assistant.instructions!,
                                           style: TextStyle(
                                             color: Colors.grey[600],
                                             fontSize: 14,
@@ -467,8 +487,22 @@ class _BotsScreenState extends State<BotsScreen> {
     showCustomDialog(
       context: context,
       title: 'Delete Assistant',
-      message:
-          'Are you sure you want to delete the assistant titled "$assistantName"?',
+      // message:
+      //     'Are you sure you want to delete the assistant titled "$assistantName"?',
+      message: Text.rich(
+        style: const TextStyle(fontSize: 14),
+        TextSpan(
+          children: [
+            const TextSpan(
+                text: 'Are you sure you want to delete the assistant titled '),
+            TextSpan(
+              text: '"$assistantName"',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const TextSpan(text: ' ?'),
+          ],
+        ),
+      ),
       isConfirmation: true,
       confirmText: 'Yes, Delete',
       cancelText: 'Cancel',

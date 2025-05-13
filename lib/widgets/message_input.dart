@@ -130,10 +130,13 @@ Future<void> _handleImageUpload() async {
 
     try {
       final response = await _tokenRepository.getUsage();
-      setState(() {
-        _tokenData = response;
-        _isLoadingToken = false;
-      });
+      if (mounted) {
+        setState(() {
+          _tokenData = response;
+          _isLoadingToken = false;
+        });
+      }
+
       print('Token data fetched successfully: ${response.availableTokens}');
     } catch (e) {
       setState(() {
@@ -513,6 +516,11 @@ if (_selectedImages.isNotEmpty)
     });
     _hideOverlay();
 
+    // Fetch lại token sau khi gửi
+    await _fetchTokenData();
+    if (mounted) {
+      setState(() {});
+    }
     // // Create the request body for the API
     // final chatRequest = ChatRequest(
     //   content: text,

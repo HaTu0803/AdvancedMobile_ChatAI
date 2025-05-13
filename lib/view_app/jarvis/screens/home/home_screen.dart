@@ -1,4 +1,5 @@
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/assistant_model.dart';
+import 'package:advancedmobile_chatai/providers/assistant_provider.dart';
 import 'package:advancedmobile_chatai/providers/prompt_input.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/home/ai_agent.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge/bot.dart';
@@ -42,7 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
       model: 'dify',
       isDefault: true,
     );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Register send prompt after the first frame is drawn
       Provider.of<PromptInputProvider>(context, listen: false)
           .registerSendPrompt(_sendMessage);
     });
@@ -159,6 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: const AppSidebar(),
@@ -179,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'JARVIS',
+                        'JARVORA',
                         style:
                             Theme.of(context).textTheme.headlineLarge!.copyWith(
                                   color: Theme.of(context).colorScheme.primary,
@@ -226,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     const SizedBox(width: 12),
                                     const Expanded(
                                       child: Text(
-                                        "Hi, I'm JARVIS, your personal assistant",
+                                        "Hi, I'm JARVORA, your personal assistant",
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,

@@ -89,7 +89,9 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                     width: i == index ? 15 : 10,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: i == index ? Colors.blue : Colors.grey,
+                      color: i == index
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey,
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
@@ -100,7 +102,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                 style: ElevatedButton.styleFrom(
                   shape: const StadiumBorder(),
                   elevation: 0,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Theme.of(context).primaryColor,
                   textStyle: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,

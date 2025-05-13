@@ -11,7 +11,8 @@ import 'package:advancedmobile_chatai/view_app/jarvis/screens/profile/profile_sc
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/upgrade_plans/upgrade_plans_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:advancedmobile_chatai/main.dart';
 import '../../view_app/jarvis/screens/home/home_screen.dart';
 import '../../view_app/jarvis/screens/prompt_library/create_prompt/create_prompt_screen.dart';
 
@@ -38,16 +39,7 @@ final GoRouter router = GoRouter(
     routes: [
       GoRoute(
         path: AppRoutes.splash,
-        redirect: (context, state) {
-          final authProvider =
-              Provider.of<AuthProvider>(context, listen: false);
-
-          if (authProvider.hasSeenIntro == null) {
-            return null;
-          }
-
-          return authProvider.hasSeenIntro ? AppRoutes.login : AppRoutes.intro;
-        },
+        builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
         path: AppRoutes.home,
@@ -95,20 +87,28 @@ final GoRouter router = GoRouter(
           return ChatHistoryScreen(assistantModel: assistantModel);
         },
       ),
-
     ],
     redirect: (context, state) async {
+      if ([AppRoutes.splash, AppRoutes.intro].contains(state.uri.path)) {
+        return null;
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      final hasSeenIntro = prefs.getBool('seenIntroduction') ?? false;
+
+      if (!hasSeenIntro) {
+        return AppRoutes.intro;
+      }
+
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final isAuthenticated = await authProvider.isAuthenticated();
 
-      // Nếu đã đăng nhập, đưa về Home
       if (isAuthenticated) return AppRoutes.home;
 
-      // Cho phép truy cập các trang không cần đăng nhập
       if ([
         AppRoutes.signup,
         AppRoutes.forgotPassword,
-        AppRoutes.passwordChanged, // Thêm dòng này để tránh bị chặn
+        AppRoutes.passwordChanged,
       ].contains(state.uri.path)) {
         return null;
       }

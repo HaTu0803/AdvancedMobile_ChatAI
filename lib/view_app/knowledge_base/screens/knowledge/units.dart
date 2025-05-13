@@ -12,10 +12,12 @@ import '../knowledge_data_source/upload_confluence.dart';
 class KnowledgeUnitScreen extends StatefulWidget {
   final String id;
   final String knowledgeName;
+  final VoidCallback? onSuccess;
   const KnowledgeUnitScreen({
     super.key,
     required this.id,
     required this.knowledgeName,
+    this.onSuccess,
   });
 
   @override
@@ -148,7 +150,8 @@ class _KnowledgeUnitScreenState extends State<KnowledgeUnitScreen> {
                       size: 22,
                     ),
                     onPressed: () {
-                      Navigator.pop(context); // Đóng modal
+                      Navigator.pop(context);
+                      widget.onSuccess?.call();
                     },
                   ),
                 ],
