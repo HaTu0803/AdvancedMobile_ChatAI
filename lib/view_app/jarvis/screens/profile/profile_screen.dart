@@ -9,7 +9,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController(text: "JARVIS User");
+  final _usernameController = TextEditingController(text: "JARVORA User");
   final _emailController = TextEditingController(text: "user@example.com");
 
   @override

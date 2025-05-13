@@ -179,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'JARVIS',
+                        'JARVORA',
                         style:
                             Theme.of(context).textTheme.headlineLarge!.copyWith(
                                   color: Theme.of(context).colorScheme.primary,
@@ -226,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     const SizedBox(width: 12),
                                     const Expanded(
                                       child: Text(
-                                        "Hi, I'm JARVIS, your personal assistant",
+                                        "Hi, I'm JARVORA, your personal assistant",
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
