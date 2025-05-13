@@ -26,7 +26,7 @@ class _BotsScreenState extends State<BotsScreen> {
     setState(() => isLoading = true);
 
     final params = GetAssistants(
-      q: searchQuery,
+q: searchQuery.isNotEmpty ? searchQuery : null, 
       order_field: _currentFilterKey == 'name'
           ? 'assistantName'
           : _currentFilterKey == 'date'
@@ -46,10 +46,14 @@ class _BotsScreenState extends State<BotsScreen> {
     }
   }
 
-  void _onSearchChanged(String value) {
-    setState(() => searchQuery = value);
-    _fetchAssistants();
-  }
+void _onSearchChanged(String value) {
+  setState(() {
+    searchQuery = value;
+  });
+ _fetchAssistants();
+  
+}
+
 
   void _onFilterChanged(String value) {
     setState(() {
@@ -467,8 +471,22 @@ class _BotsScreenState extends State<BotsScreen> {
     showCustomDialog(
       context: context,
       title: 'Delete Assistant',
-      message:
-          'Are you sure you want to delete the assistant titled "$assistantName"?',
+      // message:
+      //     'Are you sure you want to delete the assistant titled "$assistantName"?',
+      message: Text.rich(
+        style: const TextStyle(fontSize: 14),
+        TextSpan(
+          children: [
+            const TextSpan(
+                text: 'Are you sure you want to delete the assistant titled '),
+            TextSpan(
+              text: '"$assistantName"',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const TextSpan(text: ' ?'),
+          ],
+        ),
+      ),
       isConfirmation: true,
       confirmText: 'Yes, Delete',
       cancelText: 'Cancel',
