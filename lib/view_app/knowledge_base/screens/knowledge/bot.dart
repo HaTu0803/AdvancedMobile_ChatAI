@@ -285,9 +285,25 @@ void _onSearchChanged(String value) {
                               color: Colors.transparent,
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
-                                onTap: () => Navigator.pop(
-                                    context, assistant.assistantName),
-                                child: Padding(
+                                onTap: () {
+                                  // Set the assistant data in the provider
+                                  // final assistantProvider = Provider.of<AssistantProvider>(context, listen: false);
+                                  // assistantProvider.setAssistantData(
+                                  //     assistant.id,
+                                  //     assistant.assistantName
+                                  // );
+
+                                  // // Navigate to HomeScreen
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) => const HomeScreen(),
+                                  //   ),
+                                  // );
+                                }
+                                ,
+
+                                  child: Padding(
                                   padding: const EdgeInsets.all(16),
                                   child: Column(
                                     crossAxisAlignment:
@@ -337,11 +353,11 @@ void _onSearchChanged(String value) {
                                           ),
                                         ],
                                       ),
-                                      if (assistant.description?.isNotEmpty ==
+                                      if (assistant.instructions?.isNotEmpty ==
                                           true) ...[
                                         const SizedBox(height: 8),
                                         Text(
-                                          assistant.description!,
+                                          assistant.instructions!,
                                           style: TextStyle(
                                             color: Colors.grey[600],
                                             fontSize: 14,

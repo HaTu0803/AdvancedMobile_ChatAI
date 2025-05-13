@@ -1,4 +1,5 @@
 import 'package:advancedmobile_chatai/data_app/model/knowledge_base/assistant_model.dart';
+import 'package:advancedmobile_chatai/providers/assistant_provider.dart';
 import 'package:advancedmobile_chatai/providers/prompt_input.dart';
 import 'package:advancedmobile_chatai/view_app/jarvis/screens/home/ai_agent.dart';
 import 'package:advancedmobile_chatai/view_app/knowledge_base/screens/knowledge/bot.dart';
@@ -42,7 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
       model: 'dify',
       isDefault: true,
     );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Register send prompt after the first frame is drawn
       Provider.of<PromptInputProvider>(context, listen: false)
           .registerSendPrompt(_sendMessage);
     });
@@ -159,6 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: const AppSidebar(),
