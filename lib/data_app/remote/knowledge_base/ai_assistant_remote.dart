@@ -272,7 +272,7 @@ class AssistantApiClient {
     print("📩 response.statusCode: ${response.statusCode}");
     print("📩 response.body: ${response.body}");
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
+    if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
       return true;
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
@@ -281,7 +281,7 @@ class AssistantApiClient {
         method: 'POST',
       );
 
-      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201 || retryResponse.statusCode == 204) {
         return true;
       } else {
         await AuthRepository().logOut();
@@ -312,7 +312,7 @@ class AssistantApiClient {
     print("📩 response.statusCode: ${response.statusCode}");
     print("📩 response.body: ${response.body}");
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
+    if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
       return true;
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
@@ -321,7 +321,7 @@ class AssistantApiClient {
         method: 'DELETE',
       );
 
-      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201) {
+      if (retryResponse.statusCode == 200 || retryResponse.statusCode == 201 || retryResponse.statusCode == 204) {
         return true;
       } else {
         await AuthRepository().logOut();
