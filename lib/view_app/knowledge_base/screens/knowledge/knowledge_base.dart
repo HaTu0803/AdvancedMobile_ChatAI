@@ -75,6 +75,8 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
       q: query,
       limit: _limit,
       offset: _offset,
+      // order: 'ASC',
+      order_field: 'createdAt',
     );
 
     try {
@@ -274,7 +276,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                           icon: const Icon(Icons.close),
                           onPressed: () {
                             Navigator.pop(context);
-                            _fetchKnowledge();
+                            // _fetchKnowledge();
                           },
                         ),
                       ],
@@ -282,7 +284,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
                     const SizedBox(height: 16),
                     CreateAKnowledgeBaseScreen(
                       onSuccess: () {
-                        _fetchKnowledge();
+                        _resetAndFetch(_currentQuery);
                       },
                     ),
                   ],
@@ -295,55 +297,6 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
     );
   }
 
-  // void _openEditBotModal(BuildContext context, AssistantResponse assistant) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return Center(
-  //         child: Dialog(
-  //           insetPadding: EdgeInsets.zero,
-  //           shape: RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.circular(20),
-  //           ),
-  //           child: Container(
-  //             width: MediaQuery.of(context).size.width,
-  //             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-  //             child: SingleChildScrollView(
-  //               child: Column(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                     children: [
-  //                       Text(
-  //                         'Edit Your Bot',
-  //                         style: Theme.of(context).textTheme.headlineMedium,
-  //                       ),
-  //                       IconButton(
-  //                         icon: const Icon(Icons.close),
-  //                         onPressed: () {
-  //                           Navigator.pop(context);
-  //                         },
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   const SizedBox(height: 16),
-  //                   CreateYourOwnBotScreen(
-  //                     isUpdate: true,
-  //                     assistantId: assistant.id,
-  //                     onSuccess: () {
-  //                       _fetchKnowledge();
-  //                     },
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   void _handleDeleteKnowledge(String id, String knowledgeName) {
     showCustomDialog(
