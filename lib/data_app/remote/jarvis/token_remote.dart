@@ -26,14 +26,13 @@ class TokenApiClient {
     final response = await http.get(url, headers: headers);
 
     print("response.statusCode: ${response.statusCode}");
-    print("response.body: ${response.body}");
+    print("response.body token: ${response.body}");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       return UsageTokenResponse.fromJson(jsonDecode(response.body));
     } else if (response.statusCode == 401) {
       final retryResponse = await retryWithRefreshToken(
         url: url,
-        body: null,
         method: 'GET',
       );
 
@@ -48,7 +47,7 @@ class TokenApiClient {
         throw Exception('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
       }
     } else {
-      DialogHelper.showError('Lỗi: ${response.statusCode}');
+      handleErrorResponse(response);
       throw Exception('Lỗi: ${response.statusCode}');
     }
   }
