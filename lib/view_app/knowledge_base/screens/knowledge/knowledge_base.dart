@@ -343,26 +343,6 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> {
     );
   }
 
-  // void _handleFavoriteBot(String assistantId) async {
-  //   try {
-  //     await AssistantRepository().favoriteAssistant(assistantId);
-  //     setState(() {
-  //       final index = knowledges.indexWhere((a) => a.id == assistantId);
-  //       if (index != -1) {
-  //         // Toggle isFavorite state
-  //         knowledges[index] = knowledges[index].copyWith(
-  //           isFavorite: !(knowledges[index].isFavorite ?? false),
-  //         );
-  //       }
-  //     });
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Failed to favorite assistant: $e')),
-  //     );
-  //   }
-  // }
-}
-
 void _showKnowledgeDetailBottomSheet(
     BuildContext context, String id, String knowledgeName) {
   showModalBottomSheet(
@@ -374,6 +354,11 @@ void _showKnowledgeDetailBottomSheet(
         minChildSize: 0.5,
         maxChildSize: 1.0,
         builder: (_, controller) =>
-            KnowledgeUnitScreen(id: id, knowledgeName: knowledgeName)),
+            KnowledgeUnitScreen(id: id, knowledgeName: knowledgeName,
+              onSuccess: () {
+                _resetAndFetch(_currentQuery);
+              },
+            )),
   );
 }
+  }
