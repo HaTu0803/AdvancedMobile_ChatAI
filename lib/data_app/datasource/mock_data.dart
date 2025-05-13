@@ -169,7 +169,7 @@ final List<Map<String, dynamic>> aiModels = [
 ];
 
 List<Map<String, dynamic>> messages = [
-  {"text": "Hello, JARVIS!", "isUser": true},
+  {"text": "Hello, JARVORA!", "isUser": true},
   {"text": "Hi! How can I help you?", "isUser": false},
   {"text": "What's the weather today?", "isUser": true},
   {"text": "The weather is sunny with a high of 30°C.", "isUser": false},
@@ -179,7 +179,7 @@ List<Map<String, dynamic>> messages = [
         "Why don't skeletons fight each other? Because they don't have the guts! 😆",
     "isUser": false
   },
-  {"text": "Hello, JARVIS!", "isUser": true},
+  {"text": "Hello, JARVORA!", "isUser": true},
   {"text": "Hi! How can I help you?", "isUser": false},
   {"text": "What's the weather today?", "isUser": true},
   {"text": "The weather is sunny with a high of 30°C.", "isUser": false},
@@ -189,7 +189,7 @@ List<Map<String, dynamic>> messages = [
         "Why don't skeletons fight each other? Because they don't have the guts! 😆",
     "isUser": false
   },
-  {"text": "Hello, JARVIS!", "isUser": true},
+  {"text": "Hello, JARVORA!", "isUser": true},
   {"text": "Hi! How can I help you?", "isUser": false},
   {"text": "What's the weather today?", "isUser": true},
   {"text": "The weather is sunny with a high of 30°C.", "isUser": false},
@@ -199,7 +199,7 @@ List<Map<String, dynamic>> messages = [
         "Why don't skeletons fight each other? Because they don't have the guts! 😆",
     "isUser": false
   },
-  {"text": "Hello, JARVIS!", "isUser": true},
+  {"text": "Hello, JARVORA!", "isUser": true},
   {"text": "Hi! How can I help you?", "isUser": false},
   {"text": "What's the weather today?", "isUser": true},
   {"text": "The weather is sunny with a high of 30°C.", "isUser": false},
@@ -209,7 +209,7 @@ List<Map<String, dynamic>> messages = [
         "Why don't skeletons fight each other? Because they don't have the guts! 😆",
     "isUser": false
   },
-  {"text": "Hello, JARVIS!", "isUser": true},
+  {"text": "Hello, JARVORA!", "isUser": true},
   {"text": "Hi! How can I help you?", "isUser": false},
   {"text": "What's the weather today?", "isUser": true},
   {"text": "The weather is sunny with a high of 30°C.", "isUser": false},

@@ -65,7 +65,7 @@ class SplashScreen extends StatelessWidget {
     final isAuthenticated = await authProvider.isAuthenticated();
 
     if (isAuthenticated) {
-      return AppRoutes.home; // Nếu đã đăng nhập, vào HomeScreen
+      return AppRoutes.home;
     } else {
       return authProvider.hasSeenIntro ? AppRoutes.login : AppRoutes.intro;
     }
