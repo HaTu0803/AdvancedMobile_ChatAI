@@ -3,6 +3,7 @@
 ## Milestones Demo
 - [Milestone 1](https://youtu.be/dkhWrtpB5jY)
 - [Milestone 2](https://youtu.be/kf6mt3OGfG0)
+- [Milestone 3](https://www.youtube.com/watch?v=X0QmsCpxUiw)
 
 ## Widget trees
 - https://drive.google.com/file/d/1VMEsQcOImKTYVFVLuWadRDzLOT0-w76b/view
